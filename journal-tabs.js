@@ -14,13 +14,15 @@
     .day-booking span{display:block;font-size:11px;color:#245528;line-height:1.25;margin-top:2px}
     .day-booking.multi{background:rgba(64,150,191,.28);border-color:rgba(35,110,150,.3)}
     .day-booking.multi span{color:#20536b}
+    .journal-date-switch{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;margin:0 0 14px}
+    .journal-date-switch .date-label{text-align:center;font-weight:600}
   `;
   document.head.appendChild(style);
   const originalJournal = window.journal;
   function journalTabs(active){
     return `<div class="journal-tabs" role="tablist">
       <button class="journal-tab ${active==='day'?'active':''}" data-journal-view="day">День</button>
-      <button class="journal-tab ${active==='month'?'active':''}" data-journal-view="month">Месяц</button>
+      <button class="journal-tab ${active==='calendar'?'active':''}" data-journal-view="calendar">Календарь</button>
       <button class="journal-tab ${active==='list'?'active':''}" data-journal-view="list">Список</button>
     </div>`;
   }
@@ -40,14 +42,17 @@
   }
   function dayScreen(){
     const date=st.date;
-    const body=originalJournal();
-    const start=body.indexOf('<div class="row"><div><h2>Журнал</h2>');
-    const end=body.indexOf('</div>',body.indexOf('data-day="next"'));
-    const header=`${journalTabs('day')}<div class="row"><div><h2>Журнал</h2><div class="muted">${fmt(date)}</div></div></div>`;
-    return body.slice(0,start)+header+`<div class="notice">1 полоска = 30 минут. Занятое время показано прозрачным цветом.</div>${isWorking(date)?buildDaySheet(date):'<div class="empty card">Этот день отмечен как выходной.</div>'}`+body.slice(end+6);
+    return shell(`${journalTabs('day')}
+      <div class="journal-date-switch">
+        <button class="secondary" data-journal-day="prev">‹</button>
+        <div class="date-label">${fmt(date)}</div>
+        <button class="secondary" data-journal-day="next">›</button>
+      </div>
+      <div class="notice">1 полоска = 30 минут. Занятое время показано прозрачным цветом.</div>
+      ${isWorking(date)?buildDaySheet(date):'<div class="empty card">Этот день отмечен как выходной.</div>'}`,nav());
   }
   function simpleScreen(type){
-    const title=type==='month'?'Месяц':'Список';
+    const title=type==='calendar'?'Календарь':'Список';
     return shell(journalTabs(type)+`<div class="hero"><h2>${title}</h2><p class="muted">Экран подготовлен. Содержимое добавим следующим этапом.</p></div>`, nav());
   }
   window.journal=function(){return dayScreen()};
@@ -55,14 +60,18 @@
     document.querySelectorAll('[data-journal-view]').forEach(btn=>btn.onclick=()=>{
       const view=btn.dataset.journalView;
       if(view==='day'){st.page='journal';window.render();return;}
-      st.page=view==='month'?'journal-month':'journal-list';window.render();
+      if(view==='calendar'){st.page='calendar';window.render();return;}
+      st.page='journal-list';window.render();
+    });
+    document.querySelectorAll('[data-journal-day]').forEach(btn=>btn.onclick=()=>{
+      st.date=addDays(st.date,btn.dataset.journalDay==='next'?1:-1);
+      window.render();
     });
   };
   const oldRender=window.render;
   window.render=function(){
     oldRender();
-    if(st.role==='master'&&(st.page==='journal'||st.page==='journal-month'||st.page==='journal-list')){
-      if(st.page==='journal-month')document.getElementById('app').innerHTML=simpleScreen('month');
+    if(st.role==='master'&&(st.page==='journal'||st.page==='journal-list')){
       if(st.page==='journal-list')document.getElementById('app').innerHTML=simpleScreen('list');
       window.__cobookJournalTabs();
     }

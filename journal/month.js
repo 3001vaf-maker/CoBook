@@ -1,5 +1,5 @@
 (function(){
-  // JOURNAL → MONTH is a separate interface from the main Calendar.
+  // JOURNAL → MONTH. Separate screen from the main Calendar.
   const style=document.createElement('style');
   style.textContent=`
     .journal-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%;align-items:stretch}
@@ -7,14 +7,29 @@
     .journal-month-weekday.weekend{color:#c33}
     .journal-month-cell{min-width:0!important;width:100%;aspect-ratio:1/1;border:1px solid #e5e5e2;border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;position:relative;cursor:pointer}
     .journal-month-cell .num{font-size:16px;line-height:1;font-weight:400;color:#777}
-    .journal-month-cell .indicator{width:10px;height:10px;border-radius:2px;border:1px solid #d5d5d1;background:#f3f3f1}
-    .journal-month-cell.has-booking .indicator{background:#43a047;border-color:#2e7d32;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
+    .journal-month-cell.working .num{font-weight:800;color:#111}
     .journal-month-cell.weekend .num{color:#c33}
+    .journal-month-cell.off .num{font-weight:400;color:#777}
+    .journal-month-cell .indicator{width:10px;height:10px;border-radius:2px;border:1px solid #d5d5d1;background:#f3f3f1;overflow:hidden;position:relative}
+    .journal-month-cell .indicator::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:var(--fill,0%);background:#63b66a;border-radius:1px}
+    .journal-month-cell.has-booking .indicator{border-color:#8ab88e}
     .journal-month-cell.selected{outline:2px solid #171717;outline-offset:-2px}
     .journal-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;gap:8px;margin:12px 0}
     .journal-month-head b{text-transform:capitalize}
   `;
   document.head.appendChild(style);
+
+  function monthLoadPercent(date){
+    if(typeof isWorking!=='function'||!isWorking(date))return 0;
+    const h=db.hours[wd(date)];
+    if(!h)return 0;
+    let total=Math.max(0,M(h[1])-M(h[0]));
+    const breaks=Array.isArray(db.breaks)?db.breaks.filter(x=>x&&x.date===date&&x.start&&x.end):[];
+    breaks.forEach(x=>{total-=Math.max(0,M(x.end)-M(x.start));});
+    if(total<=0)return 0;
+    const booked=db.bookings.filter(b=>b.date===date&&b.status!=='cancelled').reduce((sum,b)=>sum+Math.max(0,M(b.end)-M(b.start)),0);
+    return Math.max(0,Math.min(100,Math.round(booked/total*100)));
+  }
 
   function journalMonthScreen(){
     const [y,m]=st.month.split('-').map(Number);
@@ -25,9 +40,10 @@
     for(let i=0;i<offset;i++) cells.push('<div aria-hidden="true"></div>');
     for(let d=1;d<=last;d++){
       const date=iso(new Date(y,m-1,d,12));
-      const hasBooking=db.bookings.some(b=>b.date===date&&b.status!=='cancelled');
+      const load=monthLoadPercent(date);
       const dow=new Date(y,m-1,d,12).getDay();
-      cells.push(`<button class="journal-month-cell ${hasBooking?'has-booking':''} ${dow===0||dow===6?'weekend':''} ${date===st.date?'selected':''}" data-journal-month-date="${date}"><span class="num">${d}</span><span class="indicator" aria-hidden="true"></span></button>`);
+      const working=typeof isWorking==='function'&&isWorking(date);
+      cells.push(`<button class="journal-month-cell ${working?'working':'off'} ${load>0?'has-booking':''} ${dow===0||dow===6?'weekend':''} ${date===st.date?'selected':''}" style="--fill:${load}%" data-journal-month-date="${date}"><span class="num">${d}</span><span class="indicator" aria-label="Загрузка ${load}%"></span></button>`);
     }
     return shell(`
       <div class="journal-tabs"><button class="journal-tab" data-journal-month-tab="day">День</button><button class="journal-tab active" aria-current="page">Месяц</button><button class="journal-tab" data-journal-month-tab="list">Список</button></div>

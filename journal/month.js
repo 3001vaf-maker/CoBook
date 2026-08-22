@@ -1,6 +1,5 @@
 (function(){
   // JOURNAL → MONTH is a separate interface from the main Calendar.
-  // It keeps its own markup/rendering and only changes the Journal button label.
   const style=document.createElement('style');
   style.textContent=`
     .journal-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%;align-items:stretch}
@@ -9,8 +8,6 @@
     .journal-month-cell{min-width:0!important;width:100%;aspect-ratio:1/1;border:1px solid #e5e5e2;border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;position:relative;cursor:pointer}
     .journal-month-cell .num{font-size:16px;line-height:1;font-weight:400;color:#777}
     .journal-month-cell .indicator{width:10px;height:10px;border-radius:2px;border:1px solid #d5d5d1;background:#f3f3f1}
-    .journal-month-cell.working .num{color:#111;font-weight:800}
-    .journal-month-cell.working .indicator{background:#78c77d;border-color:#55a95a}
     .journal-month-cell.has-booking .indicator{background:#43a047;border-color:#2e7d32;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
     .journal-month-cell.weekend .num{color:#c33}
     .journal-month-cell.selected{outline:2px solid #171717;outline-offset:-2px}
@@ -66,9 +63,6 @@
   window.render=function(){
     baseRender();
     if(st.role!=='master')return;
-    if(st.page==='journal'){
-      document.querySelectorAll('.content [data-page="calendar"]').forEach(el=>{el.textContent='Месяц'});
-    }
     if(st.page==='journal-month'){
       document.getElementById('app').innerHTML=journalMonthScreen();
       bindJournalMonth();

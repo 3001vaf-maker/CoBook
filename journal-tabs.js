@@ -38,7 +38,7 @@
   function journalTabs(active){
     return `<div class="journal-tabs" role="tablist">
       <button class="journal-tab ${active==='day'?'active':''}" data-journal-view="day">День</button>
-      <button class="journal-tab ${active==='calendar'?'active':''}" data-journal-view="calendar">Календарь</button>
+      <button class="journal-tab ${active==='calendar'?'active':''}" data-journal-view="calendar">Месяц</button>
       <button class="journal-tab ${active==='list'?'active':''}" data-journal-view="list">Список</button>
     </div>`;
   }
@@ -70,7 +70,7 @@
   }
 
   function simpleScreen(type){
-    const title=type==='calendar'?'Календарь':'Список';
+    const title=type==='calendar'?'Месяц':'Список';
     return shell(journalTabs(type)+`<div class="hero"><h2>${title}</h2><p class="muted">Экран подготовлен. Содержимое добавим следующим этапом.</p></div>`, nav());
   }
 

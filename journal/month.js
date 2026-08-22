@@ -59,10 +59,23 @@
     });
   }
 
+  function renameJournalCalendarTab(){
+    if(st.page!=='journal'||st.role!=='master')return;
+    const old=document.querySelector('[data-jv="calendar"]');
+    if(!old)return;
+    const replacement=old.cloneNode(true);
+    replacement.textContent='Месяц';
+    replacement.dataset.jv='month';
+    replacement.classList.remove('active');
+    replacement.onclick=()=>{st.page='journal-month';st.month=st.date.slice(0,7);window.render()};
+    old.replaceWith(replacement);
+  }
+
   const baseRender=window.render;
   window.render=function(){
     baseRender();
     if(st.role!=='master')return;
+    renameJournalCalendarTab();
     if(st.page==='journal-month'){
       document.getElementById('app').innerHTML=journalMonthScreen();
       bindJournalMonth();

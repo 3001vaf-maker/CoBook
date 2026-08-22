@@ -1,6 +1,6 @@
 (function(){
   // JOURNAL → MONTH is a separate interface from the main Calendar.
-  // It may mirror the same visual language, but it owns its markup, navigation and rendering.
+  // It keeps its own markup/rendering and only changes the Journal button label.
   const style=document.createElement('style');
   style.textContent=`
     .journal-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%;align-items:stretch}
@@ -13,19 +13,11 @@
     .journal-month-cell.working .indicator{background:#78c77d;border-color:#55a95a}
     .journal-month-cell.has-booking .indicator{background:#43a047;border-color:#2e7d32;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
     .journal-month-cell.weekend .num{color:#c33}
-    .journal-month-cell.other{opacity:.42}
     .journal-month-cell.selected{outline:2px solid #171717;outline-offset:-2px}
     .journal-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;gap:8px;margin:12px 0}
     .journal-month-head b{text-transform:capitalize}
   `;
   document.head.appendChild(style);
-
-  // Own read-only day-state calculation. It does not call the main Calendar renderer.
-  function journalMonthWorking(date){
-    if(db.workingDates && Object.prototype.hasOwnProperty.call(db.workingDates,date)) return !!db.workingDates[date];
-    const day=D(date).getDay();
-    return !!(db.hours && db.hours[day]);
-  }
 
   function journalMonthScreen(){
     const [y,m]=st.month.split('-').map(Number);
@@ -36,10 +28,9 @@
     for(let i=0;i<offset;i++) cells.push('<div aria-hidden="true"></div>');
     for(let d=1;d<=last;d++){
       const date=iso(new Date(y,m-1,d,12));
-      const working=journalMonthWorking(date);
       const hasBooking=db.bookings.some(b=>b.date===date&&b.status!=='cancelled');
       const dow=new Date(y,m-1,d,12).getDay();
-      cells.push(`<button class="journal-month-cell ${working?'working':''} ${hasBooking?'has-booking':''} ${dow===0||dow===6?'weekend':''} ${date===st.date?'selected':''}" data-journal-month-date="${date}"><span class="num">${d}</span><span class="indicator" aria-hidden="true"></span></button>`);
+      cells.push(`<button class="journal-month-cell ${hasBooking?'has-booking':''} ${dow===0||dow===6?'weekend':''} ${date===st.date?'selected':''}" data-journal-month-date="${date}"><span class="num">${d}</span><span class="indicator" aria-hidden="true"></span></button>`);
     }
     return shell(`
       <div class="journal-tabs"><button class="journal-tab" data-journal-month-tab="day">День</button><button class="journal-tab active" aria-current="page">Месяц</button><button class="journal-tab" data-journal-month-tab="list">Список</button></div>
@@ -70,18 +61,6 @@
       window.render();
     });
   }
-
-  // Only journal content buttons named "Календарь" become the independent "Месяц" entry point.
-  // The bottom navigation button for the main Calendar is intentionally untouched.
-  document.addEventListener('click',function(e){
-    if(st.role!=='master'||st.page!=='journal')return;
-    const target=e.target.closest('.content [data-page="calendar"]');
-    if(!target)return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    st.page='journal-month';
-    window.render();
-  },true);
 
   const baseRender=window.render;
   window.render=function(){

@@ -1,4 +1,7 @@
 (function(){
+  const style=document.createElement('style');
+  style.textContent='.journal-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px}.journal-tab{border:1px solid #d8d8d4;background:#fff;border-radius:10px;padding:10px 6px;font:inherit;font-weight:600;cursor:pointer}.journal-tab.active{background:#111;color:#fff;border-color:#111}';
+  document.head.appendChild(style);
   const originalJournal = window.journal;
   function journalTabs(active){
     return `<div class="journal-tabs" role="tablist">

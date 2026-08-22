@@ -2,7 +2,7 @@
 
 function clientMonthCalendar(){
   const days=allMonthDays(st.month), week=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'], s=svc(st.service);
-  return `<div class="month-head"><button class="secondary" data-cflow-month="prev">‹</button><b>${esc(monthName(st.month))}</b><button class="secondary" data-cflow-month="next">›</button></div><div class="month-grid">${week.map(x=>`<div class="weekday">${x}</div>`).join('')}${days.map(x=>{const other=x.slice(0,7)!==st.month;const available=!!s&&slots(x,s).length>0;return `<button class="month-day ${other?'other':''} ${available?'working':'off'} ${x===st.date?'selected':''}" data-cflow-date="${x}" ${available&&!other?'':'disabled'}><span>${D(x).getDate()}</span></button>`}).join('')}</div><div class="calendar-legend"><span><i>●</i> доступно</span><span><i>—</i> недоступно</span></div>`;
+  return `<div class="month-head"><button class="secondary" data-cflow-month="prev">‹</button><b>${esc(monthName(st.month))}</b><button class="secondary" data-cflow-month="next">›</button></div><div class="month-grid">${week.map(x=>`<div class="weekday">${x}</div>`).join('')}${days.map(x=>{const other=x.slice(0,7)!==st.month;const working=isWorking(x);const available=!!s&&slots(x,s).length>0;const statusClass=working?(available?'working':'working-no-time'):'off';return `<button class="month-day ${other?'other':''} ${statusClass} ${x===st.date?'selected':''}" data-cflow-date="${x}" ${available&&!other?'':'disabled'}><span>${D(x).getDate()}</span></button>`}).join('')}</div><div class="calendar-legend"><span><i>●</i> рабочий день</span><span><i>—</i> выходной</span></div>`;
 }
 
 function clientBooking(){

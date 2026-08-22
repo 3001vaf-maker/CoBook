@@ -9,16 +9,17 @@
     .day-sheet-row:last-child{border-bottom:0}
     .day-time{font-size:11px;color:#777;text-align:right;padding:7px 8px 0 0;background:#fafaf8;border-right:1px solid #e1e1de}
     .day-line{position:relative;min-height:30px;background:repeating-linear-gradient(to bottom,#fff 0,#fff 29px,#dfe5df 29px,#dfe5df 30px)}
-    .day-booking{position:absolute;left:4px;right:4px;top:3px;z-index:2;border:1px solid rgba(46,125,50,.28);border-radius:6px;background:rgba(76,175,80,.28);padding:5px 7px;text-align:left;overflow:hidden;min-height:24px}
+    .day-booking{position:absolute;left:4px;right:4px;top:3px;z-index:2;border:1px solid rgba(46,125,50,.28);border-radius:6px;background:rgba(76,175,80,.28);padding:5px 7px;text-align:left;overflow:hidden;min-height:24px;cursor:pointer}
     .day-booking b{display:block;font-size:12px;line-height:1.2}
     .day-booking span{display:block;font-size:11px;color:#245528;line-height:1.25;margin-top:2px}
     .day-booking.multi{background:rgba(64,150,191,.28);border-color:rgba(35,110,150,.3)}
     .day-booking.multi span{color:#20536b}
+    .day-free{width:100%;height:30px;border:0;background:transparent;cursor:pointer;padding:0;margin:0;text-align:left}
+    .day-free:hover{background:rgba(76,175,80,.08)}
     .journal-date-switch{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;margin:0 0 14px}
     .journal-date-switch .date-label{text-align:center;font-weight:600}
   `;
   document.head.appendChild(style);
-  const originalJournal = window.journal;
   function journalTabs(active){
     return `<div class="journal-tabs" role="tablist">
       <button class="journal-tab ${active==='day'?'active':''}" data-journal-view="day">День</button>
@@ -37,7 +38,7 @@
       const duration=b?M(b.end)-M(b.start):0;
       const span=Math.max(1,Math.ceil(duration/30));
       const s=b&&svc(b.serviceId);
-      return `<div class="day-sheet-row"><div class="day-time">${HM(t)}</div><div class="day-line">${b?`<button class="day-booking ${duration>60?'multi':''}" style="height:${span*30-6}px" data-booking="${b.id}"><b>${esc(b.name||'Клиент')} · ${b.start}–${b.end}</b><span>${esc(s?.name||b.serviceName||'Услуга')}</span></button>`:''}</div></div>`;
+      return `<div class="day-sheet-row"><div class="day-time">${HM(t)}</div><div class="day-line">${b?`<button class="day-booking ${duration>60?'multi':''}" style="height:${span*30-6}px" data-booking="${b.id}"><b>${esc(b.name||'Клиент')} · ${b.start}–${b.end}</b><span>${esc(s?.name||b.serviceName||'Услуга')}</span></button>`:`<button class="day-free" data-free-slot="${HM(t)}" aria-label="Записать на ${HM(t)}"></button>`}</div></div>`;
     }).join('')}</div>`;
   }
   function dayScreen(){
@@ -48,7 +49,6 @@
         <div class="date-label">${fmt(date)}</div>
         <button class="secondary" data-journal-day="next">›</button>
       </div>
-      <div class="notice">1 полоска = 30 минут. Занятое время показано прозрачным цветом.</div>
       ${isWorking(date)?buildDaySheet(date):'<div class="empty card">Этот день отмечен как выходной.</div>'}`,nav());
   }
   function simpleScreen(type){
@@ -65,6 +65,26 @@
     });
     document.querySelectorAll('[data-journal-day]').forEach(btn=>btn.onclick=()=>{
       st.date=addDays(st.date,btn.dataset.journalDay==='next'?1:-1);
+      window.render();
+    });
+    document.querySelectorAll('[data-free-slot]').forEach(btn=>btn.onclick=()=>{
+      const start=btn.dataset.freeSlot;
+      const active=db.services.filter(x=>x.active);
+      if(!active.length){alert('Сначала добавьте активную услугу в Прайс.');return;}
+      const menu=active.map((s,i)=>`${i+1}. ${s.name} — ${s.duration} мин — ${s.price} ₽`).join('\n');
+      const answer=prompt(`Выберите услугу номером:\n${menu}`, '1');
+      const index=Number(answer)-1;
+      const service=active[index];
+      if(!service)return;
+      const name=prompt('Имя клиента:', 'Клиент');
+      if(name===null)return;
+      const end=M(start)+service.duration;
+      const h=db.hours[wd(st.date)]||['10:00','20:00'];
+      if(end>M(h[1])){alert('Эта услуга не помещается до конца рабочего дня.');return;}
+      const busy=db.bookings.some(x=>x.date===st.date&&x.status!=='cancelled'&&overlap(M(start),end,M(x.start),M(x.end)));
+      if(busy){alert('Это время уже занято.');return;}
+      db.bookings.push({id:'b'+Date.now(),date:st.date,start,end:HM(end),serviceId:service.id,serviceName:service.name,price:service.price,duration:service.duration,name:name.trim()||'Клиент',status:'confirmed'});
+      save();
       window.render();
     });
   };

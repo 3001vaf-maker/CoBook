@@ -22,7 +22,7 @@ function shell(content) {
 function back(page, label = '← Назад') { return `<button class="secondary" data-page="${page}" type="button">${label}</button>`; }
 
 function management() {
-  return shell(`<section class="hero"><div class="eyebrow">КАБИНЕТ МАСТЕРА</div><h1>Управление</h1><p>Основной рабочий экран мастера.</p></section><section class="section-grid"><button class="menu-card" data-page="journal" type="button"><span class="menu-icon">▤</span><b>Журнал</b><span>Работа с записями</span></button><button class="menu-card" data-page="timetable" type="button"><span class="menu-icon">▦</span><b>График</b><span>Формирование рабочего графика</span></button><button class="menu-card" data-page="services" type="button"><span class="menu-icon">₽</span><b>Прайс</b><span>Услуги и стоимость</span></button><button class="menu-card" data-page="chat" type="button"><span class="menu-icon">◌</span><b>Чат</b><span>Рассылки и коммуникация</span></button></section><section class="panel"><div class="panel-title">Сегодня</div><div class="empty">Рабочая информация появится после подключения функционала.</div></section>`);
+  return shell(`<section class="hero"><div class="eyebrow">КАБИНЕТ МАСТЕРА</div><h1>Управление</h1><p>Основной рабочий экран мастера.</p></section><section class="section-grid"><button class="menu-card" data-page="services" type="button"><span class="menu-icon">₽</span><b>Прайс</b><span>Услуги и стоимость</span></button></section>`);
 }
 
 function journal() {

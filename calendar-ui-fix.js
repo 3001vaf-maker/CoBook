@@ -7,7 +7,9 @@
       return title.textContent.trim()==='Календарь' || title.textContent.trim()==='График работы';
     });
     if(calendarTitle){
-      calendarTitle.textContent='График работы';
+      if(calendarTitle.textContent.trim()!=='График работы'){
+        calendarTitle.textContent='График работы';
+      }
       const row=calendarTitle.closest('.row');
       if(row){
         const journalButton=row.querySelector('button[data-page="journal"]');
@@ -17,6 +19,8 @@
   }
 
   updateCalendarUI();
+  const app=document.getElementById('app');
+  if(!app)return;
   const observer=new MutationObserver(updateCalendarUI);
-  observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
+  observer.observe(app,{childList:true,subtree:true});
 })();

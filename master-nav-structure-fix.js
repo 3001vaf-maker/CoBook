@@ -10,10 +10,19 @@
     <button class="nav" data-page="settings">⚙<br>Настройки</button>
   </nav>`;
 
+  const isCorrectNav = bottom => {
+    if (!bottom) return false;
+    const buttons = [...bottom.querySelectorAll(':scope > button')];
+    const pages = buttons.map(b => b.dataset.page);
+    const labels = buttons.map(b => b.textContent.replace(/\s+/g, ' ').trim());
+    return pages.join('|') === 'journal|calendar|home|chat|settings' &&
+      labels[0].includes('Журнал') && labels[1].includes('График') &&
+      labels[2].includes('Управление') && labels[3].includes('Чат') && labels[4].includes('Настройки');
+  };
+
   const replaceNav = () => {
     const old = app.querySelector('.bottom');
-    if (!old) return;
-    old.outerHTML = navHtml();
+    if (old && !isCorrectNav(old)) old.outerHTML = navHtml();
   };
 
   const screen = (title, text, items = []) => `
@@ -55,13 +64,6 @@
     event.stopImmediatePropagation();
   }, true);
 
-  const observer = new MutationObserver(() => {
-    const bottom = app.querySelector('.bottom');
-    if (bottom && bottom.innerHTML.trim() !== navHtml().match(/<nav class="bottom">([\s\S]*)<\/nav>/)?.[1]?.trim()) {
-      replaceNav();
-    }
-  });
-  observer.observe(app, { childList: true, subtree: true });
-
+  new MutationObserver(() => replaceNav()).observe(app, { childList: true, subtree: true });
   replaceNav();
 })();

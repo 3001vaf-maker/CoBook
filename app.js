@@ -1,5 +1,5 @@
-const PAGES = ['journal', 'timetable', 'management', 'chat', 'settings', 'dates', 'time', 'services'];
-const state = { page: 'management', year: 2026, month: 7 };
+const PAGES = ['journal', 'timetable', 'management', 'chat', 'settings', 'time', 'services'];
+const state = { page: 'management', year: 2026, month: 7, selectedDates: new Set() };
 const app = document.getElementById('app');
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
 ];
 
 function nav() {
-  const active = ['dates', 'time'].includes(state.page) ? 'timetable' : state.page === 'services' ? 'management' : state.page;
+  const active = state.page === 'time' ? 'timetable' : state.page === 'services' ? 'management' : state.page;
   return `<nav class="bottom" aria-label="Основная навигация">${navItems.map(([page, icon, label]) => `<button class="nav ${active === page ? 'active' : ''}" data-page="${page}" type="button"><span class="nav-icon">${icon}</span><span>${label}</span></button>`).join('')}</nav>`;
 }
 
@@ -31,7 +31,7 @@ function journal() {
 
 function timetable() {
   const monthName = new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(new Date(state.year, state.month, 1));
-  return shell(`<section class="page-head"><div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div><h1>График</h1></section>
+  return shell(`<section class="page-head"><div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div><h1>График</h1><p>Выберите рабочие даты. Настройка времени находится ниже.</p></section>
     <section class="calendar-panel">
       <div class="period-row year-row">
         <button class="period-arrow" data-year="prev" type="button">‹</button>
@@ -43,11 +43,12 @@ function timetable() {
         <b>${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</b>
         <button class="period-arrow" data-month="next" type="button">›</button>
       </div>
-      <div class="calendar-grid">
-        ${calendarDays(state.year, state.month)}
-      </div>
-    </section>`);
+      <div class="calendar-grid">${calendarDays(state.year, state.month)}</div>
+    </section>
+    <button class="primary" data-page="time" type="button">Время</button>`);
 }
+
+function dateKey(year, month, day) { return `${year}-${month + 1}-${day}`; }
 
 function calendarDays(year, month) {
   const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -65,7 +66,9 @@ function calendarDays(year, month) {
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    cells.push(`<button class="calendar-day" type="button">${day}</button>`);
+    const key = dateKey(year, month, day);
+    const selected = state.selectedDates.has(key) ? ' selected' : '';
+    cells.push(`<button class="calendar-day${selected}" data-date="${key}" type="button">${day}</button>`);
   }
 
   let nextDay = 1;
@@ -76,12 +79,8 @@ function calendarDays(year, month) {
   return cells.join('');
 }
 
-function dates() {
-  return shell(`<section class="page-head"><div class="eyebrow">ГРАФИК · ДАТЫ</div><h1>Даты</h1><p>Выбор рабочих дат.</p></section><section class="panel"><div class="empty">Интерфейс выбора дат будет добавлен после утверждения календаря.</div></section>${back('timetable')}`);
-}
-
 function time() {
-  return shell(`<section class="page-head"><div class="eyebrow">ГРАФИК · ВРЕМЯ</div><h1>Время</h1><p>Рабочий интервал.</p></section><section class="panel"><div class="empty">Интерфейс времени будет добавлен после утверждения календаря.</div></section>${back('timetable')}`);
+  return shell(`<section class="page-head"><div class="eyebrow">ГРАФИК · ВРЕМЯ</div><h1>Время</h1><p>Рабочий интервал для выбранных дат.</p></section><section class="panel"><div class="panel-title">Рабочий интервал</div><div class="time-row"><div><span>Начало</span><b>10:00</b></div><div><span>Окончание</span><b>20:00</b></div></div></section>${back('timetable')}`);
 }
 
 function services() {
@@ -97,7 +96,7 @@ function settings() {
 }
 
 function render() {
-  const views = { journal, timetable, management, chat, settings, dates, time, services };
+  const views = { journal, timetable, management, chat, settings, time, services };
   app.innerHTML = (views[state.page] || management)();
 }
 
@@ -107,6 +106,15 @@ app.addEventListener('click', event => {
     const page = pageTarget.dataset.page;
     if (!PAGES.includes(page)) return;
     state.page = page;
+    render();
+    return;
+  }
+
+  const dateTarget = event.target.closest('[data-date]');
+  if (dateTarget) {
+    const key = dateTarget.dataset.date;
+    if (state.selectedDates.has(key)) state.selectedDates.delete(key);
+    else state.selectedDates.add(key);
     render();
     return;
   }

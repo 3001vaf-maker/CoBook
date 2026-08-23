@@ -31,7 +31,7 @@ function journal() {
 
 function timetable() {
   const monthName = new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(new Date(state.year, state.month, 1));
-  return shell(`<section class="page-head"><div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div><h1>График</h1><p>Выберите рабочие даты. Настройка времени находится ниже.</p></section>
+  return shell(`<section class="page-head"><div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div><h1>График</h1><p>Выберите рабочие даты.</p></section>
     <section class="calendar-panel">
       <div class="period-row year-row">
         <button class="period-arrow" data-year="prev" type="button">‹</button>
@@ -44,8 +44,8 @@ function timetable() {
         <button class="period-arrow" data-month="next" type="button">›</button>
       </div>
       <div class="calendar-grid">${calendarDays(state.year, state.month)}</div>
-    </section>
-    <button class="primary" data-page="time" type="button">Время</button>`);
+      <section class="panel work-interval"><div class="panel-title">Рабочий интервал</div><div class="time-row"><div><span>Начало</span><b>10:00</b></div><div><span>Окончание</span><b>20:00</b></div></div></section>
+    </section>`);
 }
 
 function dateKey(year, month, day) { return `${year}-${month + 1}-${day}`; }

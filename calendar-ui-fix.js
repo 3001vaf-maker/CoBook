@@ -14,14 +14,6 @@
         if(journalButton)journalButton.remove();
       }
     }
-
-    const navButton=app.querySelector('nav.bottom button[data-page="calendar"]');
-    if(navButton){
-      const textNode=Array.from(navButton.childNodes).find(function(node){
-        return node.nodeType===Node.TEXT_NODE && (node.textContent.trim()==='Календарь' || node.textContent.trim()==='График работы');
-      });
-      if(textNode)textNode.textContent='График работы';
-    }
   }
 
   updateCalendarUI();

@@ -1,106 +1,11 @@
 (function(){
   const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  function normalize(p){
-    if(!p.priceType){
-      if(p.priceFrom||p.priceTo){p.priceType=p.priceTo?'range':'from';}
-      else if(p.price){p.priceType='exact';p.priceFrom=p.price;}
-      else p.priceType='exact';
-    }
-    if(p.priceFrom==null&&p.price) p.priceFrom=p.price;
-    if(p.priceTo==null) p.priceTo='';
-    return p;
-  }
-  function priceText(p){
-    normalize(p);
-    if(p.priceType==='range'&&p.priceFrom&&p.priceTo) return `${esc(p.priceFrom)}–${esc(p.priceTo)}`;
-    if(p.priceType==='from'&&p.priceFrom) return `от ${esc(p.priceFrom)}`;
-    if(p.priceFrom) return esc(p.priceFrom);
-    return '—';
-  }
-  window.procedureCard=function(p,i){
-    normalize(p);
-    return `<article class="procedure-card">
-      <button class="procedure-card-main" data-action="edit-procedure" data-index="${i}" type="button">
-        <div class="procedure-card-name">${esc(p.name)}</div>
-        <div class="procedure-card-detail"><span>${esc(p.duration)} мин</span><span>${priceText(p)}</span></div>
-      </button>
-      <button class="procedure-delete" data-action="delete-procedure" data-index="${i}" type="button" aria-label="Удалить процедуру">⌫</button>
-    </article>`;
-  };
-  window.service=function(){
-    const procedures=state.serviceMode==='procedures';
-    return shell(`<section class="page-head service-head"><div class="eyebrow">УПРАВЛЕНИЕ · СЕРВИС</div><h1>Сервис</h1></section>
-      <div class="service-tabs"><button class="service-tab ${procedures?'active':''}" data-action="service-tab" data-mode="procedures" type="button">Процедуры</button><button class="service-tab ${!procedures?'active':''}" data-action="service-tab" data-mode="products" type="button">Товары</button></div>
-      ${procedures?`<section class="procedure-list">${state.procedures.map(procedureCard).join('')}</section><button class="primary full service-add" data-action="open-procedure" type="button">Добавить процедуру</button>`:`<section class="service-list">${state.products.map(productCard).join('')}</section><button class="primary full service-add" data-action="open-product" type="button">Добавить товар</button>`}`);
-  };
-  window.serviceModal=function(kind,index=null){
-    const isProcedure=kind==='procedure';
-    const source=isProcedure?state.procedures:state.products;
-    const item=index===null?(isProcedure?{name:'',duration:60,priceType:'exact',priceFrom:'',priceTo:''}:{name:'',price:''}):normalize({...source[index]});
-    if(isProcedure){
-      const type=item.priceType||'exact';
-      return `<div class="service-overlay" data-modal="service" data-kind="procedure" data-index="${index===null?'':index}">
-        <div class="service-sheet procedure-editor">
-          <div class="service-sheet-head"><b>${index===null?'Новая процедура':'Процедура'}</b><button class="service-close" data-modal-action="close" type="button">×</button></div>
-          <label class="service-field"><span>Наименование процедуры</span><input data-field="name" autocomplete="off" value="${esc(item.name)}"></label>
-          <label class="service-field"><span>Время в работе</span><input data-field="duration" type="number" min="1" inputmode="numeric" value="${esc(item.duration)}"></label>
-          <div class="price-mode-label">Цена</div>
-          <div class="price-mode" data-price-mode>
-            <button type="button" class="price-mode-btn ${type==='exact'?'active':''}" data-price-type="exact">Цена</button>
-            <button type="button" class="price-mode-btn ${type==='from'?'active':''}" data-price-type="from">От</button>
-            <button type="button" class="price-mode-btn ${type==='range'?'active':''}" data-price-type="range">От–до</button>
-          </div>
-          <div class="price-fields ${type==='range'?'range':''}">
-            <label class="service-field"><span>${type==='exact'?'Цена': 'Цена от'}</span><input data-field="price-from" inputmode="decimal" value="${esc(item.priceFrom||'')}"></label>
-            <label class="service-field price-to-field" ${type==='range'?'':'hidden'}><span>Цена до</span><input data-field="price-to" inputmode="decimal" value="${esc(item.priceTo||'')}"></label>
-          </div>
-          <button class="primary full" data-modal-action="save-service" type="button">Сохранить</button>
-        </div>
-      </div>`;
-    }
-    return `<div class="service-overlay" data-modal="service" data-kind="product" data-index="${index===null?'':index}"><div class="service-sheet"><div class="service-sheet-head"><b>${index===null?'Новый товар':'Товар'}</b><button class="service-close" data-modal-action="close" type="button">×</button></div><label class="service-field"><span>Название</span><input data-field="name" value="${esc(item.name)}"></label><label class="service-field"><span>Стоимость</span><input data-field="price" inputmode="decimal" value="${esc(item.price||'')}"></label><button class="primary full" data-modal-action="save-service" type="button">Сохранить</button></div></div>`;
-  };
-  window.saveService=function(modal){
-    const name=modal.querySelector('[data-field="name"]')?.value.trim()||'';
-    const kind=modal.dataset.kind;
-    const index=modal.dataset.index===''?null:Number(modal.dataset.index);
-    if(!name)return;
-    if(kind==='procedure'){
-      const duration=Math.max(1,Number(modal.querySelector('[data-field="duration"]')?.value)||60);
-      const type=modal.querySelector('[data-price-type].active')?.dataset.priceType||'exact';
-      const from=modal.querySelector('[data-field="price-from"]')?.value.trim()||'';
-      const to=modal.querySelector('[data-field="price-to"]')?.value.trim()||'';
-      const item={name,duration,priceType:type,priceFrom:from,priceTo:type==='range'?to:''};
-      if(index===null)state.procedures.push(item);else state.procedures[index]=item;
-      localStorage.setItem('cobook_procedures',JSON.stringify(state.procedures));
-    }else{
-      const price=modal.querySelector('[data-field="price"]')?.value.trim()||'';
-      const item={name,price};
-      if(index===null)state.products.push(item);else state.products[index]=item;
-      localStorage.setItem('cobook_products',JSON.stringify(state.products));
-    }
-    modal.remove();render();
-  };
-  document.body.addEventListener('click',e=>{
-    const mode=e.target.closest('[data-price-type]');
-    if(!mode)return;
-    const modal=mode.closest('[data-modal="service"]');
-    if(!modal)return;
-    modal.querySelectorAll('[data-price-type]').forEach(b=>b.classList.remove('active'));
-    mode.classList.add('active');
-    const type=mode.dataset.priceType;
-    const fromLabel=modal.querySelector('[data-field="price-from"]')?.closest('.service-field');
-    const toLabel=modal.querySelector('.price-to-field');
-    if(fromLabel)fromLabel.querySelector('span').textContent=type==='exact'?'Цена':'Цена от';
-    if(toLabel)toLabel.hidden=type!=='range';
-  });
-  app.addEventListener('click',e=>{
-    const b=e.target.closest('[data-action="delete-procedure"]');
-    if(!b||!app.contains(b))return;
-    const i=Number(b.dataset.index);
-    if(!Number.isInteger(i)||!state.procedures[i])return;
-    state.procedures.splice(i,1);
-    localStorage.setItem('cobook_procedures',JSON.stringify(state.procedures));
-    render();
-  });
+  function normalize(p){if(!p.priceType){if(p.priceFrom||p.priceTo){p.priceType=p.priceTo?'range':'from';}else if(p.price){p.priceType='exact';p.priceFrom=p.price;}else p.priceType='exact';}if(p.priceFrom==null&&p.price)p.priceFrom=p.price;if(p.priceTo==null)p.priceTo='';return p;}
+  function priceText(p){normalize(p);if(p.priceType==='range'&&p.priceFrom&&p.priceTo)return `${esc(p.priceFrom)}–${esc(p.priceTo)}`;if(p.priceType==='from'&&p.priceFrom)return `от ${esc(p.priceFrom)}`;if(p.priceFrom)return esc(p.priceFrom);return '—';}
+  window.procedureCard=function(p,i){normalize(p);return `<article class="procedure-card"><button class="procedure-card-main" data-action="edit-procedure" data-index="${i}" type="button"><div class="procedure-card-name">${esc(p.name)}</div><div class="procedure-card-detail"><span>${esc(p.duration)} мин</span><span>${priceText(p)}</span></div></button><button class="procedure-delete" data-action="delete-procedure" data-index="${i}" type="button" aria-label="Удалить процедуру">🗑</button></article>`;};
+  window.service=function(){const procedures=state.serviceMode==='procedures';return shell(`<section class="page-head service-head"><div class="eyebrow">УПРАВЛЕНИЕ · СЕРВИС</div><h1>Сервис</h1></section><div class="service-tabs"><button class="service-tab ${procedures?'active':''}" data-action="service-tab" data-mode="procedures" type="button">Процедуры</button><button class="service-tab ${!procedures?'active':''}" data-action="service-tab" data-mode="products" type="button">Товары</button></div>${procedures?`<section class="procedure-list">${state.procedures.map(procedureCard).join('')}</section><button class="primary full service-add" data-action="open-procedure" type="button">Добавить процедуру</button>`:`<section class="service-list">${state.products.map(productCard).join('')}</section><button class="primary full service-add" data-action="open-product" type="button">Добавить товар</button>`}`)};
+  window.serviceModal=function(kind,index=null){const isProcedure=kind==='procedure',source=isProcedure?state.procedures:state.products,item=index===null?(isProcedure?{name:'',duration:60,priceType:'exact',priceFrom:'',priceTo:''}:{name:'',price:''}):normalize({...source[index]});if(isProcedure){const type=item.priceType||'exact';return `<div class="service-overlay" data-modal="service" data-kind="procedure" data-index="${index===null?'':index}"><div class="service-sheet procedure-editor"><div class="service-sheet-head"><b>${index===null?'Новая процедура':'Процедура'}</b><button class="service-close" data-modal-action="close" type="button">×</button></div><label class="service-field"><span>Наименование процедуры</span><input data-field="name" autocomplete="off" value="${esc(item.name)}"></label><label class="service-field"><span>Время в работе</span><input data-field="duration" type="number" min="1" inputmode="numeric" value="${esc(item.duration)}"></label><div class="price-mode-label">Цена</div><div class="price-mode" data-price-mode><button type="button" class="price-mode-btn ${type==='exact'?'active':''}" data-price-type="exact">Цена</button><button type="button" class="price-mode-btn ${type==='from'?'active':''}" data-price-type="from">От</button><button type="button" class="price-mode-btn ${type==='range'?'active':''}" data-price-type="range">От–до</button></div><div class="price-fields ${type==='range'?'range':''}"><label class="service-field"><span>${type==='exact'?'Цена':'Цена от'}</span><input data-field="price-from" inputmode="decimal" value="${esc(item.priceFrom||'')}"></label><label class="service-field price-to-field" ${type==='range'?'':'hidden'}><span>Цена до</span><input data-field="price-to" inputmode="decimal" value="${esc(item.priceTo||'')}"></label></div><button class="primary full" data-modal-action="save-service" type="button">Сохранить</button></div></div>`;}return `<div class="service-overlay" data-modal="service" data-kind="product" data-index="${index===null?'':index}"><div class="service-sheet"><div class="service-sheet-head"><b>${index===null?'Новый товар':'Товар'}</b><button class="service-close" data-modal-action="close" type="button">×</button></div><label class="service-field"><span>Название</span><input data-field="name" value="${esc(item.name)}"></label><label class="service-field"><span>Стоимость</span><input data-field="price" inputmode="decimal" value="${esc(item.price||'')}"></label><button class="primary full" data-modal-action="save-service" type="button">Сохранить</button></div></div>`;};
+  window.saveService=function(modal){const name=modal.querySelector('[data-field="name"]')?.value.trim()||'',kind=modal.dataset.kind,index=modal.dataset.index===''?null:Number(modal.dataset.index);if(!name)return;if(kind==='procedure'){const duration=Math.max(1,Number(modal.querySelector('[data-field="duration"]')?.value)||60),type=modal.querySelector('[data-price-type].active')?.dataset.priceType||'exact',from=modal.querySelector('[data-field="price-from"]')?.value.trim()||'',to=modal.querySelector('[data-field="price-to"]')?.value.trim()||'',item={name,duration,priceType:type,priceFrom:from,priceTo:type==='range'?to:''};if(index===null)state.procedures.push(item);else state.procedures[index]=item;localStorage.setItem('cobook_procedures',JSON.stringify(state.procedures));}else{const price=modal.querySelector('[data-field="price"]')?.value.trim()||'',item={name,price};if(index===null)state.products.push(item);else state.products[index]=item;localStorage.setItem('cobook_products',JSON.stringify(state.products));}modal.remove();render();};
+  document.body.addEventListener('click',e=>{const mode=e.target.closest('[data-price-type]');if(!mode)return;const modal=mode.closest('[data-modal="service"]');if(!modal)return;modal.querySelectorAll('[data-price-type]').forEach(b=>b.classList.remove('active'));mode.classList.add('active');const type=mode.dataset.priceType,fromLabel=modal.querySelector('[data-field="price-from"]')?.closest('.service-field'),toLabel=modal.querySelector('.price-to-field');if(fromLabel)fromLabel.querySelector('span').textContent=type==='exact'?'Цена':'Цена от';if(toLabel)toLabel.hidden=type!=='range';});
+  app.addEventListener('click',e=>{const b=e.target.closest('[data-action="delete-procedure"]');if(!b||!app.contains(b))return;const i=Number(b.dataset.index);if(!Number.isInteger(i)||!state.procedures[i])return;state.procedures.splice(i,1);localStorage.setItem('cobook_procedures',JSON.stringify(state.procedures));render();});
 })();

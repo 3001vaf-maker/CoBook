@@ -1,7 +1,5 @@
 (function(){
   const originalMaster=window.master;
-  const originalSlots=window.slots;
-  const originalIsWorking=window.isWorking;
   const originalBind=window.bind;
 
   function intervalFor(date){
@@ -10,15 +8,11 @@
       return [override.start,override.end];
     }
     if(override===false)return null;
-    if(override===true){
-      return db.hours[wd(date)]||['10:00','20:00'];
-    }
+    if(override===true)return db.hours[wd(date)]||['10:00','20:00'];
     return db.hours[wd(date)]||null;
   }
 
-  function workIsWorking(date){
-    return !!intervalFor(date);
-  }
+  function workIsWorking(date){return !!intervalFor(date);}
 
   function workSlots(date,s){
     const h=intervalFor(date);
@@ -36,42 +30,24 @@
 
   function workMonthCalendar(){
     const days=allMonthDays(st.month),week=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-    const multi=!!st.workMulti;
-    const selected=st.workSelected||[];
-    return `<div class="month-head"><button class="secondary" data-month="prev">‹</button><b>${esc(monthName(st.month))}</b><button class="secondary" data-month="next">›</button></div><div class="month-grid">${week.map(x=>`<div class="weekday">${x}</div>`).join('')}${days.map(x=>{
-      const other=x.slice(0,7)!==st.month;
-      const working=workIsWorking(x);
-      const chosen=multi?selected.includes(x):x===st.date;
-      const h=intervalFor(x);
-      return `<button class="month-day ${other?'other':''} ${working?'working':'off'} ${chosen?'selected':''}" data-work-date="${x}" title="${working&&h?`Рабочий интервал ${h[0]}–${h[1]}`:'Выходной'}"><span>${D(x).getDate()}</span><i style="display:none">${working?'●':'—'}</i></button>`;
-    }).join('')}</div><div class="calendar-legend"><span><i>●</i> рабочий день</span><span><i>—</i> выходной</span></div>`;
+    const multi=!!st.workMulti,selected=st.workSelected||[];
+    return `<div class="month-head"><button class="secondary" data-month="prev">‹</button><b>${esc(monthName(st.month))}</b><button class="secondary" data-month="next">›</button></div><div class="month-grid">${week.map(x=>`<div class="weekday">${x}</div>`).join('')}${days.map(x=>{const other=x.slice(0,7)!==st.month,working=workIsWorking(x),chosen=multi?selected.includes(x):x===st.date,h=intervalFor(x);return `<button class="month-day ${other?'other':''} ${working?'working':'off'} ${chosen?'selected':''}" data-work-date="${x}" title="${working&&h?`Рабочий интервал ${h[0]}–${h[1]}`:'Выходной'}"><span>${D(x).getDate()}</span><i style="display:none">${working?'●':'—'}</i></button>`}).join('')}</div><div class="calendar-legend"><span><i>●</i> рабочий день</span><span><i>—</i> выходной</span></div>`;
   }
 
-  function selectedWorkDates(){
-    if(st.workMulti)return st.workSelected||[];
-    return st.date?[st.date]:[];
-  }
+  function selectedWorkDates(){return st.workMulti?(st.workSelected||[]):(st.date?[st.date]:[]);}
 
   function intervalDefaults(){
-    const dates=selectedWorkDates();
-    for(const date of dates){
-      const h=intervalFor(date);
-      if(h)return h;
-    }
+    for(const date of selectedWorkDates()){const h=intervalFor(date);if(h)return h;}
     return ['10:00','20:00'];
   }
 
   function workCalendar(){
-    const dates=selectedWorkDates();
-    const h=intervalDefaults();
-    const multi=!!st.workMulti;
+    const dates=selectedWorkDates(),h=intervalDefaults(),multi=!!st.workMulti;
     return shell(`<div class="row"><div><h2>График работы</h2><div class="muted">Выберите даты и задайте рабочий интервал.</div></div></div>${workMonthCalendar()}<div class="card"><div class="row"><b>Рабочий интервал для выбранных дат</b><span class="small muted">${dates.length} ${dates.length===1?'дата':'дат'}</span></div><div class="form-row" style="margin-top:10px"><input type="time" data-work-start value="${h[0]}"><input type="time" data-work-end value="${h[1]}"></div><button class="primary full" data-apply-work style="margin-top:10px">Применить к выбранным датам</button><button class="secondary full" data-work-multi style="margin-top:8px">${multi?'Завершить множественный выбор':'Множественный выбор дат'}</button><button class="secondary full" data-work-off style="margin-top:8px">Сделать выбранные даты выходными</button></div>`,nav());
   }
 
   function workJournal(){
-    const date=st.date;
-    const h=intervalFor(date);
-    let timeline=[];
+    const date=st.date,h=intervalFor(date);let timeline=[];
     if(h){
       for(let t=M(h[0]);t<M(h[1]);t+=db.master.step){
         const b=db.bookings.find(x=>x.date===date&&x.status!=='cancelled'&&M(x.start)<=t&&M(x.end)>t);
@@ -90,17 +66,20 @@
 
   window.master=function(){
     if(st.page==='journal')return workJournal();
-    if(st.page==='calendar')return workCalendar();
+    if(st.page==='calendar'||st.page==='schedule'){
+      st.page='calendar';
+      return workCalendar();
+    }
     if(st.page==='services')return services();
-    const base=originalMaster();
-    return base.replace(/<button class="nav" data-page="schedule">◷<br>График<\/button>/g,'');
+    let base=originalMaster();
+    base=base.replace(/<button class="nav" data-page="schedule">◷<br>График<\/button>/g,'');
+    base=base.replace(/<button class="service" data-page="schedule">[\s\S]*?<\/button>/g,'');
+    return base;
   };
 
   window.bind=function(){
     originalBind();
-
     document.querySelectorAll('.bottom button[data-page="schedule"]').forEach(b=>b.remove());
-
     document.querySelectorAll('[data-work-date]').forEach(b=>b.onclick=function(){
       const date=b.dataset.workDate;
       if(st.workMulti){
@@ -113,7 +92,6 @@
       }
       render();
     });
-
     document.querySelector('[data-work-multi]')?.addEventListener('click',function(){
       if(!st.workMulti){
         st.workMulti=true;
@@ -124,11 +102,8 @@
       }
       render();
     });
-
     document.querySelector('[data-apply-work]')?.addEventListener('click',function(){
-      const dates=selectedWorkDates();
-      const start=document.querySelector('[data-work-start]')?.value;
-      const end=document.querySelector('[data-work-end]')?.value;
+      const dates=selectedWorkDates(),start=document.querySelector('[data-work-start]')?.value,end=document.querySelector('[data-work-end]')?.value;
       if(!dates.length){alert('Сначала выберите даты.');return;}
       if(!start||!end||M(end)<=M(start)){alert('Укажите корректный рабочий интервал.');return;}
       db.workingDates=db.workingDates||{};
@@ -138,7 +113,6 @@
       st.workSelected=[st.date];
       render();
     });
-
     document.querySelector('[data-work-off]')?.addEventListener('click',function(){
       const dates=selectedWorkDates();
       if(!dates.length){alert('Сначала выберите даты.');return;}
@@ -152,16 +126,12 @@
   };
 
   const style=document.createElement('style');
-  style.textContent=`
-    .month-day.selected{outline:2px solid #171717!important;outline-offset:-2px}
-    .month-day.working span{font-weight:800;color:#111}
-  `;
+  style.textContent=`.month-day.selected{outline:2px solid #171717!important;outline-offset:-2px}.month-day.working span{font-weight:800;color:#111}`;
   document.head.appendChild(style);
 
   if(typeof st!=='undefined'){
     st.workMulti=!!st.workMulti;
     st.workSelected=st.workSelected&&st.workSelected.length?st.workSelected:[st.date];
   }
-
   render();
 })();

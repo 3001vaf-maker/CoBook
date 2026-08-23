@@ -19,10 +19,27 @@ function shell(content) {
   return `<div class="shell"><header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header><main class="content">${content}</main>${nav()}</div>`;
 }
 
-function back(page, label = '← Назад') { return `<button class="secondary" data-page="${page}" type="button">${label}</button>`; }
+function back(page, label = '← Назад') {
+  return `<button class="secondary" data-page="${page}" type="button">${label}</button>`;
+}
 
+// Управление — самостоятельный экран.
+// На нём нет переходов или ссылок на Журнал, График, Чат или Сегодня.
 function management() {
-  return shell(`<section class="hero"><div class="eyebrow">КАБИНЕТ МАСТЕРА</div><h1>Управление</h1><p>Основной рабочий экран мастера.</p></section><section class="section-grid"><button class="menu-card" data-page="services" type="button"><span class="menu-icon">₽</span><b>Прайс</b><span>Услуги и стоимость</span></button></section>`);
+  return shell(`
+    <section class="hero">
+      <div class="eyebrow">КАБИНЕТ МАСТЕРА</div>
+      <h1>Управление</h1>
+      <p>Основной рабочий экран мастера.</p>
+    </section>
+    <section class="section-grid">
+      <button class="menu-card" data-page="services" type="button">
+        <span class="menu-icon">₽</span>
+        <b>Прайс</b>
+        <span>Услуги и стоимость</span>
+      </button>
+    </section>
+  `);
 }
 
 function journal() {
@@ -55,7 +72,8 @@ function settings() {
 
 function render() {
   const views = { journal, timetable, management, chat, settings, dates, time, services };
-  app.innerHTML = views[state.page]();
+  const view = views[state.page] || management;
+  app.innerHTML = view();
 }
 
 app.addEventListener('click', event => {

@@ -1,92 +1,178 @@
-const KEY='cobook-v3';
-const pad=n=>String(n).padStart(2,'0');
-const D=s=>new Date(s+'T12:00:00');
-const iso=d=>{const x=new Date(d);x.setHours(12,0,0,0);return x.toISOString().slice(0,10)};
-const today=()=>iso(new Date());
-const addDays=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return iso(d)};
-const fmt=s=>D(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-const monthName=s=>D(s).toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
-const M=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
-const HM=n=>pad(Math.floor(n/60))+':'+pad(n%60);
-const money=n=>new Intl.NumberFormat('ru-RU').format(n)+' ₽';
-const esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-const initial={master:{name:'Александр',specialty:'Парикмахер',step:30},services:[{id:'1',name:'Мужская стрижка',duration:60,price:3000,active:true},{id:'2',name:'Стрижка + борода',duration:90,price:4000,active:true},{id:'3',name:'Женская стрижка',duration:90,price:4500,active:true},{id:'4',name:'Окрашивание',duration:180,price:9000,active:true}],workingDates:{},bookings:[]};
-let db=JSON.parse(localStorage.getItem(KEY)||'null')||initial;
-let st={role:null,page:'home',service:null,date:today(),slot:null,month:today().slice(0,7),multiSelect:false,multiDates:[],workStart:'10:00',workEnd:'20:00'};
-const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
-const svc=id=>db.services.find(x=>x.id===id);
-function migrateLegacySchedule(){
-  db.workingDates=db.workingDates||{};
-  const legacyHours=db.hours||{};
-  const legacyBreaks=db.breaks||[];
-  for(let i=-730;i<=730;i++){
-    const date=addDays(today(),i);
-    if(db.workingDates[date]===undefined){
-      const day=D(date).getDay();
-      const h=legacyHours[day];
-      db.workingDates[date]=h?{working:true,start:h[0],end:h[1],breaks:legacyBreaks.filter(x=>x.day===day).map(x=>({start:x.start,end:x.end}))}:{working:false,start:null,end:null,breaks:[]};
-    }else if(typeof db.workingDates[date]==='boolean'){
-      const day=D(date).getDay();
-      const h=legacyHours[day];
-      db.workingDates[date]=db.workingDates[date]&&h?{working:true,start:h[0],end:h[1],breaks:[]}:{working:false,start:null,end:null,breaks:[]};
-    }
-  }
-  delete db.hours;
-  delete db.breaks;
-  save();
+const PAGES = ['journal', 'schedule', 'management', 'chat', 'settings'];
+const state = { page: 'management' };
+
+const app = document.getElementById('app');
+
+const navItems = [
+  ['journal', '▤', 'Журнал'],
+  ['schedule', '▦', 'График'],
+  ['management', '⌂', 'Управление'],
+  ['chat', '◌', 'Чат'],
+  ['settings', '⚙', 'Настройки']
+];
+
+const pageTitles = {
+  journal: 'Журнал',
+  schedule: 'График',
+  management: 'Управление',
+  chat: 'Чат',
+  settings: 'Настройки'
+};
+
+function nav() {
+  return `<nav class="bottom" aria-label="Основная навигация">
+    ${navItems.map(([page, icon, label]) => `
+      <button class="nav ${state.page === page ? 'active' : ''}" data-page="${page}" type="button">
+        <span class="nav-icon">${icon}</span>
+        <span>${label}</span>
+      </button>`).join('')}
+  </nav>`;
 }
-migrateLegacySchedule();
-const rule=date=>db.workingDates?.[date]||{working:false,start:null,end:null,breaks:[]};
-const isWorking=date=>rule(date).working===true;
-const overlap=(a,b,c,d)=>a<d&&c<b;
-function slots(date,s){
-  const r=rule(date); if(!r.working||!r.start||!r.end)return[];
-  let out=[];
-  for(let t=M(r.start);t+s.duration<=M(r.end);t+=db.master.step){
-    const br=(r.breaks||[]).some(x=>overlap(t,t+s.duration,M(x.start),M(x.end)));
-    const busy=db.bookings.some(x=>x.date===date&&x.status!=='cancelled'&&overlap(t,t+s.duration,M(x.start),M(x.end)));
-    if(!br&&!busy)out.push(HM(t));
-  }
-  return out;
+
+function shell(content) {
+  return `<div class="shell">
+    <header class="topbar">
+      <div class="brand">CoBook</div>
+      <div class="subtitle">Кабинет мастера</div>
+    </header>
+    <main class="content">${content}</main>
+    ${nav()}
+  </div>`;
 }
-function allMonthDays(month){const [y,m]=month.split('-').map(Number),first=new Date(y,m-1,1,12),last=new Date(y,m,0,12);let start=(first.getDay()+6)%7;let total=Math.ceil((start+last.getDate())/7)*7;return Array.from({length:total},(_,i)=>{const d=new Date(y,m-1,1+i-start,12);return iso(d)})}
-function shell(body,nav=''){return `<div class="shell"><header class="topbar"><div class="brand">CoBook</div><div class="subtitle">${st.role==='master'?'Кабинет мастера':'Онлайн-запись'}</div></header><main class="content">${body}</main>${nav}</div>`}
-function home(){return shell(`<div class="hero"><h1>CoBook</h1><p>Тестовая версия онлайн-записи. Выберите режим просмотра.</p></div><button class="role" data-role="master"><b>👤 Я — МАСТЕР</b><span>Журнал, график работы, прайс</span></button><button class="role" data-role="client"><b>👥 Я — КЛИЕНТ</b><span>Новая запись и мои прошлые записи</span></button><div class="notice">В тесте мастер и клиент используют общие записи. В Telegram роль будет определяться автоматически.</div>`)}
-function nav(){return `<nav class="bottom"><button class="nav" data-page="home">⌂<br>Главная</button><button class="nav" data-page="journal">▤<br>Журнал</button><button class="nav" data-page="calendar">▦<br>График работы</button><button class="nav" data-page="services">₽<br>Прайс</button></nav>`}
-function master(){if(st.page==='journal')return journal();if(st.page==='calendar')return calendar();if(st.page==='services')return services();const bs=db.bookings.filter(x=>x.status!=='cancelled').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));return shell(`<div class="hero"><h1>Кабинет мастера</h1><p>${esc(db.master.name)} · ${esc(db.master.specialty)}</p></div><div class="two"><div class="card stat"><b>${bs.filter(x=>x.date===today()).length}</b><span>сегодня</span></div><div class="card stat"><b>${db.services.filter(x=>x.active).length}</b><span>услуг</span></div></div><div class="card"><div class="row"><b>Ближайшие записи</b><button class="secondary" data-page="journal">Журнал</button></div>${bs.slice(0,5).map(line).join('')||'<div class="empty">Записей пока нет</div>'}</div><button class="service" data-page="calendar"><b>График работы</b><div class="small muted">Рабочие дни и персональный рабочий интервал для выбранных дат</div></button><button class="service" data-page="services"><b>Прайс</b><div class="small muted">Редактировать цену и длительность</div></button><button class="primary" data-role="client">Посмотреть глазами клиента</button>`,nav())}
-function line(b){const s=svc(b.serviceId);return `<div class="list-item"><div class="row"><div><b>${esc(b.name||'Клиент')}</b><div class="small muted">${fmt(b.date)} · ${b.start}–${b.end}</div><div class="small muted">${esc(s?.name||b.serviceName||'Услуга')} · ${money(b.price??s?.price??0)}</div></div><span class="badge green">Запись</span></div></div>`}
-function monthCalendar(){const days=allMonthDays(st.month),week=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];return `<div class="month-head"><button class="secondary" data-month="prev">‹</button><b>${esc(monthName(st.month))}</b><button class="secondary" data-month="next">›</button></div><div class="month-grid">${week.map(x=>`<div class="weekday">${x}</div>`).join('')}${days.map(x=>{const other=x.slice(0,7)!==st.month,working=isWorking(x),count=db.bookings.filter(b=>b.date===x&&b.status!=='cancelled').length,selected=st.multiSelect?st.multiDates.includes(x):x===st.date;return `<button class="month-day ${other?'other':''} ${working?'working':'off'} ${selected?'selected':''}" data-date="${x}"><span>${D(x).getDate()}</span><i>${working?'●':'—'}</i>${count?`<em>${count}</em>`:''}</button>`}).join('')}</div><div class="calendar-legend"><span><i>●</i> рабочий день</span><span><i>—</i> выходной</span></div>`}
-function journal(){const date=st.date;let timeline=[];const r=rule(date);if(r.working&&r.start&&r.end){for(let t=M(r.start);t<M(r.end);t+=db.master.step){const b=db.bookings.find(x=>x.date===date&&x.status!=='cancelled'&&M(x.start)<=t&&M(x.end)>t);const breakHere=(r.breaks||[]).some(x=>t>=M(x.start)&&t<M(x.end));if(b&&M(b.start)!==t)continue;timeline.push(b?`<button class="journal-slot booked" data-booking="${b.id}"><b>${b.start}–${b.end}</b><span>${esc(b.name||'Клиент')} · ${esc(svc(b.serviceId)?.name||b.serviceName||'')}</span></button>`:breakHere?`<div class="journal-slot break"><b>${HM(t)}</b><span>Перерыв</span></div>`:`<button class="journal-slot free" data-free="${HM(t)}"><b>${HM(t)}</b><span>Свободно · нажмите, чтобы записать</span></button>`)} }return shell(`<div class="row"><div><h2>Журнал</h2><div class="muted">${fmt(date)}</div></div><button class="secondary" data-page="calendar">График работы</button></div><div class="day-switch"><button class="secondary" data-day="prev">‹</button><button class="secondary grow" data-page="calendar">${fmt(date)}</button><button class="secondary" data-day="next">›</button></div>${r.working?`<div class="notice">Рабочий интервал: ${r.start}–${r.end}. Свободный слот можно занять вручную.</div><div class="journal">${timeline.join('')||'<div class="empty">Нет свободного времени</div>'}</div>`:'<div class="empty card">Этот день отмечен как выходной.</div>'}`,nav())}
-function calendar(){const selected=st.multiSelect?st.multiDates:[st.date];const r=rule(st.date);return shell(`<div class="row"><div><h2>График работы</h2><div class="muted">Для каждой даты отдельно задаются рабочий день и рабочий интервал.</div></div></div>${monthCalendar()}<div class="card"><div class="row"><b>Настройка рабочих дней</b><button class="secondary" data-multi>${st.multiSelect?'Завершить выбор':'Множественный выбор дат'}</button></div><p class="small muted">${selected.length?`Выбрано дат: ${selected.length}`:'Даты не выбраны'}</p>${st.multiSelect?'<p class="small muted">Нажмите даты в календаре. Настройка ниже применяется ко всем выбранным датам.</p>':''}<div class="form-row"><label class="full"><span class="small muted">Рабочий интервал для выбранных дат</span><div class="form-row"><input type="time" data-work-start value="${esc(st.workStart||r.start||'10:00')}"><input type="time" data-work-end value="${esc(st.workEnd||r.end||'20:00')}"></div></label></div><div class="two" style="margin-top:10px"><button class="primary" data-save-work ${selected.length?'':'disabled'}>Сохранить рабочий день</button><button class="secondary" data-save-off ${selected.length?'':'disabled'}>Сделать выходным</button></div></div>`,nav())}
-function services(){return shell(`<div class="row"><h2>Прайс</h2><button class="secondary" data-add>+ Добавить</button></div><div class="notice">У каждой услуги есть цена и длительность. Длительность определяет размер слота.</div>${db.services.map(s=>`<div class="card"><div class="row"><div><b>${esc(s.name)}</b><div class="small muted">${s.duration} мин · ${money(s.price)}</div></div><span class="badge ${s.active?'green':'red'}">${s.active?'Активна':'Выключена'}</span></div><div class="two" style="margin-top:10px"><button class="secondary" data-edit="${s.id}">Изменить</button><button class="secondary" data-toggle="${s.id}">${s.active?'Выключить':'Включить'}</button></div></div>`).join('')}<button class="secondary" data-page="home">← Главная</button>`,nav())}
-function clientHome(){const mine=db.bookings.filter(x=>x.status!=='cancelled').sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));return shell(`<div class="hero"><h1>Онлайн-запись</h1><p>${esc(db.master.name)} · ${esc(db.master.specialty)}</p></div><button class="primary" data-new-booking>Записаться</button><h2>Мои записи</h2>${mine.length?mine.map(b=>`<div class="card"><div class="row"><div><b>${esc(svc(b.serviceId)?.name||b.serviceName||'Услуга')}</b><div class="small muted">${fmt(b.date)} · ${b.start}–${b.end}</div><div class="small muted">${money(b.price??0)}</div></div><span class="badge green">${b.date>=today()?'Предстоит':'Прошлая'}</span></div>${b.date<today()?`<button class="secondary full" data-repeat="${b.serviceId}">Повторить запись</button>`:''}</div>`).join(''):'<div class="empty card">Записей пока нет.</div>'}<button class="secondary full" data-role="master">Переключиться в режим мастера</button>`, '')}
-function client(){if(st.page==='home')return clientHome();if(st.page==='confirm')return confirmPage();const s=svc(st.service);if(!s)return shell(`<div class="hero"><h1>Новая запись</h1><p>Выберите услугу.</p></div><h2>1. Услуга</h2>${db.services.filter(x=>x.active).map(x=>`<button class="service" data-service="${x.id}"><div class="row"><div><b>${esc(x.name)}</b><div class="small muted">${x.duration} минут</div></div><b>${money(x.price)}</b></div></button>`).join('')}`);const sl=slots(st.date,s);return shell(`<div class="row"><div><h2>Новая запись</h2><div class="small muted">${esc(s.name)} · ${s.duration} мин · ${money(s.price)}</div></div><button class="secondary" data-reset>← Услуга</button></div><h2>2. Дата</h2>${monthCalendar()}<h2>3. Время</h2>${sl.length?`<div class="grid">${sl.map(t=>`<button class="slot ${t===st.slot?'active':''}" data-slot="${t}">${t}</button>`).join('')}</div>`:'<div class="notice">Свободного времени нет. Выберите другую дату.</div>'}${st.slot?`<button class="primary" data-confirm style="margin-top:16px">Продолжить</button>`:''}`, '')}
-function confirmPage(){const s=svc(st.service);return shell(`<div class="hero"><h1>Подтвердите запись</h1><p>Проверьте данные перед сохранением.</p></div><div class="card"><div class="list-item"><b>Услуга</b><div class="muted">${esc(s.name)}</div></div><div class="list-item"><b>Дата</b><div class="muted">${fmt(st.date)}</div></div><div class="list-item"><b>Время</b><div class="muted">${st.slot}–${HM(M(st.slot)+s.duration)}</div></div><div class="list-item"><b>Стоимость</b><div class="muted">${money(s.price)}</div></div></div><button class="primary" data-book>Подтвердить запись</button><button class="secondary full" data-back>← Изменить</button>`)}
-function bind(){
-  document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{st.role=b.dataset.role;st.page='home';st.service=null;st.slot=null;render()});
-  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{st.page=b.dataset.page;render()});
-  document.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>{const date=b.dataset.date;if(st.multiSelect){const i=st.multiDates.indexOf(date);if(i>=0)st.multiDates.splice(i,1);else st.multiDates.push(date);st.date=date;st.month=date.slice(0,7);}else{st.date=date;st.month=date.slice(0,7);st.slot=null;st.workStart=rule(date).start||'10:00';st.workEnd=rule(date).end||'20:00';}render()});
-  document.querySelector('[data-multi]')?.addEventListener('click',()=>{st.multiSelect=!st.multiSelect;if(st.multiSelect){st.multiDates=[st.date];st.workStart=rule(st.date).start||'10:00';st.workEnd=rule(st.date).end||'20:00';}else{st.multiDates=[];}render()});
-  document.querySelector('[data-work-start]')?.addEventListener('change',e=>{st.workStart=e.target.value});
-  document.querySelector('[data-work-end]')?.addEventListener('change',e=>{st.workEnd=e.target.value});
-  document.querySelector('[data-save-work]')?.addEventListener('click',()=>{const dates=st.multiSelect?st.multiDates:[st.date];if(!dates.length)return;if(!st.workStart||!st.workEnd||M(st.workStart)>=M(st.workEnd)){alert('Рабочий интервал задан неверно.');return}dates.forEach(date=>{const old=rule(date);db.workingDates[date]={working:true,start:st.workStart,end:st.workEnd,breaks:old.breaks||[]}});save();st.multiSelect=false;st.multiDates=[];render()});
-  document.querySelector('[data-save-off]')?.addEventListener('click',()=>{const dates=st.multiSelect?st.multiDates:[st.date];if(!dates.length)return;dates.forEach(date=>{const old=rule(date);db.workingDates[date]={working:false,start:null,end:null,breaks:old.breaks||[]}});save();st.multiSelect=false;st.multiDates=[];render()});
-  document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{st.service=b.dataset.service;st.date=today();st.month=st.date.slice(0,7);st.slot=null;st.page='book';render()});
-  document.querySelectorAll('[data-slot]').forEach(b=>b.onclick=()=>{st.slot=b.dataset.slot;render()});
-  document.querySelector('[data-reset]')?.addEventListener('click',()=>{st.service=null;st.slot=null;st.page='home';render()});
-  document.querySelector('[data-confirm]')?.addEventListener('click',()=>{st.page='confirm';render()});
-  document.querySelector('[data-back]')?.addEventListener('click',()=>{st.page='book';render()});
-  document.querySelector('[data-new-booking]')?.addEventListener('click',()=>{st.service=null;st.page='book';render()});
-  document.querySelectorAll('[data-repeat]').forEach(b=>b.onclick=()=>{st.service=b.dataset.repeat;st.date=today();st.month=st.date.slice(0,7);st.slot=null;st.page='book';render()});
-  document.querySelector('[data-book]')?.addEventListener('click',()=>{const s=svc(st.service);if(!slots(st.date,s).includes(st.slot)){alert('Время уже занято. Выберите другое.');st.page='home';st.slot=null;render();return}db.bookings.push({id:Date.now(),name:'Демо-клиент',serviceId:s.id,date:st.date,start:st.slot,end:HM(M(st.slot)+s.duration),price:s.price,status:'confirmed'});save();st.page='home';st.service=null;st.slot=null;alert('Запись создана');render()});
-  document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const s=svc(b.dataset.toggle);s.active=!s.active;save();render()});
-  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const s=svc(b.dataset.edit);const n=prompt('Название услуги',s.name);if(!n)return;const p=Number(prompt('Стоимость, ₽',s.price));const d=Number(prompt('Длительность, минут',s.duration));if(n&&p>0&&d>0){Object.assign(s,{name:n,price:p,duration:d});save();render()}});
-  document.querySelector('[data-add]')?.addEventListener('click',()=>{const n=prompt('Название услуги');if(!n)return;const p=Number(prompt('Стоимость, ₽','3000'));const d=Number(prompt('Длительность, минут','60'));if(p>0&&d>0){db.services.push({id:String(Date.now()),name:n,price:p,duration:d,active:true});save();render()}});
-  document.querySelectorAll('[data-month]').forEach(b=>b.onclick=()=>{const d=D(st.month+'-01');d.setMonth(d.getMonth()+(b.dataset.month==='next'?1:-1));st.month=iso(d).slice(0,7);render()});
-  document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{st.date=addDays(st.date,b.dataset.day==='next'?1:-1);st.month=st.date.slice(0,7);render()});
-  document.querySelectorAll('[data-free]').forEach(b=>b.onclick=()=>manualBooking(b.dataset.free));
-  document.querySelectorAll('[data-booking]').forEach(b=>b.onclick=()=>{const x=db.bookings.find(v=>String(v.id)===b.dataset.booking);if(!x)return;alert(`${x.name}\n${svc(x.serviceId)?.name||x.serviceName}\n${fmt(x.date)} · ${x.start}–${x.end}\n${money(x.price??0)}`)});
+
+function management() {
+  return shell(`
+    <section class="hero">
+      <div class="eyebrow">КАБИНЕТ МАСТЕРА</div>
+      <h1>Управление</h1>
+      <p>Основной рабочий экран мастера.</p>
+    </section>
+
+    <section class="section-grid">
+      <button class="menu-card" data-page="journal" type="button">
+        <span class="menu-icon">▤</span>
+        <b>Журнал</b>
+        <span>Работа с записями</span>
+      </button>
+      <button class="menu-card" data-page="schedule" type="button">
+        <span class="menu-icon">▦</span>
+        <b>График</b>
+        <span>Формирование рабочего графика</span>
+      </button>
+      <button class="menu-card" data-page="chat" type="button">
+        <span class="menu-icon">◌</span>
+        <b>Чат</b>
+        <span>Рассылки и коммуникация</span>
+      </button>
+      <button class="menu-card" data-page="settings" type="button">
+        <span class="menu-icon">⚙</span>
+        <b>Настройки</b>
+        <span>Рабочие настройки</span>
+      </button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">Сегодня</div>
+      <div class="empty">Рабочая информация появится после подключения функционала.</div>
+    </section>
+  `);
 }
-function manualBooking(start){const active=db.services.filter(x=>x.active);if(!active.length){alert('Сначала добавьте активную услугу в Прайс.');return}const names=active.map((s,i)=>`${i+1}. ${s.name} — ${s.duration} мин — ${money(s.price)}`).join('\n');const choice=Number(prompt(`Выберите услугу:\n${names}`,'1'))-1;const s=active[choice];if(!s)return;const name=prompt('Имя клиента','Клиент');if(!name)return;if(!slots(st.date,s).includes(start)){alert('Этот слот уже недоступен для выбранной услуги.');return}db.bookings.push({id:Date.now(),name,serviceId:s.id,date:st.date,start,end:HM(M(start)+s.duration),price:s.price,status:'confirmed'});save();render()}
-function render(){document.getElementById('app').innerHTML=st.role?(st.role==='master'?master():client()):home();bind()}
+
+function journal() {
+  return shell(`
+    <section class="page-head">
+      <div class="eyebrow">РАБОТА С ЖУРНАЛОМ</div>
+      <h1>Журнал</h1>
+      <p>День, месяц и список записей.</p>
+    </section>
+
+    <div class="tabs">
+      <button class="tab active" type="button">День</button>
+      <button class="tab" type="button">Месяц</button>
+      <button class="tab" type="button">Список</button>
+    </div>
+
+    <section class="panel">
+      <div class="panel-title">Сегодня</div>
+      <div class="empty">Записи будут отображаться здесь.</div>
+    </section>
+
+    <button class="primary" type="button">Новая запись</button>
+  `);
+}
+
+function schedule() {
+  const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  return shell(`
+    <section class="page-head">
+      <div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div>
+      <h1>График</h1>
+      <p>Шаблон рабочего графика и отдельные даты.</p>
+    </section>
+
+    <section class="panel">
+      <div class="row"><div class="panel-title">Базовый график</div><span class="muted">Шаблон</span></div>
+      <div class="week-list">
+        ${days.map(day => `<div class="week-row"><b>${day}</b><span>Работаю</span><span class="status-dot"></span></div>`).join('')}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">Рабочий интервал</div>
+      <div class="time-row"><div><span>Начало</span><b>10:00</b></div><div><span>Окончание</span><b>20:00</b></div></div>
+      <button class="secondary full" type="button">Рабочий интервал для выбранных дат</button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">Отдельные даты</div>
+      <div class="month-placeholder"><b>Август 2026</b><span>Календарь выбора дат</span></div>
+      <button class="primary" type="button">Множественный выбор дат</button>
+    </section>
+  `);
+}
+
+function chat() {
+  return shell(`
+    <section class="page-head">
+      <div class="eyebrow">КОММУНИКАЦИЯ</div>
+      <h1>Чат</h1>
+      <p>Подключение к чат-боту для рассылок, уведомлений и общения.</p>
+    </section>
+    <section class="section-grid one-column">
+      <div class="menu-card static"><span class="menu-icon">↗</span><b>Рассылки</b><span>Сообщения клиентам.</span></div>
+      <div class="menu-card static"><span class="menu-icon">◌</span><b>Уведомления</b><span>Сервисные уведомления.</span></div>
+      <div class="menu-card static"><span class="menu-icon">•••</span><b>Коммуникация</b><span>Диалог через чат-бот.</span></div>
+    </section>
+  `);
+}
+
+function settings() {
+  return shell(`
+    <section class="page-head">
+      <div class="eyebrow">РАБОЧИЕ НАСТРОЙКИ</div>
+      <h1>Настройки</h1>
+      <p>Параметры кабинета мастера.</p>
+    </section>
+    <section class="section-grid one-column">
+      <button class="menu-card" type="button"><span class="menu-icon">●</span><b>Профиль</b><span>Имя, специальность и данные кабинета.</span></button>
+      <button class="menu-card" type="button"><span class="menu-icon">◷</span><b>Рабочие параметры</b><span>Параметры рабочего процесса.</span></button>
+      <button class="menu-card" type="button"><span class="menu-icon">◌</span><b>Уведомления</b><span>Настройки уведомлений.</span></button>
+    </section>
+  `);
+}
+
+function render() {
+  const views = { journal, schedule, management, chat, settings };
+  app.innerHTML = views[state.page]();
+}
+
+app.addEventListener('click', event => {
+  const target = event.target.closest('[data-page]');
+  if (!target) return;
+  const page = target.dataset.page;
+  if (!PAGES.includes(page)) return;
+  state.page = page;
+  render();
+});
+
 render();

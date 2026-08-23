@@ -3,20 +3,22 @@
     const app=document.getElementById('app');
     if(!app)return;
 
-    app.querySelectorAll('h2').forEach(function(title){
-      if(title.textContent.trim()!=='Календарь')return;
-      title.textContent='График работы';
-
-      const row=title.closest('.row');
-      if(!row)return;
-      const button=row.querySelector('button[data-page="journal"]');
-      if(button)button.remove();
+    const calendarTitle=Array.from(app.querySelectorAll('h2')).find(function(title){
+      return title.textContent.trim()==='Календарь' || title.textContent.trim()==='График работы';
     });
+    if(calendarTitle){
+      calendarTitle.textContent='График работы';
+      const row=calendarTitle.closest('.row');
+      if(row){
+        const journalButton=row.querySelector('button[data-page="journal"]');
+        if(journalButton)journalButton.remove();
+      }
+    }
 
     const navButton=app.querySelector('nav.bottom button[data-page="calendar"]');
     if(navButton){
       const textNode=Array.from(navButton.childNodes).find(function(node){
-        return node.nodeType===Node.TEXT_NODE && node.textContent.trim()==='Календарь';
+        return node.nodeType===Node.TEXT_NODE && (node.textContent.trim()==='Календарь' || node.textContent.trim()==='График работы');
       });
       if(textNode)textNode.textContent='График работы';
     }

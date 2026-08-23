@@ -2,45 +2,10 @@
   const oldRender=window.render;
   const esc2=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
   function tabs(active){return `<div class="journal-tabs"><button class="journal-tab ${active==='day'?'active':''}" data-jv="day">День</button><button class="journal-tab ${active==='month'?'active':''}" data-jv="month">Месяц</button><button class="journal-tab ${active==='list'?'active':''}" data-jv="list">Список</button></div>`}
-  function monthLoadPercent(date){
-    if(!isWorking(date))return 0;
-    const raw=db.workingDates&&db.workingDates[date];
-    const dateHours=db.dateHours&&db.dateHours[date];
-    const h=Array.isArray(dateHours)?dateHours:(Array.isArray(raw)?raw:(db.hours[wd(date)]||['10:00','20:00']));
-    let total=Math.max(0,M(h[1])-M(h[0]));
-    const breaks=(db.breaks||[]).filter(x=>x&&x.date===date&&x.start&&x.end);
-    breaks.forEach(x=>{total-=Math.max(0,M(x.end)-M(x.start))});
-    if(total<=0)return 0;
-    const booked=(db.bookings||[]).filter(b=>b.date===date&&b.status!=='cancelled').reduce((sum,b)=>sum+Math.max(0,M(b.end)-M(b.start)),0);
-    return Math.max(0,Math.min(100,Math.round(booked/total*100)));
-  }
-  function monthTab(){
-    const days=allMonthDays(st.month),week=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-    const cells=days.map(x=>{
-      const other=x.slice(0,7)!==st.month;
-      const working=isWorking(x);
-      const count=db.bookings.filter(b=>b.date===x&&b.status!=='cancelled').length;
-      const load=monthLoadPercent(x);
-      return `<button class="journal-month-cell ${other?'other':''} ${working?'working':'off'} ${x===st.date?'selected':''}" data-month-date="${x}" style="--fill:${load}%"><span class="num">${D(x).getDate()}</span>${count?`<em>${count}</em>`:''}</button>`;
-    }).join('');
-    return shell(`${tabs('month')}<style>
-      .journal-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;width:100%;align-items:stretch}
-      .journal-month-weekday{min-width:0;text-align:center;font-size:12px;font-weight:700;color:#777;padding:7px 2px}
-      .journal-month-cell{min-width:0!important;width:100%;aspect-ratio:1/1;border:1px solid #e5e5e1!important;border-radius:10px!important;background:#fff!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;padding:8px!important;position:relative;overflow:hidden;cursor:pointer}
-      .journal-month-cell:before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--fill,0%);background:#bfe8f4;z-index:0}
-      .journal-month-cell.full:before{background:#8fd4e8}
-      .journal-month-cell>*{position:relative;z-index:1}
-      .journal-month-cell .num{font-size:19px;line-height:1;font-weight:800;color:#777}
-      .journal-month-cell.off .num{font-size:13px;font-weight:400;color:#999}
-      .journal-month-cell.other{background:#f4f4f2!important;opacity:.7}
-      .journal-month-cell.other .num{font-size:13px;font-weight:400;color:#aaa}
-      .journal-month-cell.selected{outline:2px solid #171717;outline-offset:-2px}
-      .journal-month-cell em{position:absolute;right:6px;bottom:6px;font-size:10px;font-style:normal;background:rgba(255,255,255,.82);border-radius:99px;padding:2px 5px;color:#666}
-      .journal-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;gap:8px;margin:12px 0}
-      .journal-month-head .secondary{padding:8px}
-      @media(max-width:480px){.journal-month-cell{padding:7px!important}}
-    </style><div class="journal-month-head"><button class="secondary" data-month-nav="prev">‹</button><b>${esc2(monthName(st.month))}</b><button class="secondary" data-month-nav="next">›</button></div><div class="journal-month-grid">${week.map(x=>`<div class="journal-month-weekday">${x}</div>`).join('')}${cells}</div>`,nav());
-  }
+  function monthLoadPercent(date){if(!isWorking(date))return 0;const raw=db.workingDates&&db.workingDates[date],dateHours=db.dateHours&&db.dateHours[date],h=Array.isArray(dateHours)?dateHours:(Array.isArray(raw)?raw:(db.hours[wd(date)]||['10:00','20:00']));let total=Math.max(0,M(h[1])-M(h[0]));(db.breaks||[]).filter(x=>x&&x.date===date&&x.start&&x.end).forEach(x=>{total-=Math.max(0,M(x.end)-M(x.start))});if(total<=0)return 0;const booked=(db.bookings||[]).filter(b=>b.date===date&&b.status!=='cancelled').reduce((sum,b)=>sum+Math.max(0,M(b.end)-M(b.start)),0);return Math.max(0,Math.min(100,Math.round(booked/total*100)))}
+  function monthTab(){const days=allMonthDays(st.month),week=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];const cells=days.map(x=>{const other=x.slice(0,7)!==st.month,working=isWorking(x),count=db.bookings.filter(b=>b.date===x&&b.status!=='cancelled').length,load=monthLoadPercent(x);return `<button class="journal-month-cell ${other?'other':''} ${working?'working':'off'} ${x===st.date?'selected':''}" data-month-date="${x}" style="--fill:${load}%"><span class="num">${D(x).getDate()}</span>${count?`<em>${count}</em>`:''}</button>`}).join('');return shell(`${tabs('month')}<style>
+.journal-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;width:100%;align-items:stretch}.journal-month-weekday{min-width:0;text-align:center;font-size:12px;font-weight:700;color:#777;padding:7px 2px}.journal-month-cell{min-width:0!important;width:100%;aspect-ratio:1/1;border:1px solid #e5e5e1!important;border-radius:10px!important;background:#fff!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;padding:8px!important;position:relative;overflow:hidden;cursor:pointer}.journal-month-cell:before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--fill,0%);background:#bfe8f4;z-index:0}.journal-month-cell.full:before{background:#8fd4e8}.journal-month-cell>*{position:relative;z-index:1}.journal-month-cell .num{font-size:19px;line-height:1;font-weight:800;color:#555}.journal-month-cell.working .num{font-size:19px!important;font-weight:800!important;color:#555!important}.journal-month-cell.off .num{font-size:13px!important;line-height:1.05;font-weight:400!important;color:#888!important}.journal-month-cell.other{background:#f4f4f2!important;opacity:.7}.journal-month-cell.other .num{font-size:13px!important;font-weight:400!important;color:#aaa!important}.journal-month-cell.selected{outline:2px solid #171717;outline-offset:-2px}.journal-month-cell em{position:absolute!important;right:5px!important;top:5px!important;bottom:auto!important;font-size:9px!important;line-height:1!important;font-style:normal;background:rgba(255,255,255,.92);border-radius:99px;padding:2px 5px;color:#666}.journal-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;gap:8px;margin:12px 0}.journal-month-head .secondary{padding:8px}@media(max-width:480px){.journal-month-cell{padding:7px!important}}
+</style><div class="journal-month-head"><button class="secondary" data-month-nav="prev">‹</button><b>${esc2(monthName(st.month))}</b><button class="secondary" data-month-nav="next">›</button></div><div class="journal-month-grid">${week.map(x=>`<div class="journal-month-weekday">${x}</div>`).join('')}${cells}</div>`,nav())}
   function day(){const date=st.date,h=(db.dateHours&&db.dateHours[date])||db.hours[wd(date)]||['10:00','20:00'],start=M(h[0]),end=M(h[1]),dayBreaks=(db.breaks||[]).filter(x=>x&&x.date===date).map(x=>({start:M(x.start),end:M(x.end)}));let rows='';for(let t=start;t<end;t+=30){const br=dayBreaks.find(x=>x.start<=t&&x.end>t);const b=!br&&db.bookings.find(b=>b.date===date&&b.status!=='cancelled'&&M(b.start)<=t&&M(b.end)>t);if(b&&M(b.start)!==t)continue;rows+=`<div class="day-sheet-row"><div class="day-time">${HM(t)}</div><div class="day-line">${br?`<div class="day-break" style="height:24px;min-height:24px;background:rgba(120,120,120,.22);border-radius:6px;padding:3px 8px;box-sizing:border-box;color:#666;font-size:12px;display:flex;align-items:center">Перерыв ${HM(br.start)}–${HM(br.end)}</div>`:b?`<div class="day-booking ${M(b.end)-M(b.start)>60?'multi':''}" style="height:${Math.max(24,Math.ceil((M(b.end)-M(b.start))/30)*30-6)}px"><b>${esc2(b.name||'Без клиента')} · ${b.start}–${b.end}</b><span>${esc2(b.serviceName||'Услуга')}</span></div>`:`<button class="day-free" data-open-master-booking="${HM(t)}"></button>`}</div></div>`}return shell(`${tabs('day')}<div class="journal-date-switch"><button class="secondary" data-jd="prev">‹</button><div class="date-label">${fmt(date)}</div><button class="secondary" data-jd="next">›</button></div>${isWorking(date)?`<div class="day-sheet">${rows}</div>`:'<button class="day-off-panel" id="open-working-day"><b>Выходной день</b><span>Нажмите, чтобы указать начало и завершение рабочего дня</span></button>'}`,nav())}
   function listTab(){const bs=db.bookings.filter(x=>x.status!=='cancelled').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));return shell(`${tabs('list')}<div class="hero"><h2>Список записей</h2></div>${bs.map(b=>`<div class="card"><div class="row"><div><b>${esc2(b.name||'Без клиента')}</b><div class="small muted">${fmt(b.date)} · ${b.start}–${b.end}</div><div class="small muted">${esc2(b.serviceName||'Услуга')}</div></div><span class="badge green">Запись</span></div></div>`).join('')||'<div class="empty card">Записей пока нет.</div>'}`,nav())}
   function booking(startTime){const root=document.createElement('div');root.id='master-booking-modal';root.innerHTML=`<div class="booking-modal-backdrop"><section class="booking-modal"><h3>1. Время начала</h3><p class="muted">Проверьте время. Можно изменить только начало.</p><label>Начало<input id="mb-start" type="time" value="${startTime}"></label><div class="modal-actions"><button class="secondary" id="mb-cancel">Отмена</button><button class="primary" id="mb-next">Далее</button></div></section></div>`;document.body.appendChild(root);const close=()=>root.remove();root.querySelector('#mb-cancel').onclick=close;root.querySelector('#mb-next').onclick=()=>services(root,root.querySelector('#mb-start').value,close)}
@@ -48,34 +13,4 @@
   function confirmBooking(root,startTime,selected,close){const total=selected.reduce((a,s)=>a+s.duration,0),end=M(startTime)+total,h=(db.dateHours&&db.dateHours[st.date])||db.hours[wd(st.date)]||['10:00','20:00'],bad=end>M(h[1]);root.querySelector('.booking-modal').innerHTML=`<h3>3. Подтвердить запись</h3><div class="booking-summary"><div class="row"><span>Дата</span><b>${fmt(st.date)}</b></div><div class="row"><span>Время</span><b>${startTime}–${HM(end)}</b></div><div class="row"><span>Длительность</span><b>${HM(total)}</b></div></div>${selected.map(s=>`<div class="row"><span>${esc2(s.name)}</span><b>${s.duration} мин</b></div>`).join('')}${bad?'<div class="notice">Запись не помещается до конца рабочего дня.</div>':''}<div class="modal-actions"><button class="secondary" id="mb-back3">Назад</button><button class="primary" id="mb-save" ${bad?'disabled':''}>Подтвердить</button></div>`;root.querySelector('#mb-back3').onclick=()=>services(root,startTime,close);root.querySelector('#mb-save').onclick=()=>{db.bookings.push({id:'b'+Date.now(),date:st.date,start:startTime,end:HM(end),serviceId:selected[0].id,serviceName:selected.map(s=>s.name).join(' + '),services:selected.map(s=>({id:s.id,name:s.name,duration:s.duration,price:s.price})),duration:total,price:selected.reduce((a,s)=>a+s.price,0),name:'Без клиента',status:'confirmed'});save();close();window.render()}}
   window.render=function(){oldRender();if(st.role!=='master')return;if(st.page==='journal')document.getElementById('app').innerHTML=day();if(st.page==='journal-month')document.getElementById('app').innerHTML=monthTab();if(st.page==='journal-list')document.getElementById('app').innerHTML=listTab();document.querySelectorAll('[data-jv]').forEach(b=>b.onclick=()=>{st.page=b.dataset.jv==='day'?'journal':b.dataset.jv==='month'?'journal-month':'journal-list';window.render()});document.querySelectorAll('[data-jd]').forEach(b=>b.onclick=()=>{st.date=addDays(st.date,b.dataset.jd==='next'?1:-1);window.render()});document.querySelectorAll('[data-open-master-booking]').forEach(b=>b.onclick=()=>booking(b.dataset.openMasterBooking));document.querySelectorAll('[data-month-nav]').forEach(b=>b.onclick=()=>{const d=D(st.month+'-01');d.setMonth(d.getMonth()+(b.dataset.monthNav==='next'?1:-1));st.month=iso(d).slice(0,7);window.render()});document.querySelectorAll('[data-month-date]').forEach(b=>b.onclick=()=>{st.date=b.dataset.monthDate;st.month=st.date.slice(0,7);st.page='journal';window.render()});document.querySelectorAll('[data-toggle-date]').forEach(b=>b.onclick=()=>{db.workingDates[st.date]=!isWorking(st.date);save();window.render()})};
 })();
-
-/* Approved Journal Day extension: configure a working range only when the selected day is a day off. */
-(function(){
-  const previousRender=window.render;
-  function workingDayModal(){
-    const date=st.date;
-    const root=document.createElement('div');
-    root.id='working-day-modal';
-    root.innerHTML=`<div class="booking-modal-backdrop"><section class="booking-modal"><h3>Начало рабочего дня</h3><label>Начало<input id="wd-start" type="time" value="10:00"></label><label>Завершение рабочего дня<input id="wd-end" type="time" value="20:00"></label><div class="modal-actions"><button class="secondary" id="wd-cancel">Отмена</button><button class="primary" id="wd-save">Сохранить</button></div></section></div>`;
-    document.body.appendChild(root);
-    const close=()=>root.remove();
-    root.querySelector('#wd-cancel').onclick=close;
-    root.querySelector('#wd-save').onclick=()=>{
-      const start=root.querySelector('#wd-start').value;
-      const end=root.querySelector('#wd-end').value;
-      if(!start||!end||M(end)<=M(start)){alert('Время завершения должно быть позже начала.');return;}
-      db.workingDates[date]=true;
-      db.dateHours=db.dateHours||{};
-      db.dateHours[date]=[start,end];
-      save();
-      close();
-      window.render();
-    };
-  }
-  window.render=function(){
-    previousRender();
-    if(st.role!=='master'||st.page!=='journal'||isWorking(st.date))return;
-    const panel=document.getElementById('open-working-day');
-    if(panel)panel.onclick=workingDayModal;
-  };
-})();
+(function(){const previousRender=window.render;function workingDayModal(){const date=st.date,root=document.createElement('div');root.id='working-day-modal';root.innerHTML=`<div class="booking-modal-backdrop"><section class="booking-modal"><h3>Начало рабочего дня</h3><label>Начало<input id="wd-start" type="time" value="10:00"></label><label>Завершение рабочего дня<input id="wd-end" type="time" value="20:00"></label><div class="modal-actions"><button class="secondary" id="wd-cancel">Отмена</button><button class="primary" id="wd-save">Сохранить</button></div></section></div>`;document.body.appendChild(root);const close=()=>root.remove();root.querySelector('#wd-cancel').onclick=close;root.querySelector('#wd-save').onclick=()=>{const start=root.querySelector('#wd-start').value,end=root.querySelector('#wd-end').value;if(!start||!end||M(end)<=M(start)){alert('Время завершения должно быть позже начала.');return}db.workingDates[date]=true;db.dateHours=db.dateHours||{};db.dateHours[date]=[start,end];save();close();window.render()}}window.render=function(){previousRender();if(st.role!=='master'||st.page!=='journal'||isWorking(st.date))return;const panel=document.getElementById('open-working-day');if(panel)panel.onclick=workingDayModal}})();

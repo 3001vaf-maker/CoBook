@@ -7,7 +7,17 @@
         if(!day.classList.contains('outside')) lastCurrent=index;
       });
       if(lastCurrent<0)return;
-      days.slice(lastCurrent+1).forEach(function(day){day.remove()});
+
+      // Keep the leading days from the previous month and the trailing days
+      // of the next month only through Sunday, so the visible grid is dynamic.
+      let lastVisible=lastCurrent;
+      for(let i=lastCurrent+1;i<days.length;i++){
+        if(i%7===6){
+          lastVisible=i;
+          break;
+        }
+      }
+      days.slice(lastVisible+1).forEach(function(day){day.remove()});
     });
   }
 

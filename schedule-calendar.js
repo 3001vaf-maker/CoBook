@@ -1,6 +1,4 @@
 (function () {
-  // Schedule calendar is the single owner of visible date generation and date selection.
-  // The application state remains the source of truth: state.rules[date] and state.selectedDates.
   function scheduleCalendarDays(year, month) {
     const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     const first = new Date(year, month, 1);
@@ -18,11 +16,8 @@
       const selected = state.selectedDates.has(key);
       const weekend = current.getDay() === 0 || current.getDay() === 6;
       const hours = working ? scheduleWorkingHours(rule) : '';
-      cells.push(
-        `<button class="calendar-day${inMonth ? '' : ' outside'}${weekend ? ' weekend' : ''}${working ? ' work' : ''}${selected ? ' selected' : ''}" data-action="calendar-date" data-date="${key}" type="button"><span>${current.getDate()}</span>${hours ? `<small class="calendar-hours">${hours}</small>` : ''}</button>`
-      );
+      cells.push(`<button class="calendar-day${inMonth ? '' : ' outside'}${weekend ? ' weekend' : ''}${working ? ' work' : ''}${selected ? ' selected' : ''}" data-action="calendar-date" data-date="${key}" type="button"><span>${current.getDate()}</span>${hours ? `<small class="calendar-hours">${hours}</small>` : ''}</button>`);
     }
-
     return cells.join('');
   }
 
@@ -30,11 +25,9 @@
     if (Array.isArray(rule?.intervals) && rule.intervals.length) {
       return rule.intervals.reduce((total, interval) => {
         if (!interval?.start || !interval?.end) return total;
-        const duration = minutesValue(interval.end) - minutesValue(interval.start);
-        return total + Math.max(0, duration);
+        return total + Math.max(0, minutesValue(interval.end) - minutesValue(interval.start));
       }, 0);
     }
-
     if (!rule?.start || !rule?.end) return 0;
     return Math.max(0, minutesValue(rule.end) - minutesValue(rule.start));
   }
@@ -53,54 +46,38 @@
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     let workingDays = 0;
     let workingMinutes = 0;
-
     for (let day = 1; day <= daysInMonth; day++) {
-      const key = dateKey(year, month, day);
-      const rule = state.rules[key];
+      const rule = state.rules[dateKey(year, month, day)];
       if (!rule) continue;
       workingDays++;
       workingMinutes += scheduleWorkingMinutes(rule);
     }
-
     const hours = Math.floor(workingMinutes / 60);
     const minutes = workingMinutes % 60;
     return `кл/д ${workingDays} р/ч ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
-  function scheduleDispatchAction(action, element) {
-    if (action !== 'calendar-date') {
-      return scheduleBaseDispatchAction(action, element);
-    }
+  function scheduleTimetable() {
+    const month = new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(new Date(state.year, state.month, 1));
+    const first = [...state.selectedDates][0];
+    const off = first && state.rules[first];
+    const summary = scheduleMonthSummary(state.year, state.month);
+    return shell(`<section class="page-head"><div class="eyebrow">ФОРМИРОВАНИЕ ГРАФИКА</div><div class="schedule-heading"><h1>График</h1><span class="schedule-month-summary">${summary}</span></div></section><section class="calendar-panel"><div class="period-row"><button class="period-arrow" data-action="year" data-direction="-1" type="button">‹</button><b>${state.year}</b><button class="period-arrow" data-action="year" data-direction="1" type="button">›</button></div><div class="period-row"><button class="period-arrow" data-action="month" data-direction="-1" type="button">‹</button><b>${month[0].toUpperCase() + month.slice(1)}</b><button class="period-arrow" data-action="month" data-direction="1" type="button">›</button></div><div class="calendar-grid">${scheduleCalendarDays(state.year, state.month)}</div><section class="panel work-interval"><div class="panel-title">Рабочий интервал</div><div class="time-row">${timeField('start', 'Начало', state.startTime)}${timeField('end', 'Окончание', state.endTime)}</div><button class="primary full action-button${off ? ' schedule-action-off' : ''}" data-action="apply-schedule" type="button">${off ? 'Применить: Выходной день' : 'Применить: Рабочий день'}</button></section></section>`);
+  }
 
+  function scheduleDispatchAction(action, element) {
+    if (action !== 'calendar-date') return scheduleBaseDispatchAction(action, element);
     const key = element.dataset.date;
     if (!key) return;
-
     const selected = state.selectedDates;
     const first = selected.values().next().value;
-
-    if (first !== undefined) {
-      const firstWorking = !!state.rules[first];
-      const clickedWorking = !!state.rules[key];
-      if (clickedWorking !== firstWorking) return;
-    }
-
-    if (selected.has(key)) selected.delete(key);
-    else selected.add(key);
-
+    if (first !== undefined && !!state.rules[first] !== !!state.rules[key]) return;
+    selected.has(key) ? selected.delete(key) : selected.add(key);
     render();
   }
 
   const scheduleBaseDispatchAction = dispatchAction;
-  const scheduleBaseTimetable = timetable;
-
   calendarDays = scheduleCalendarDays;
   dispatchAction = scheduleDispatchAction;
-
-  timetable = function () {
-    const summary = scheduleMonthSummary(state.year, state.month);
-    return scheduleBaseTimetable().replace(
-      '<h1>График</h1>',
-      `<div class="schedule-heading"><h1>График</h1><span class="schedule-month-summary">${summary}</span></div>`
-    );
-  };
+  timetable = scheduleTimetable;
 })();

@@ -1,14 +1,15 @@
 (function(){
   const baseDispatchAction=dispatchAction;
 
+  function applyDayState(day){
+    const key=day.dataset.date;
+    if(!key)return;
+    day.classList.toggle('selected',state.selectedDates.has(key));
+    day.classList.toggle('work',!!state.rules[key]);
+  }
+
   function syncVisibleSelection(){
-    document.querySelectorAll('.calendar-day[data-date]').forEach(function(day){
-      const key=day.dataset.date;
-      const selected=state.selectedDates.has(key);
-      const working=!!state.rules[key];
-      day.classList.toggle('selected',selected);
-      day.classList.toggle('work',working);
-    });
+    document.querySelectorAll('.calendar-grid .calendar-day[data-date]').forEach(applyDayState);
   }
 
   dispatchAction=function(action,element){
@@ -20,14 +21,16 @@
         const clickedIsWorking=!!state.rules[key];
         if(clickedIsWorking!==firstIsWorking)return;
       }
-      if(state.selectedDates.has(key)) state.selectedDates.delete(key);
+      if(state.selectedDates.has(key))state.selectedDates.delete(key);
       else state.selectedDates.add(key);
+      syncVisibleSelection();
       return render();
     }
     return baseDispatchAction(action,element);
   };
 
   const app=document.getElementById('app');
-  if(app)new MutationObserver(syncVisibleSelection).observe(app,{childList:true,subtree:true});
+  if(app)new MutationObserver(function(){requestAnimationFrame(syncVisibleSelection)}).observe(app,{childList:true,subtree:true});
   syncVisibleSelection();
+  requestAnimationFrame(syncVisibleSelection);
 })();

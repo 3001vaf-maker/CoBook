@@ -10,7 +10,7 @@
   let profiles = read();
   let current = null;
 
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc = value => String(value ?? '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
   const fullName = p => [p.displayName || p.firstName, p.surname].filter(Boolean).join(' ') || 'Новый профиль';
   const firstChar = p => (p.displayName || p.firstName || '?').charAt(0).toUpperCase();
   const newProfile = () => ({
@@ -35,9 +35,9 @@
     document.getElementById('app').innerHTML = `
       <div class="shell clients-screen">
         <main class="content">
-          <button class="clients-back" data-client-action="back">‹ Управление</button>
+          <button class="clients-back" data-client-action="back">‹ Главная</button>
           <section class="page-head">
-            <div class="eyebrow">УПРАВЛЕНИЕ</div>
+            <div class="eyebrow">ГЛАВНАЯ · КЛИЕНТЫ</div>
             <h1>Клиенты</h1>
           </section>
           <div id="clientsContent"></div>
@@ -64,9 +64,6 @@
   function renderCard(p) {
     current = p;
     normalizeContacts(p);
-    const phone = p.phones[0] || '';
-    const tg = p.telegrams[0] || '';
-    const email = p.emails[0] || '';
     document.getElementById('clientsContent').innerHTML = `
       <div class="client-card">
         <div class="client-card-head">
@@ -158,7 +155,10 @@
 
   document.addEventListener('click', e => {
     const management = e.target.closest('.management-folder');
-    if (management) { e.preventDefault();e.stopImmediatePropagation();clientsScreen();return; }
+    if (management) {
+      const title = management.querySelector('b')?.textContent.trim();
+      if (title === 'Клиенты') { e.preventDefault();e.stopImmediatePropagation();clientsScreen();return; }
+    }
     const a = e.target.closest('[data-client-action]')?.dataset.clientAction;
     if (a) {
       e.preventDefault();
@@ -182,4 +182,6 @@
     if (e.target.id==='clientIdInput') { const n=e.target.value.replace(/\D/g,'');e.target.value=n;document.getElementById('clientIdPreview').textContent=n?String(Number(n)).padStart(4,'0'):'—';document.getElementById('clientIdError').classList.add('hidden'); }
     if (e.target.id==='clientIdSearch') { e.target.value=e.target.value.replace(/\D/g,'');renderExisting(e.target.value); }
   });
+
+  window.clients = clientsScreen;
 })();

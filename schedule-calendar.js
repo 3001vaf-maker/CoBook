@@ -13,15 +13,50 @@
       const current = new Date(date);
       const key = dateKey(current.getFullYear(), current.getMonth(), current.getDate());
       const inMonth = current.getMonth() === month && current.getFullYear() === year;
-      const working = !!state.rules[key];
+      const rule = state.rules[key];
+      const working = !!rule;
       const selected = state.selectedDates.has(key);
       const weekend = current.getDay() === 0 || current.getDay() === 6;
+      const hours = working ? scheduleWorkingHours(rule) : '';
       cells.push(
-        `<button class="calendar-day${inMonth ? '' : ' outside'}${weekend ? ' weekend' : ''}${working ? ' work' : ''}${selected ? ' selected' : ''}" data-action="calendar-date" data-date="${key}" type="button"><span>${current.getDate()}</span></button>`
+        `<button class="calendar-day${inMonth ? '' : ' outside'}${weekend ? ' weekend' : ''}${working ? ' work' : ''}${selected ? ' selected' : ''}" data-action="calendar-date" data-date="${key}" type="button"><span>${current.getDate()}</span>${hours ? `<small class="calendar-hours">${hours}</small>` : ''}</button>`
       );
     }
 
     return cells.join('');
+  }
+
+  function scheduleWorkingMinutes(rule) {
+    if (Array.isArray(rule?.intervals) && rule.intervals.length) {
+      return rule.intervals.reduce((total, interval) => {
+        if (!interval?.start || !interval?.end) return total;
+        const duration = minutesValue(interval.end) - minutesValue(interval.start);
+        return total + Math.max(0, duration);
+      }, 0);
+    }
+
+    if (!rule?.start || !rule?.end) return 0;
+    return Math.max(0, minutesValue(rule.end) - minutesValue(rule.start));
+  }
+
+  function scheduleWorkingHours(rule) {
+    const minutes = scheduleWorkingMinutes(rule);
+    if (!minutes) return '';
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    if (!rest) return `${hours} ч`;
+    if (!hours) return `${rest} мин`;
+    return `${hours} ч ${rest} мин`;
+  }
+
+  function scheduleWorkingDaysCount(year, month) {
+    const days = new Date(year, month + 1, 0).getDate();
+    let count = 0;
+    for (let day = 1; day <= days; day++) {
+      const key = dateKey(year, month, day);
+      if (state.rules[key]) count++;
+    }
+    return count;
   }
 
   function scheduleDispatchAction(action, element) {
@@ -48,6 +83,16 @@
   }
 
   const scheduleBaseDispatchAction = dispatchAction;
+  const scheduleBaseTimetable = timetable;
+
   calendarDays = scheduleCalendarDays;
   dispatchAction = scheduleDispatchAction;
+
+  timetable = function () {
+    const count = scheduleWorkingDaysCount(state.year, state.month);
+    return scheduleBaseTimetable().replace(
+      '<h1>График</h1>',
+      `<div class="schedule-heading"><h1>График</h1><span class="schedule-working-count">Рабочих дней: ${count}</span></div>`
+    );
+  };
 })();

@@ -126,7 +126,7 @@
   };
 
   const style=document.createElement('style');
-  style.textContent=`.month-day.selected{outline:2px solid #171717!important;outline-offset:-2px}.month-day.working span{font-weight:800;color:#111}`;
+  style.textContent=`.month-day.selected{outline:2px solid #171717!important;outline-offset:-2px}.month-day.working span{font-weight:800;color:#111}.month-day.working.selected{background:#f4f1ea!important;border-color:#f4f1ea!important;color:#3b302b!important}.month-day.working.selected span{color:#3b302b!important;font-weight:800}`;
   document.head.appendChild(style);
 
   if(typeof st!=='undefined'){

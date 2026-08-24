@@ -49,14 +49,22 @@
     return `${hours} ч ${rest} мин`;
   }
 
-  function scheduleWorkingDaysCount(year, month) {
-    const days = new Date(year, month + 1, 0).getDate();
-    let count = 0;
-    for (let day = 1; day <= days; day++) {
+  function scheduleMonthSummary(year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let workingDays = 0;
+    let workingMinutes = 0;
+
+    for (let day = 1; day <= daysInMonth; day++) {
       const key = dateKey(year, month, day);
-      if (state.rules[key]) count++;
+      const rule = state.rules[key];
+      if (!rule) continue;
+      workingDays++;
+      workingMinutes += scheduleWorkingMinutes(rule);
     }
-    return count;
+
+    const hours = Math.floor(workingMinutes / 60);
+    const minutes = workingMinutes % 60;
+    return `кл/д ${workingDays} р/ч ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
   function scheduleDispatchAction(action, element) {
@@ -89,10 +97,10 @@
   dispatchAction = scheduleDispatchAction;
 
   timetable = function () {
-    const count = scheduleWorkingDaysCount(state.year, state.month);
+    const summary = scheduleMonthSummary(state.year, state.month);
     return scheduleBaseTimetable().replace(
       '<h1>График</h1>',
-      `<div class="schedule-heading"><h1>График</h1><span class="schedule-working-count">Рабочих дней: ${count}</span></div>`
+      `<div class="schedule-heading"><h1>График</h1><span class="schedule-month-summary">${summary}</span></div>`
     );
   };
 })();

@@ -1,4 +1,9 @@
 (() => {
+  const marker = 'cobook_clients_main_v1_initialized';
+  if (!localStorage.getItem(marker)) {
+    localStorage.removeItem('cobook_client_profiles');
+    localStorage.setItem(marker, '1');
+  }
   const inject = () => {
     const content = document.querySelector('.content');
     if (!content) return;
@@ -11,6 +16,7 @@
     button.innerHTML = '<span class="management-folder-icon">♙</span><span><b>Клиенты</b><small>Профили и клиентская база</small></span><span class="management-chevron">›</span>';
     service.insertAdjacentElement('afterend', button);
   };
-  new MutationObserver(inject).observe(document.getElementById('app'), {childList:true,subtree:true});
+  const app = document.getElementById('app');
+  if (app) new MutationObserver(inject).observe(app, {childList:true,subtree:true});
   inject();
 })();

@@ -1,101 +1,40 @@
-# CoBook — PROJECT STATE
+# PROJECT STATE
 
-## Источник истины
+## Current branch
+main
 
-`main` — текущая рабочая и контрольная точка проекта.
+## UI rule — Settings / Service / Documents / Loyalty
+These modules share one visual system based on the global CoBook tokens in `styles.css`:
+- `--mocha-dark`
+- `--mocha-medium`
+- `--mocha-border`
+- `--cashmere`
 
-## Архитектурные границы
+Cards use the same border language, radius family, spacing and typography. Section-level `Назад` controls use the same dark primary treatment: full width, 48px height, 14px radius, consistent border and font weight.
 
-- `maine` — Главная мастера.
-- `SERVICE` — самостоятельный раздел внутри `SETTINGS`: `SETTINGS → SERVICE → PROCEDURES / PRODUCTS`.
-- `LOYALTY` — самостоятельный раздел внутри `SETTINGS`.
-- `SERVICE` не управляет `maine`, `LOYALTY` или `SETTINGS`.
-- `service-ui.js` не содержит `management()`, `maine()` или `clients()`.
-- `LOYALTY` имеет одного владельца UI, внутренней навигации, хранения и действий: `loyalty-ui.js`.
-- `app.js` остаётся общим приложенческим роутером; старый `loyalty()` не является рабочим владельцем LOYALTY.
-- `loyalty-ui.js` отвечает за все экраны LOYALTY и их действия.
-- `loyalty-router-fix.js` не используется.
-- GitHub Pages имеет один активный workflow: `.github/workflows/static.yml`.
+Service, Documents and Loyalty keep their own functional modules, but must not invent a separate visual language for equivalent controls.
 
-## Клиенты и идентификаторы
+## Loyalty architecture
+Loyalty has one owner: `loyalty-ui.js`. Do not create separate loyalty navigation/fix modules and do not render Loyalty screens from `app.js`.
 
-В интерфейсе рабочая сущность мастера называется **Клиент**.
+Sections:
+- Программы
+- Сертификаты
+- Абонементы
+- Реферальная программа
+- Личный счёт
+- Депозиты
 
-`client_id` — единственный якорь клиента и всегда ровно четырёхзначное число `0000–9999`.
+## Deposits
+Deposit functionality is owned by `loyalty-ui.js`.
+A deposit program contains:
+- name
+- fixed prepaid amount
+- discount percentage
+- start date
+- end date
 
-`telegram_id` — идентификатор конкретного Telegram-аккаунта. Он не является `client_id` и автоматически не создаёт нового клиента.
+A deposit is not a personal account and is not a recurring top-up mechanism. Unused balance expires according to the program's end date.
 
-Один `client_id` может иметь несколько связанных Telegram ID. Связь выполняет мастер.
-
-Не вводить альтернативные идентификаторы (`profile_id`, `client_001` и т.п.) без прямого решения пользователя.
-
-## LOYALTY
-
-`SETTINGS → LOYALTY` содержит независимые механизмы:
-
-- `Программы` — условия и награды: скидка %, бесплатно (процедура или ручной подарок), деньги;
-- `Сертификаты` — отдельный предоплаченный номинал и баланс;
-- `Абонементы` — пакет предоплаченных посещений/услуг;
-- `Реферальная программа` — денежное или процентное вознаграждение;
-- `Личный счёт` — денежный баланс с начислениями и списаниями;
-- `Депозиты` — предоплаченная программа с фиксированным взносом, скидкой и периодом действия.
-
-### Навигация LOYALTY
-
-Во всех подразделах и редакторах `LOYALTY` используется один общий элемент `section-back-button`.
-
-- текст кнопки всегда `Назад`;
-- кнопка находится в едином нижнем контейнере `section-back-wrap` непосредственно перед основной нижней навигацией приложения;
-- из подраздела кнопка возвращает на главный экран `LOYALTY`;
-- из главного экрана `LOYALTY` тот же элемент возвращает в `SETTINGS`;
-- не создавать отдельные `loyalty-navigation`, `loyalty-back` или DOM-фиксы для отдельных экранов.
-
-### Личный счёт
-
-Личный счёт хранится отдельно от депозита. Баланс изменяется операциями `Начисление` и `Списание`. Недостаточный баланс не допускает списание. История операций хранится вместе со счётом.
-
-### Депозит
-
-Депозитная программа содержит:
-- название;
-- фиксированный первоначальный взнос;
-- процент скидки;
-- дату начала;
-- дату завершения.
-
-При подключении программы клиенту создаётся отдельный депозит с исходным балансом, равным взносу программы. У депозита сохраняются клиент, программа, баланс, скидка и период действия.
-
-Баланс уменьшается операциями списания. Недостаточный баланс не допускает списание. После даты завершения неиспользованный остаток считается сгоревшим. Депозит не пополняется автоматически и не смешивается с `Личным счётом`.
-
-## Хранилища
-
-- `cobook_loyalty_programs`
-- `cobook_loyalty_accounts`
-- `cobook_deposit_programs`
-- `cobook_loyalty_deposits`
-- `cobook_referrals`
-- `cobook_certificates`
-- `cobook_subscriptions`
-
-## Текущий этап
-
-Механизмы создания, настройки, сохранения и базовых операций реализованы локально в Mini App. Автоматическое применение скидки/награды к реальной записи из `JOURNAL/BOOKING`, автоматическое начисление реферального вознаграждения после фактического визита и автоматическое списание депозита при реальной оплате пока не подключены к финансовому/записному контуру. Это отдельный следующий этап интеграции.
-
-## Проверка
-
-- JavaScript syntax check текущего `main` проходит успешно.
-- Единственный активный Pages workflow `.github/workflows/static.yml` завершает шаг Deploy успешно.
-- Публикация собирается непосредственно из текущего `main`.
-
-## Правила разработки
-
-1. Работать непосредственно в `main`.
-2. Не создавать новые ветки без прямого решения пользователя.
-3. Перед каждым ответом по проекту сначала читать этот `PROJECT_STATE.md` из текущего `main`.
-4. Не выдавать визуальный рендер за реализованный функционал.
-5. При изменении интерфейса предоставлять рабочую ссылку на приложение.
-6. В каждом ответе по проекту в конце указывать полный SHA коммита и ссылку на рабочее приложение.
-7. Не объявлять изменение рабочим, пока соответствующий код не проверен.
-8. Не менять утверждённые архитектурные границы без решения пользователя.
-9. Не создавать функциональные мосты/фиксы, если существующий модуль должен владеть соответствующим маршрутом или действием.
-10. Для повторяющихся элементов интерфейса использовать единый компонент/элемент и единый стиль, а не отдельные исправляющие скрипты для каждого экрана.
+## Preservation rule
+A visual/style change must not remove or replace existing module functionality. After UI changes, JavaScript syntax validation and the published GitHub Pages deployment must both pass before reporting the task as complete.

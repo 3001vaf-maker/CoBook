@@ -15,11 +15,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Check application JavaScript
+      - name: Check all JavaScript files
         run: |
-          node --check app.js
-          node --check loyalty-ui.js
-          node --check service-ui.js
-          node --check documents-ui.js
-          node --check schedule-calendar.js
-          node --check domain-model.js
+          find . -type f -name '*.js' -not -path './.git/*' -print0 | xargs -0 -n1 node --check

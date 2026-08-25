@@ -1,11 +1,15 @@
-/* CoBook Loyalty navigation */
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  width: auto;
-  min-height: 40px;
-  margin: 0 0 14px;
-  padding: 8px 12px;
+/* Shared section back control for Loyalty. */
+.section-back-wrap {
+  width: 100%;
+  padding: 0 16px 12px;
+  box-sizing: border-box;
+}
+.section-back-button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
   border: 1px solid var(--mocha-border, #e5ded9);
   border-radius: 12px;
   background: #fff;
@@ -15,8 +19,6 @@
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
+  box-sizing: border-box;
 }
-
-.back-button:active {
-  transform: translateY(1px);
-}
+.section-back-button:active { transform: translateY(1px); }

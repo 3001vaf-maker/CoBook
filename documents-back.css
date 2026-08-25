@@ -1,1 +1,1 @@
-.document-back-button{display:block;width:100%;margin-top:14px;border:0;border-radius:14px;padding:14px 16px;background:var(--mocha-dark);color:#fff;font-weight:750;text-align:center}
+.document-back-button{display:block;width:100%;height:48px;margin-top:12px;border:1px solid var(--mocha-border);border-radius:14px;padding:0 16px;background:var(--mocha-dark);color:#fff;font-weight:750;text-align:center;font:inherit;cursor:pointer}.document-back-button:active{opacity:.88;transform:translateY(1px)}

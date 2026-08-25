@@ -10,7 +10,7 @@
  function profile(){return readStorage(PROFILE_KEY,{photo:'',name:'',phone:'',about:'',links:[],role:'',experience:'',professionAbout:''})}
  function workplaces(){const list=readStorage(WORK_KEY,[]);return Array.isArray(list)?list:[]}
  function saveProfile(p){localStorage.setItem(PROFILE_KEY,JSON.stringify(p))}
- function saveWorkplaces(list){localStorage.setItem(WORK_KEY,JSON.stringify(list)}
+ function saveWorkplaces(list){localStorage.setItem(WORK_KEY,JSON.stringify(list))}
  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
  function opt(list,value,empty){return `<option value="">${empty}</option>`+list.map(x=>{const val=Array.isArray(x)?x[0]:x,label=Array.isArray(x)?x[1]:x;return `<option value="${esc(val)}" ${value===val?'selected':''}>${esc(label)}</option>`}).join('')}
  function telegramLink(){try{const u=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.user;if(!u)return null;return {type:'Telegram',url:u.username?'https://t.me/'+u.username:'tg://user?id='+u.id}}catch(e){return null}}

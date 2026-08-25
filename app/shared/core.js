@@ -16,8 +16,8 @@
    const nextPage=settingsChildPages.has(requested)?'settings':requested;
    const previousPage=state.page;
    const previousSettingsView=state.settingsView||'home';
-   if(previousPage==='settings'&&nextPage!=='settings'){
-     const child=previousSettingsView!=='home'?moduleFor(previousSettingsView):null;
+   if(previousPage==='settings'&&previousSettingsView!=='home'&&(nextPage!=='settings'||requested!==previousSettingsView)){
+     const child=moduleFor(previousSettingsView);
      if(child&&typeof child.onLeave==='function')child.onLeave(nextPage);
    }
    if(nextPage==='settings') state.settingsView=requested==='settings'?'home':requested;

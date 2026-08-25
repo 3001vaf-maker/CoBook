@@ -1,0 +1,25 @@
+name: JavaScript syntax check
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check application JavaScript
+        run: |
+          node --check app.js
+          node --check loyalty-ui.js
+          node --check service-ui.js
+          node --check documents-ui.js
+          node --check schedule-calendar.js
+          node --check domain-model.js

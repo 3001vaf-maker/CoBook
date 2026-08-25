@@ -12,7 +12,7 @@
  const moduleFor=p=>CoBook.modules[p];
  window.navigate=page=>{state.page=page;if(page!=='maine'){state.maineView='main';state.clientView='list';state.selectedClientId=null}render()};
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();};
- window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);const mod=moduleFor(state.page);if(mod&&typeof mod.handle==='function')return mod.handle(action,e)};
+ window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);const mod=moduleFor(state.page);if(mod&&typeof mod.handle==='function'){const result=mod.handle(action,e);if(typeof result==='string')app.innerHTML=result;return result}};
  app.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&app.contains(b))dispatchAction(b.dataset.action,b)});
  document.body.addEventListener('click',e=>{const b=e.target.closest('[data-modal-action]');if(!b)return;const m=b.closest('[data-modal]');if(!m)return;if(b.dataset.modalAction==='close')m.remove();else {const mod=moduleFor(state.page);if(mod&&typeof mod.handleModal==='function')mod.handleModal(b.dataset.modalAction,m)}});
  window.CoBook.core={moduleFor};

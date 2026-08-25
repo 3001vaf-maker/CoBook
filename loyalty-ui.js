@@ -10,7 +10,7 @@
   function showList(){const r=root();if(r)r.innerHTML=list()}
   function showEditor(index=null){const r=root();if(r)r.innerHTML=editor(index)}
   document.addEventListener('click',function(e){
-    const create=e.target.closest('[data-loyalty-create]');
+    const create=e.target.closest('[data-loyalty-create],[data-action="loyalty-create"]');
     if(create){e.preventDefault();e.stopImmediatePropagation();showEditor(null);return;}
     const edit=e.target.closest('[data-loyalty-edit]');
     if(edit){e.preventDefault();e.stopImmediatePropagation();showEditor(Number(edit.dataset.loyaltyEdit));return;}

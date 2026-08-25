@@ -1,0 +1,22 @@
+/* CoBook Loyalty navigation */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: 40px;
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--mocha-border, #e5ded9);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--mocha-dark, #3b302b);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.back-button:active {
+  transform: translateY(1px);
+}

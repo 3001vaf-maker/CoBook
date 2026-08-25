@@ -3,17 +3,26 @@
  const today=new Date(); const dateKey=(y,m,d)=>`${y}-${m+1}-${d}`;
  const savedRules=readStorage('cobook_work_rules',{}), savedProcedures=readStorage('cobook_procedures',[{name:'Женская стрижка',duration:60,price:''},{name:'Мужская стрижка',duration:45,price:''},{name:'Детская стрижка',duration:45,price:''}]), savedProducts=readStorage('cobook_products',[{name:'Шампунь',price:''},{name:'Кондиционер',price:''},{name:'Краска для волос',price:''}]), savedClients=readStorage('cobook_clients',[]);
  window.CoBook=window.CoBook||{}; CoBook.modules=CoBook.modules||{};
- window.state={page:'maine',year:today.getFullYear(),month:today.getMonth(),selectedDates:new Set(),startTime:'10:00',endTime:'20:00',rules:savedRules||{},journalDate:dateKey(today.getFullYear(),today.getMonth(),today.getDate()),journalMode:'day',serviceMode:'procedures',procedures:Array.isArray(savedProcedures)?savedProcedures:[],products:Array.isArray(savedProducts)?savedProducts:[],clients:Array.isArray(savedClients)?savedClients:[],maineView:'main',clientView:'list',selectedClientId:null};
+ window.state={page:'maine',settingsView:'home',year:today.getFullYear(),month:today.getMonth(),selectedDates:new Set(),startTime:'10:00',endTime:'20:00',rules:savedRules||{},journalDate:dateKey(today.getFullYear(),today.getMonth(),today.getDate()),journalMode:'day',serviceMode:'procedures',procedures:Array.isArray(savedProcedures)?savedProcedures:[],products:Array.isArray(savedProducts)?savedProducts:[],clients:Array.isArray(savedClients)?savedClients:[],maineView:'main',clientView:'list',selectedClientId:null};
  const app=document.getElementById('app'); window.app=app; window.dateKey=dateKey;
  window.minutesValue=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+m}; window.readStorage=readStorage;
  const navItems=[['journal','▤','Журнал'],['timetable','▦','График'],['maine','⌂','Главная'],['chat','◌','Чат'],['settings','⚙','Настройки']];
  window.nav=()=>`<nav class="bottom">${navItems.map(([p,i,l])=>`<button class="nav" data-action="navigate" data-page="${p}" type="button"><span class="nav-icon">${i}</span><span>${l}</span></button>`).join('')}</nav>`;
  window.shell=(content,plain=false)=>`<div class="shell">${plain?'':`<header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header>`}<main class="content">${content}</main>${nav()}</div>`;
  const moduleFor=p=>CoBook.modules[p];
+ const settingsChildPages=new Set(['profile','service','work','documents','loyalty']);
  window.navigate=page=>{
-   const nextPage=String(page||'maine');
+   const requested=String(page||'maine');
+   const nextPage=settingsChildPages.has(requested)?'settings':requested;
    const previousPage=state.page;
-   if(previousPage===nextPage){render();return}
+   if(nextPage==='settings') state.settingsView=requested==='settings'?'home':requested;
+   else state.settingsView='home';
+   if(previousPage===nextPage){
+     if(nextPage!=='settings' && requested!=='settings') {render();return}
+     const settingsModule=moduleFor('settings');
+     if(settingsModule&&typeof settingsModule.onEnter==='function')settingsModule.onEnter(previousPage);
+     render();return;
+   }
    const previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);
    state.page=nextPage;

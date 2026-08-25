@@ -10,7 +10,18 @@
  window.nav=()=>`<nav class="bottom">${navItems.map(([p,i,l])=>`<button class="nav" data-action="navigate" data-page="${p}" type="button"><span class="nav-icon">${i}</span><span>${l}</span></button>`).join('')}</nav>`;
  window.shell=(content,plain=false)=>`<div class="shell">${plain?'':`<header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header>`}<main class="content">${content}</main>${nav()}</div>`;
  const moduleFor=p=>CoBook.modules[p];
- window.navigate=page=>{state.page=page;if(page!=='maine'){state.maineView='main';state.clientView='list';state.selectedClientId=null}render()};
+ window.navigate=page=>{
+   const nextPage=String(page||'maine');
+   const previousPage=state.page;
+   if(previousPage===nextPage){render();return}
+   const previousModule=moduleFor(previousPage);
+   if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);
+   state.page=nextPage;
+   if(nextPage!=='maine'){state.maineView='main';state.clientView='list';state.selectedClientId=null}
+   const nextModule=moduleFor(nextPage);
+   if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage);
+   render()
+ };
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();};
  window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);const mod=moduleFor(state.page);if(mod&&typeof mod.handle==='function'){const result=mod.handle(action,e);if(typeof result==='string')app.innerHTML=result;return result}};
  app.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&app.contains(b))dispatchAction(b.dataset.action,b)});

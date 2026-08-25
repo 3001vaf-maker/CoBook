@@ -13,34 +13,16 @@
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty']);
  window.navigate=page=>{
    const requested=String(page||'maine');
-   const nextPage=settingsChildPages.has(requested)?'settings':requested;
+   const nextPage=settingsChildPages.has(requested)?requested:requested;
    const previousPage=state.page;
-   const previousSettingsView=state.settingsView||'home';
-   if(previousPage==='settings'&&previousSettingsView!=='home'&&(nextPage!=='settings'||requested!==previousSettingsView)){
-     const child=moduleFor(previousSettingsView);
-     if(child&&typeof child.onLeave==='function')child.onLeave(nextPage);
-   }
-   if(nextPage==='settings') state.settingsView=requested==='settings'?'home':requested;
-   else state.settingsView='home';
-   if(previousPage===nextPage){
-     if(nextPage==='settings'&&requested!=='settings'){
-       const child=moduleFor(requested);
-       if(child&&typeof child.onEnter==='function')child.onEnter(previousPage);
-     }
-     render();return;
-   }
    const previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);
    state.page=nextPage;
+   state.settingsView=nextPage==='settings'?'home':(settingsChildPages.has(nextPage)?nextPage:'home');
    if(nextPage!=='maine'){state.maineView='main';state.clientView='list';state.selectedClientId=null}
-   if(nextPage==='settings'&&requested!=='settings'){
-     const child=moduleFor(requested);
-     if(child&&typeof child.onEnter==='function')child.onEnter(previousPage);
-   }else{
-     const nextModule=moduleFor(nextPage);
-     if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage);
-   }
-   render()
+   const nextModule=moduleFor(nextPage);
+   if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage);
+   render();
  };
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();};
  window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);const mod=moduleFor(state.page);if(mod&&typeof mod.handle==='function'){const result=mod.handle(action,e);if(typeof result==='string')app.innerHTML=result;return result}};

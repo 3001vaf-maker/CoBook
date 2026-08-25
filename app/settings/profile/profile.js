@@ -6,10 +6,11 @@
  const currencies=[['RUB','₽ Рубли'],['USD','$ Доллары США'],['EUR','€ Евро'],['GBP','£ Фунты стерлингов']];
  const linkTypes=['Instagram','VK','YouTube','TikTok','Сайт','Другое'];
  let tab='personal'; let editingWorkId=null; let linkTarget=null;
+ function resetView(){tab='personal';editingWorkId=null;linkTarget=null;document.querySelector('.profile-modal-backdrop')?.remove()}
  function profile(){return readStorage(PROFILE_KEY,{photo:'',name:'',phone:'',about:'',links:[],role:'',experience:'',professionAbout:''})}
  function workplaces(){const list=readStorage(WORK_KEY,[]);return Array.isArray(list)?list:[]}
  function saveProfile(p){localStorage.setItem(PROFILE_KEY,JSON.stringify(p))}
- function saveWorkplaces(list){localStorage.setItem(WORK_KEY,JSON.stringify(list))}
+ function saveWorkplaces(list){localStorage.setItem(WORK_KEY,JSON.stringify(list)}
  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
  function opt(list,value,empty){return `<option value="">${empty}</option>`+list.map(x=>{const val=Array.isArray(x)?x[0]:x,label=Array.isArray(x)?x[1]:x;return `<option value="${esc(val)}" ${value===val?'selected':''}>${esc(label)}</option>`}).join('')}
  function telegramLink(){try{const u=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.user;if(!u)return null;return {type:'Telegram',url:u.username?'https://t.me/'+u.username:'tg://user?id='+u.id}}catch(e){return null}}
@@ -28,5 +29,5 @@
  document.addEventListener('click',e=>{const b=e.target.closest('[data-profile-action]');if(!b)return;e.preventDefault();e.stopPropagation();handle(b.dataset.profileAction,b)});
  document.addEventListener('submit',e=>{const lf=e.target.closest('[data-profile-link-form]');if(lf){e.preventDefault();const data=readForm(lf);if(linkTarget?.workId){const list=workplaces(),w=list.find(x=>x.id===linkTarget.workId);if(w){w.links=w.links||[];w.links.push({type:data.type,url:data.url});saveWorkplaces(list)}}else{const p=profile();p.links=Array.isArray(p.links)?p.links:[];p.links.push({type:data.type,url:data.url});saveProfile(p)}closeModal();render();return}const f=e.target.closest('[data-work-form]');if(f){e.preventDefault();handle('work-save',f);return}const p=e.target.closest('[data-profile-form]');if(p){e.preventDefault();handle('profile-save',p)}});
  document.addEventListener('change',e=>{if(e.target.matches('[data-profile-photo]')){const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{const p=profile();p.photo=r.result;saveProfile(p);render()};r.readAsDataURL(file)}if(e.target.matches('[data-work-photo]')){const form=e.target.closest('[data-work-form]'),w=workplaces().find(x=>x.id===form?.dataset.id);if(!w)return;const files=[...(e.target.files||[])];const remaining=3-(w.photos||[]).length;files.slice(0,remaining).forEach(file=>{const r=new FileReader();r.onload=()=>{w.photos=[...(w.photos||[]),r.result];saveWorkplaces(workplaces().map(x=>x.id===w.id?w:x));render()};r.readAsDataURL(file)})}});
- CoBook.modules.profile={render,handle};
+ CoBook.modules.profile={render,handle,onEnter:resetView,onLeave:resetView};
 })();

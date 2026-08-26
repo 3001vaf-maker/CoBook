@@ -8,7 +8,7 @@
  const back=()=>`<button class="section-back-button" data-action="navigate" data-page="settings" type="button">Назад</button>`;
  function confirmDelete(wallet){
    if(!wallet)return '';
-   return `<div class="confirm-modal" data-modal="wallet-delete" role="dialog" aria-modal="true" aria-labelledby="wallet-delete-title"><div class="confirm-modal-inner"><div class="confirm-modal-eyebrow">УДАЛЕНИЕ КОШЕЛЬКА</div><h2 id="wallet-delete-title">Удалить «${esc(wallet.name)}»?</h2><p>Это действие удалит кошелёк из ваших настроек. Подтвердите удаление.</p><div class="confirm-modal-actions"><button class="danger" data-action="wallet-delete-confirm" type="button">Удалить кошелёк</button><button class="secondary" data-action="wallet-delete-cancel" type="button">Отмена</button></div></div></div>`;
+   return `<div class="confirm-modal" data-modal="wallet-delete" role="dialog" aria-modal="true" aria-labelledby="wallet-delete-title"><div class="confirm-modal-inner"><div class="confirm-modal-eyebrow">УДАЛЕНИЕ КОШЕЛЬКА</div><h2 id="wallet-delete-title">Удалить «${esc(wallet.name)}»?</h2><p>Это действие удалит кошелёк и все данные, связанные с ним. Восстановить удалённые данные будет невозможно. Подтвердите удаление.</p><div class="confirm-modal-actions"><button class="primary" data-action="wallet-delete-cancel" type="button">Отмена</button><button class="danger" data-action="wallet-delete-confirm" type="button">Удалить</button></div></div></div>`;
  }
  function home(){
    const wallets=read();

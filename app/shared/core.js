@@ -25,8 +25,16 @@
    render();
  };
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();};
- window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);const mod=moduleFor(state.page);if(mod&&typeof mod.handle==='function'){const result=mod.handle(action,e);if(typeof result==='string')app.innerHTML=result;return result}};
- app.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&app.contains(b))dispatchAction(b.dataset.action,b)});
- document.body.addEventListener('click',e=>{const b=e.target.closest('[data-modal-action]');if(!b)return;const m=b.closest('[data-modal]');if(!m)return;if(b.dataset.modalAction==='close')m.remove();else {const mod=moduleFor(state.page);if(mod&&typeof mod.handleModal==='function')mod.handleModal(b.dataset.modalAction,m)}});
+ window.dispatchAction=(action,e)=>{
+   if(action==='navigate')return navigate(e.dataset.page);
+   if(action==='modal-close')return e.closest('[data-modal]')?.remove();
+   const mod=moduleFor(state.page);
+   if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
+ };
+ document.addEventListener('click',e=>{
+   const b=e.target.closest('[data-action]');
+   if(!b)return;
+   dispatchAction(b.dataset.action,b);
+ },false);
  window.CoBook.core={moduleFor};
 })();

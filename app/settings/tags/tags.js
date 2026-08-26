@@ -20,7 +20,8 @@
      tags.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,color});
      write(tags);
      state.tagsView='home';
-     return render();
+     render();
+     return;
    }
    if(action==='tag-delete'){
      const index=Number(e.dataset.tagIndex);
@@ -28,7 +29,8 @@
      if(!Number.isInteger(index)||index<0||index>=tags.length)return;
      tags.splice(index,1);
      write(tags);
-     return render();
+     render();
+     return;
    }
  }
  function renderEditor(){state.tagsView='editor';app.innerHTML=editor();}

@@ -12,8 +12,7 @@
  const moduleFor=p=>CoBook.modules[p];
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty']);
  window.navigate=page=>{
-   const requested=String(page||'maine');
-   const nextPage=settingsChildPages.has(requested)?requested:requested;
+   const nextPage=String(page||'maine');
    const previousPage=state.page;
    const previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);
@@ -31,10 +30,18 @@
    const mod=moduleFor(state.page);
    if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
  };
- document.addEventListener('click',e=>{
+ const nativeDocumentAddEventListener=document.addEventListener.bind(document);
+ const legacyClickHandlers=[];
+ let unifiedClickListener;
+ unifiedClickListener=e=>{
    const b=e.target.closest('[data-action]');
-   if(!b)return;
-   dispatchAction(b.dataset.action,b);
- },false);
+   if(b)return dispatchAction(b.dataset.action,b);
+   for(const handler of legacyClickHandlers)handler(e);
+ };
+ nativeDocumentAddEventListener('click',unifiedClickListener,false);
+ document.addEventListener=function(type,listener,options){
+   if(type==='click'&&listener!==unifiedClickListener){legacyClickHandlers.push(listener);return;}
+   return nativeDocumentAddEventListener(type,listener,options);
+ };
  window.CoBook.core={moduleFor};
 })();

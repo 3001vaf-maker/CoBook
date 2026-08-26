@@ -30,18 +30,11 @@
    const mod=moduleFor(state.page);
    if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
  };
- const nativeDocumentAddEventListener=document.addEventListener.bind(document);
- const legacyClickHandlers=[];
- let unifiedClickListener;
- unifiedClickListener=e=>{
-   const b=e.target.closest('[data-action]');
-   if(b)return dispatchAction(b.dataset.action,b);
-   for(const handler of legacyClickHandlers)handler(e);
- };
- nativeDocumentAddEventListener('click',unifiedClickListener,false);
- document.addEventListener=function(type,listener,options){
-   if(type==='click'&&listener!==unifiedClickListener){legacyClickHandlers.push(listener);return;}
-   return nativeDocumentAddEventListener(type,listener,options);
- };
+ document.addEventListener('click',function(e){
+   const target=e.target instanceof Element?e.target:e.target?.parentElement;
+   const actionElement=target?.closest?.('[data-action]');
+   if(!actionElement)return;
+   dispatchAction(actionElement.dataset.action,actionElement);
+ },false);
  window.CoBook.core={moduleFor};
 })();

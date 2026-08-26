@@ -10,6 +10,9 @@
    return shell(`<section class="page-head"><div class="eyebrow">НАСТРОЙКИ · ЯРЛЫКИ</div><h1>Ярлыки</h1></section><div class="tags-list">${tags.length?tags.map((t,i)=>`<div class="tags-row"><span class="tag-chip" style="--tag-color:${esc(t.color)}">${esc(t.name)}</span><button class="danger tags-delete" data-action="tag-delete" data-tag-index="${i}" type="button">Удалить</button></div>`).join(''):'<div class="loyalty-empty">Ярлыков пока нет</div>'}</div><button class="primary full" data-action="tag-create" type="button">Добавить ярлык</button>${back()}`);
  }
  function editor(){return shell(`<section class="page-head"><div class="eyebrow">НАСТРОЙКИ · ЯРЛЫК</div><h1>Новый ярлык</h1></section><section class="loyalty-form"><label class="service-field"><span>Название</span><input data-tag-name maxlength="40" placeholder="Например, VIP"></label><label class="service-field"><span>Цвет</span><input data-tag-color type="color" value="#8a7466"></label><button class="primary full" data-action="tag-save" type="button">Сохранить</button></section>${back()}`);}
+ function renderEditor(){state.tagsView='editor';app.innerHTML=editor();}
+ function render(){return state.tagsView==='editor'?editor():home()}
+ function refresh(){app.innerHTML=render();}
  function handle(action,e){
    if(action==='tag-create')return renderEditor();
    if(action==='tag-save'){
@@ -20,7 +23,7 @@
      tags.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,color});
      write(tags);
      state.tagsView='home';
-     render();
+     refresh();
      return;
    }
    if(action==='tag-delete'){
@@ -29,11 +32,9 @@
      if(!Number.isInteger(index)||index<0||index>=tags.length)return;
      tags.splice(index,1);
      write(tags);
-     render();
+     refresh();
      return;
    }
  }
- function renderEditor(){state.tagsView='editor';app.innerHTML=editor();}
- function render(){return state.tagsView==='editor'?editor():home()}
  CoBook.modules.tags={render,handle,onEnter(){state.tagsView='home'},onLeave(){}};
 })();

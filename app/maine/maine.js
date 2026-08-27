@@ -25,7 +25,7 @@
 
   function clients(){
     const list=state.clients.length
-      ? `<div class="client-list">${state.clients.map(client=>`<button class="management-folder client-row" data-action="client-open" data-client-id="${esc(client.id)}" type="button"><span class="management-folder-icon">●</span><span><b>${esc(client.name||'Без имени')}</b><small>${esc(client.code)} · ${esc(client.phone||'Телефон не указан')}</small></span><span class="management-chevron">›</span></button>`).join('')}</div>`
+      ? `<div class="service-list client-list">${state.clients.map(client=>`<button class="service-row management-folder client-row" data-action="client-open" data-client-id="${esc(client.id)}" type="button"><span class="management-folder-icon">●</span><span><b>${esc(client.name||'Без имени')}</b><small>${esc(client.code)} · ${esc(client.phone||'Телефон не указан')}</small></span><span class="management-chevron">›</span></button>`).join('')}</div>`
       : `<section class="panel client-empty"><div class="panel-title">Клиентов пока нет</div><p>Создайте первую карточку клиента.</p></section>`;
     return shell(`<section class="page-head"><div class="eyebrow">MAINE</div><h1>Клиенты</h1><p>${state.clients.length} ${state.clients.length===1?'клиент':'клиентов'}</p></section>${list}<button class="action-button full" data-action="client-new" type="button">Добавить клиента</button><button class="back-button" data-action="maine-back" type="button">Назад</button>`);
   }

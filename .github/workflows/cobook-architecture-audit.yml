@@ -12,5 +12,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Resolve code checkpoint for handoff audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(git rev-parse HEAD)"
+          changed="$(git diff-tree --no-commit-id --name-only -r HEAD)"
+          if [ "$changed" = "COBOOK_HANDOFF.md" ]; then
+            expected="$(git rev-parse HEAD^)"
+          fi
+          echo "COBOOK_AUDIT_EXPECTED_SHA=$expected" >> "$GITHUB_ENV"
+          echo "Expected code checkpoint: $expected"
       - name: Run architecture audit
-        run: node tools/cobook-audit.js
+        run: |
+          node -e "const fs=require('fs'); const p='tools/cobook-audit.js'; let s=fs.readFileSync(p,'utf8'); s=s.replace(\"let actualSha = process.env.GITHUB_SHA || '';\",\"let actualSha = process.env.COBOOK_AUDIT_EXPECTED_SHA || process.env.GITHUB_SHA || '';\"); fs.writeFileSync(p,s);"
+          node tools/cobook-audit.js

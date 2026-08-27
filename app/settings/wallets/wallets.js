@@ -18,7 +18,7 @@
  }
  function editor(){return shell(`<section class="page-head"><div class="eyebrow">НАСТРОЙКИ · КОШЕЛЁК</div><h1>Новый кошелёк</h1></section><section class="panel"><label class="service-field"><span>Название кошелька</span><input data-wallet-name maxlength="60" autocomplete="off" placeholder="Например, Сбербанк"></label><button class="primary full" data-action="wallet-save" type="button">Сохранить</button></section>${back()}`)}
  function render(){return state.walletsView==='editor'?editor():home()}
- function refresh(){app.innerHTML=render()}
+ function refresh(){window.render()}
  function handle(action,e){
    if(action==='wallet-create'){state.walletsView='editor';state.walletDeleteIndex=null;refresh();return}
    if(action==='wallet-save'){

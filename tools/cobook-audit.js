@@ -110,6 +110,26 @@ for (const file of actionFiles) {
   if (suspicious.length) moduleCssTokens.push({file: rel(file), tokens: [...new Set(suspicious)]});
 }
 
+// The handoff is part of the project's continuity contract. It must point at
+// the exact commit that is being tested, otherwise a new chat can resume from
+// a state that does not match the repository. In CI GITHUB_SHA is authoritative;
+// locally we use the checked-out git HEAD when available.
+const handoffPath = path.join(ROOT, 'COBOOK_HANDOFF.md');
+if (fs.existsSync(handoffPath)) {
+  const handoff = read(handoffPath);
+  let actualSha = process.env.GITHUB_SHA || '';
+  if (!actualSha) {
+    try { actualSha = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim(); } catch (_) {}
+  }
+  const recordedSha = handoff.match(/Latest actual code checkpoint:\s*`([0-9a-f]{40})`/i)?.[1] || '';
+  if (actualSha && recordedSha && actualSha !== recordedSha) {
+    addFail('HANDOFF_SYNC', handoffPath, `recorded ${recordedSha}, actual HEAD ${actualSha}`);
+  } else if (!recordedSha) {
+    addFail('HANDOFF_SYNC', handoffPath, 'Latest actual code checkpoint is missing');
+  }
+  if (!/## Exact next action\b[\s\S]*\S/i.test(handoff)) addFail('HANDOFF_NEXT_ACTION', handoffPath, 'exact next action section is missing or empty');
+}
+
 report.push(`Files scanned: ${sourceFiles.length}`);
 report.push(`CSS files: ${cssFiles.join(', ') || 'none'}`);
 report.push(`Registered actions: ${registeredActions.size}`);

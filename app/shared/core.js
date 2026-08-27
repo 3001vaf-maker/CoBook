@@ -14,9 +14,20 @@
  const actionOwners=new Map([
    ['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']
  ]);
+ const LIST_CONTAINER_CLASSES=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list'];
+ const LIST_ITEM_CLASSES=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
+ const LIST_ITEM_REMOVE=['procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
  const normalizeUI=()=>{
-   document.querySelectorAll('.service-list,.loyalty-list,.work-list,.wallet-list,.tags-list,.documents-list,.client-list').forEach(el=>el.classList.add('ui-list'));
-   document.querySelectorAll('.service-row,.procedure-card,.product-card,.work-card,.wallet-row,.tags-row,.document-card,.client-row,.loyalty-card').forEach(el=>{el.classList.add('ui-list-item','service-row')});
+   document.querySelectorAll(LIST_CONTAINER_CLASSES.map(x=>'.'+x).join(',')).forEach(el=>{
+     el.classList.add('service-list','ui-list');
+     LIST_CONTAINER_CLASSES.filter(x=>x!=='service-list').forEach(x=>el.classList.remove(x));
+   });
+   document.querySelectorAll(LIST_ITEM_CLASSES.map(x=>'.'+x).join(',')).forEach(el=>{
+     LIST_ITEM_REMOVE.forEach(x=>el.classList.remove(x));
+     el.classList.add('service-row','ui-list-item');
+   });
+   document.querySelectorAll('button.primary,button.secondary,button.danger,button.action-button,button.section-back-button,button.back-button,button.service-back,button.document-back-button,button.loyalty-back').forEach(el=>el.classList.add('ui-button'));
+   document.querySelectorAll('input:not([type="file"]),select,textarea').forEach(el=>el.classList.add('ui-control'));
  };
  window.navigate=page=>{
    const nextPage=String(page||'maine');

@@ -1,5 +1,5 @@
 (function(){
-  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const esc=value=>String(value??'').replace(/[&<>\"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[char]));
   const formatMoney=value=>new Intl.NumberFormat('ru-RU').format(Number(value)||0)+' ₽';
   const formatDate=value=>{if(!value)return '';const date=new Date(value);if(Number.isNaN(date.getTime()))return value;return new Intl.DateTimeFormat('ru-RU').format(date)};
   const saveClients=()=>localStorage.setItem('cobook_clients',JSON.stringify(state.clients));
@@ -9,7 +9,7 @@
   const selectField=(label,name,value,options)=>CoBook.ui.select({label,name,value,options,className:'client-field'});
   const button=(label,action,variant='primary',attrs='')=>CoBook.ui.button({label,action,variant,attrs,className:variant==='primary'?'full':''});
 
-  function main(){return shell(`<section class="hero"><div class="eyebrow">КАБИНЕТ МАСТЕРА</div><h1>Главная</h1></section><div class="premium-grid"><button class="premium" data-action="clients-open" type="button"><span class="premium-title">Клиенты</span><span class="premium-value">${state.clients.length}</span><span class="premium-meta">Клиентская база</span></button></div>`)}
+  function main(){return shell(`<section class="hero"><div class="eyebrow">КАБИНЕТ МАСТЕРА</div><h1>Главная</h1></section><div class="premium-grid">${CoBook.ui.featureButton({action:'clients-open',className:'premium',attrs:'aria-label="Клиенты"',content:`<span class="premium-title">Клиенты</span><span class="premium-value">${state.clients.length}</span><span class="premium-meta">Клиентская база</span>`})}</div>`)}
 
   function clients(){
     const list=state.clients.length?`<div class="ui-list client-list">${state.clients.map(client=>CoBook.ui.listItem({icon:'●',title:client.name||'Без имени',subtitle:`${client.code} · ${client.phone||'Телефон не указан'}`,rootTag:'button',rootAction:'client-open',rootAttrs:`data-client-id="${esc(client.id)}"`,itemClass:'client-row'})).join('')}</div>`:`<section class="panel client-empty"><div class="panel-title">Клиентов пока нет</div><p>Создайте первую карточку клиента.</p></section>`;

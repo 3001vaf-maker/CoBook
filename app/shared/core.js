@@ -11,7 +11,7 @@
  window.shell=(content,plain=false)=>`<div class="shell">${plain?'':`<header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header>`}<main class="content">${content}</main>${nav()}</div>`;
  const moduleFor=p=>CoBook.modules[p];
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty','tags','wallets']);
- const actionOwners=new Map([['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine'],['profile-profession-save','profile'],['profile-workplace-save','profile'],['materials-save','work'],['recipe-save','work']]);
+ const actionOwners=new Map([['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine'],['profile-personal-save','profile'],['profile-profession-save','profile'],['profile-workplace-save','profile'],['materials-save','work'],['recipe-save','work']]);
  const listContainers=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list','loyalty-menu'];
  const listItems=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card','management-folder','profile-clean-folder'];
  const normalizeUI=()=>{

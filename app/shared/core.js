@@ -20,6 +20,10 @@
    document.querySelectorAll('button:not(.nav)').forEach(el=>el.classList.add('ui-button'));
    document.querySelectorAll('input:not([type="file"]),select,textarea').forEach(el=>el.classList.add('ui-control'));
  };
+ const escapeHtml=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+ const attrs=v=>v||'';
+ window.CoBook.ui=window.CoBook.ui||{};
+ CoBook.ui.listItem=({icon='',title='',subtitle='',action='',actionLabel='',actionClass='danger',actionAttrs='',contentClass='',itemClass=''})=>`<div class="ui-list-item ui-entity-row ${itemClass}">${icon?`<span class="ui-entity-icon" aria-hidden="true">${icon}</span>`:''}<div class="ui-entity-content ${contentClass}"><div class="ui-entity-title">${escapeHtml(title)}</div>${subtitle?`<div class="ui-entity-subtitle">${escapeHtml(subtitle)}</div>`:''}</div>${action?`<button class="${actionClass}" data-action="${action}" ${attrs(actionAttrs)} type="button">${escapeHtml(actionLabel)}</button>`:''}</div>`;
  window.navigate=page=>{
    const nextPage=String(page||'maine'),previousPage=state.page,previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);

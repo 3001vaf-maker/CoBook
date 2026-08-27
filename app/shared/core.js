@@ -26,7 +26,9 @@
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();normalizeUI();};
  window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);if(action==='modal-close')return e.closest('[data-modal]')?.remove();const owner=actionOwners.get(action),mod=moduleFor(owner||state.page);if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null)};
  const handleClick=e=>{const target=e.target&&e.target.nodeType===1?e.target:e.target?.parentElement,actionElement=target?.closest?.('[data-action]');if(!actionElement)return;dispatchAction(actionElement.dataset.action,actionElement)};
+ const handleChange=e=>{const target=e.target;if(!target||target.nodeType!==1)return;const mod=moduleFor(state.page);if(mod&&typeof mod.handleChange==='function')return mod.handleChange(target,e)};
  document.addEventListener('click',handleClick,true);
+ document.addEventListener('change',handleChange,true);
  let normalizeQueued=false;
  const observer=new MutationObserver(()=>{if(normalizeQueued)return;normalizeQueued=true;queueMicrotask(()=>{normalizeQueued=false;normalizeUI()})});
  observer.observe(app,{subtree:true,childList:true});

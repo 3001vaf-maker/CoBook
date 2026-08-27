@@ -10,7 +10,7 @@ function walk(dir) {
     const full = path.join(dir, name);
     const stat = fs.statSync(full);
     if (stat.isDirectory()) walk(full);
-    else if (/\.(html|js|css)$/i.test(name)) sourceFiles.push(full);
+    else if (/\.(html|js|css|md)$/i.test(name)) sourceFiles.push(full);
   }
 }
 walk(ROOT);
@@ -110,10 +110,35 @@ for (const file of actionFiles) {
   if (suspicious.length) moduleCssTokens.push({file: rel(file), tokens: [...new Set(suspicious)]});
 }
 
+// Registry completeness is a continuity guard: every component the project
+// promises to control must exist in the canonical registry before it can be
+// treated as a known owner/variant.
+const registryPath = path.join(ROOT, 'UI_COMPONENTS.md');
+const requiredRegistryComponents = [
+  'BUTTON', 'LIST', 'LIST_ITEM', 'FOLDER', 'CARD', 'FIELD', 'SELECT', 'TEXTAREA',
+  'MODAL', 'BOTTOM_SHEET', 'DROPDOWN', 'DATE_PICKER', 'TIME_PICKER', 'CALENDAR',
+  'JOURNAL', 'TIMETABLE', 'PROFILE', 'SERVICE', 'WORK_MATERIALS', 'DOCUMENTS',
+  'LOYALTY', 'TAGS', 'WALLETS', 'CLIENTS', 'NAVIGATION', 'MOBILE_GEOMETRY', 'TYPOGRAPHY'
+];
+if (!fs.existsSync(registryPath)) addFail('REGISTRY_MISSING', registryPath, 'UI_COMPONENTS.md not found');
+else {
+  const registry = read(registryPath);
+  for (const component of requiredRegistryComponents) {
+    const escaped = component.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (!new RegExp(`\\b${escaped}\\b`, 'i').test(registry)) {
+      addFail('REGISTRY_COMPONENT', registryPath, `required component ${component} is missing from UI_COMPONENTS.md`);
+    }
+  }
+  const requiredStatuses = ['BUTTON', 'LIST', 'LIST_ITEM', 'CALENDAR', 'TIME_PICKER'];
+  for (const component of requiredStatuses) {
+    const row = registry.match(new RegExp(`\\|\\s*${component}\\s*\\|([^\\n]+)\\|\\s*([^\\n]+)\\|`, 'i'));
+    if (!row) addFail('REGISTRY_ROW', registryPath, `component ${component} has no structured registry row`);
+  }
+}
+
 // The handoff is part of the project's continuity contract. It must point at
-// the exact commit that is being tested, otherwise a new chat can resume from
-// a state that does not match the repository. In CI GITHUB_SHA is authoritative;
-// locally we use the checked-out git HEAD when available.
+// the exact code checkpoint being tested. Handoff-only commits are allowed to
+// point to their parent code commit; real code commits must match HEAD.
 const handoffPath = path.join(ROOT, 'COBOOK_HANDOFF.md');
 if (fs.existsSync(handoffPath)) {
   const handoff = read(handoffPath);
@@ -121,21 +146,24 @@ if (fs.existsSync(handoffPath)) {
   if (!actualSha) {
     try { actualSha = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim(); } catch (_) {}
   }
-  const recordedSha = handoff.match(/Latest actual code checkpoint:\s*`([0-9a-f]{40})`/i)?.[1] || '';
+  const recordedSha = handoff.match(/(?:Latest actual code checkpoint|Actual code checkpoint before this documentation commit):\s*`([0-9a-f]{40})`/i)?.[1] || '';
   if (actualSha && recordedSha && actualSha !== recordedSha) {
-    addFail('HANDOFF_SYNC', handoffPath, `recorded ${recordedSha}, actual HEAD ${actualSha}`);
+    let parentSha = '';
+    try { parentSha = require('child_process').execFileSync('git', ['rev-parse', 'HEAD^'], {encoding:'utf8'}).trim(); } catch (_) {}
+    if (actualSha !== parentSha) addFail('HANDOFF_SYNC', handoffPath, `recorded ${recordedSha}, actual HEAD ${actualSha}`);
   } else if (!recordedSha) {
-    addFail('HANDOFF_SYNC', handoffPath, 'Latest actual code checkpoint is missing');
+    addFail('HANDOFF_SYNC', handoffPath, 'code checkpoint is missing');
   }
-  if (!/## Exact next action\b[\s\S]*\S/i.test(handoff)) addFail('HANDOFF_NEXT_ACTION', handoffPath, 'exact next action section is missing or empty');
+  if (!/## (?:Exact next action|Current next action)\b[\s\S]*\S/i.test(handoff)) addFail('HANDOFF_NEXT_ACTION', handoffPath, 'next action section is missing or empty');
 }
 
 report.push(`Files scanned: ${sourceFiles.length}`);
 report.push(`CSS files: ${cssFiles.join(', ') || 'none'}`);
 report.push(`Registered actions: ${registeredActions.size}`);
-report.push(`Suspicious module UI tokens: ${moduleCssTokens.length}`);
+report.push(`Suspicious module UI token groups: ${moduleCssTokens.length}`);
 report.push(`Calendar owners verified: ${journal && timetable ? 'Journal + Timetable' : 'incomplete'}`);
 report.push(`Canonical Time Picker trigger verified: ${timetable && /CoBook\.ui\.timePicker\s*\(/.test(read(timetable)) ? 'Timetable' : 'incomplete'}`);
+report.push(`UI registry verified: ${fs.existsSync(registryPath) ? 'present' : 'missing'}`);
 
 console.log('CoBook UI / FUNCTIONAL ARCHITECTURE AUDIT');
 console.log('==========================================');

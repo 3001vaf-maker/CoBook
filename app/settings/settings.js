@@ -1,6 +1,16 @@
 (function(){
+ const folders=[
+  ['◎','Профиль пользователя','Личная и профессиональная информация','profile'],
+  ['▱','Сервис','Процедуры и товары','service'],
+  ['◈','Рабочие материалы','Рецепты и справочник материалов','work'],
+  ['▤','Документы','Согласия и документы','documents'],
+  ['♡','Лояльность','Программы и специальные предложения','loyalty'],
+  ['#','Ярлыки','Пользовательские метки для данных','tags'],
+  ['₽','Кошельки','Способы оплаты и пользовательские кошельки','wallets']
+ ];
  function render(){
-   return shell(`<section class="page-head"><div class="eyebrow">РАБОЧИЕ НАСТРОЙКИ</div><h1>Настройки</h1></section><button class="management-folder" data-action="navigate" data-page="profile" type="button"><span class="management-folder-icon">◎</span><span><b>Профиль пользователя</b><small>Личная и профессиональная информация</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="service" type="button"><span class="management-folder-icon">▱</span><span><b>Сервис</b><small>Процедуры и товары</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="work" type="button"><span class="management-folder-icon">◈</span><span><b>Рабочие материалы</b><small>Рецепты и справочник материалов</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="documents" type="button"><span class="management-folder-icon">▤</span><span><b>Документы</b><small>Согласия и документы</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="loyalty" type="button"><span class="management-folder-icon">♡</span><span><b>Лояльность</b><small>Программы и специальные предложения</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="tags" type="button"><span class="management-folder-icon">#</span><span><b>Ярлыки</b><small>Пользовательские метки для данных</small></span><span class="management-chevron">›</span></button><button class="management-folder" data-action="navigate" data-page="wallets" type="button"><span class="management-folder-icon">₽</span><span><b>Кошельки</b><small>Способы оплаты и пользовательские кошельки</small></span><span class="management-chevron">›</span></button>`);
+  const items=folders.map(([icon,title,subtitle,page])=>CoBook.ui.folder({title:`${icon}  ${title}`,subtitle,action:'navigate',attrs:`data-page="${page}"`,className:'management-folder'})).join('');
+  return shell(`<section class="page-head"><div class="eyebrow">РАБОЧИЕ НАСТРОЙКИ</div><h1>Настройки</h1></section>${items}`);
  }
  CoBook.modules.settings={render,handle(){},handleModal(){},onEnter(){state.settingsView='home'},onLeave(){}};
 })();

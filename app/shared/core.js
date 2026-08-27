@@ -11,50 +11,27 @@
  window.shell=(content,plain=false)=>`<div class="shell">${plain?'':`<header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header>`}<main class="content">${content}</main>${nav()}</div>`;
  const moduleFor=p=>CoBook.modules[p];
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty','tags','wallets']);
- const actionOwners=new Map([
-   ['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']
- ]);
- const LIST_CONTAINER_CLASSES=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list'];
- const LIST_ITEM_CLASSES=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
- const LIST_ITEM_REMOVE=['procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
+ const actionOwners=new Map([['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']]);
+ const listContainers=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list'];
+ const listItems=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
  const normalizeUI=()=>{
-   document.querySelectorAll(LIST_CONTAINER_CLASSES.map(x=>'.'+x).join(',')).forEach(el=>{
-     el.classList.add('service-list','ui-list');
-     LIST_CONTAINER_CLASSES.filter(x=>x!=='service-list').forEach(x=>el.classList.remove(x));
-   });
-   document.querySelectorAll(LIST_ITEM_CLASSES.map(x=>'.'+x).join(',')).forEach(el=>{
-     LIST_ITEM_REMOVE.forEach(x=>el.classList.remove(x));
-     el.classList.add('service-row','ui-list-item');
-   });
+   document.querySelectorAll(listContainers.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list'));
+   document.querySelectorAll(listItems.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list-item'));
    document.querySelectorAll('button.primary,button.secondary,button.danger,button.action-button,button.section-back-button,button.back-button,button.service-back,button.document-back-button,button.loyalty-back').forEach(el=>el.classList.add('ui-button'));
    document.querySelectorAll('input:not([type="file"]),select,textarea').forEach(el=>el.classList.add('ui-control'));
  };
  window.navigate=page=>{
-   const nextPage=String(page||'maine');
-   const previousPage=state.page;
-   const previousModule=moduleFor(previousPage);
+   const nextPage=String(page||'maine'),previousPage=state.page,previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);
-   state.page=nextPage;
-   state.settingsView=nextPage==='settings'?'home':(settingsChildPages.has(nextPage)?nextPage:'home');
-   if(nextPage!=='maine')state.maineView='main';
-   const nextModule=moduleFor(nextPage);
-   if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage);
-   render();
+   state.page=nextPage; state.settingsView=nextPage==='settings'?'home':(settingsChildPages.has(nextPage)?nextPage:'home'); if(nextPage!=='maine')state.maineView='main';
+   const nextModule=moduleFor(nextPage); if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage); render();
  };
  window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();normalizeUI();};
- window.dispatchAction=(action,e)=>{
-   if(action==='navigate')return navigate(e.dataset.page);
-   if(action==='modal-close')return e.closest('[data-modal]')?.remove();
-   const owner=actionOwners.get(action);
-   const mod=moduleFor(owner||state.page);
-   if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
- };
- const handleClick=e=>{
-   const target=e.target&&e.target.nodeType===1?e.target:e.target?.parentElement;
-   const actionElement=target?.closest?.('[data-action]');
-   if(!actionElement)return;
-   dispatchAction(actionElement.dataset.action,actionElement);
- };
+ window.dispatchAction=(action,e)=>{if(action==='navigate')return navigate(e.dataset.page);if(action==='modal-close')return e.closest('[data-modal]')?.remove();const owner=actionOwners.get(action),mod=moduleFor(owner||state.page);if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null)};
+ const handleClick=e=>{const target=e.target&&e.target.nodeType===1?e.target:e.target?.parentElement,actionElement=target?.closest?.('[data-action]');if(!actionElement)return;dispatchAction(actionElement.dataset.action,actionElement)};
  document.addEventListener('click',handleClick,true);
+ let normalizeQueued=false;
+ const observer=new MutationObserver(()=>{if(normalizeQueued)return;normalizeQueued=true;queueMicrotask(()=>{normalizeQueued=false;normalizeUI()})});
+ observer.observe(app,{subtree:true,childList:true});
  window.CoBook.core={moduleFor,normalizeUI};
 })();

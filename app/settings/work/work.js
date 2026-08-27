@@ -36,6 +36,14 @@
   if(action==='materials-recipe-cancel'){editor=false;rerender();return}
   if(action==='recipe-save'){const form=e.closest('[data-recipe-form]');if(!form)return;syncDraft();const data=new FormData(form),name=String(data.get('name')||'').trim();if(!name)return;const arr=recipes();arr.push({id:newId(),name,sections:draftSections.map(s=>({name:s.name.trim()||'Состав',items:s.items.filter(it=>it.materialId||it.quantity)}))});save(RECIPES_KEY,arr);editor=false;view='recipes';rerender();return}
  }
- document.addEventListener('change',e=>{if(!editor)return;const cat=e.target.dataset.itemCategory;if(cat){const [i,j]=cat.split(':').map(Number);draftSections[i].items[j].category=e.target.value;draftSections[i].items[j].type='';draftSections[i].items[j].materialId='';window.render();return}const typ=e.target.dataset.itemType;if(typ){const [i,j]=typ.split(':').map(Number);draftSections[i].items[j].type=e.target.value;draftSections[i].items[j].materialId='';window.render();return}const mc=e.target.dataset.materialCategory;if(mc){const form=e.target.closest('[data-material-form]'),type=form?.querySelector('[data-material-type]');if(type)type.innerHTML=materialTypes(e.target.value).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')}});
- CoBook.modules.work={render,handle};
+ function handleChange(target){
+  if(!editor)return;
+  const cat=target.dataset.itemCategory;
+  if(cat){const [i,j]=cat.split(':').map(Number);if(draftSections[i]?.items[j]){draftSections[i].items[j].category=target.value;draftSections[i].items[j].type='';draftSections[i].items[j].materialId='';window.render()}return}
+  const typ=target.dataset.itemType;
+  if(typ){const [i,j]=typ.split(':').map(Number);if(draftSections[i]?.items[j]){draftSections[i].items[j].type=target.value;draftSections[i].items[j].materialId='';window.render()}return}
+  const mc=target.dataset.materialCategory;
+  if(mc){const form=target.closest('[data-material-form]'),type=form?.querySelector('[data-material-type]');if(type)type.innerHTML=materialTypes(target.value).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')}
+ }
+ CoBook.modules.work={render,handle,handleChange};
 })();

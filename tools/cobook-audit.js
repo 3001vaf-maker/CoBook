@@ -37,8 +37,6 @@ for (const file of sourceFiles) {
     if (/addEventListener\s*\(\s*["']submit["']/i.test(text)) addFail('STANDALONE_SUBMIT', file, 'module owns a submit listener; use central action routing');
     if (/document\.addEventListener\s*\(\s*["']click["']/i.test(text) && !r.endsWith('app/shared/core.js')) addFail('LOCAL_CLICK_ROUTER', file, 'module installs its own document click router');
     if (/document\.addEventListener\s*\(\s*["']change["']/i.test(text) && !r.endsWith('app/shared/core.js')) addFail('LOCAL_CHANGE_ROUTER', file, 'module installs its own document change router');
-    // Direct app.innerHTML assignment is allowed only in Core. Module render()
-    // functions return markup to Core; helpers must never own the app mount.
     if (/\b(?:app|window\.app)\.innerHTML\s*=/.test(text) && !r.endsWith('app/shared/core.js')) addFail('DIRECT_RENDER_BYPASS', file, 'module writes app.innerHTML directly');
     if (/insertAdjacentHTML\s*\(\s*["']beforeend["']/i.test(text) && !r.endsWith('app/shared/core.js')) addFail('LOCAL_OVERLAY_INSERT', file, 'module inserts overlay markup directly; use CoBook.ui.mountOverlay()');
   }
@@ -52,7 +50,8 @@ if (core) {
   const requiredFactories = ['button','listItem','field','select','textarea','modal','bottomSheet','dropdown','datePicker','timePicker','calendarGrid','mountOverlay'];
   for (const name of requiredFactories) if (!new RegExp(`CoBook\\.ui\\.${name}\\s*=`).test(t)) addFail('UI_FACTORY', core, `canonical CoBook.ui.${name}() is missing`);
   const ownerBlock = t.match(/const actionOwners=new Map\(\[(.*?)\]\);/s)?.[1] || '';
-  for (const m of ownerBlock.matchAll(/\[['"]([^'"]+)['"],['"]([^'"]+)['"\]/g)) registeredActions.add(m[1]);
+  const ownerPattern = /\[['"]([^'"]+)['"],['"]([^'"]+)['"]\]/g;
+  for (const m of ownerBlock.matchAll(ownerPattern)) registeredActions.add(m[1]);
 }
 
 const actionFiles = sourceFiles.filter(f => f.endsWith('.js') && rel(f) !== 'app/shared/core.js' && rel(f) !== 'tools/cobook-audit.js');
@@ -90,8 +89,6 @@ else {
   for (const component of requiredRegistryComponents) if (!new RegExp(`\\b${component}\\b`, 'i').test(registry)) addFail('REGISTRY_COMPONENT', registryPath, `required component ${component} is missing from UI_COMPONENTS.md`);
 }
 
-// Handoff continuity check. A documentation-only commit may point to its parent;
-// a code commit must point to itself.
 const handoffPath = path.join(ROOT, 'COBOOK_HANDOFF.md');
 if (fs.existsSync(handoffPath)) {
   const handoff = read(handoffPath);

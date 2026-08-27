@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `6b33c43b3173f05ac6e5bb9a753945ec9ab469f8`
+- Actual code checkpoint: `a07a5e950b9e0651eb985e07f6cf03c2eaf32233`
 - This file is updated after every code checkpoint and records the latest code state.
 
 ## Mission
@@ -20,10 +20,13 @@ Reach 100% clean CoBook: one predictable UI system, stable functionality, no cro
 - Overlay insertion belongs to `CoBook.ui.mountOverlay()`.
 
 ## Canonical UI components
-Core exposes canonical factories for button, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. The button factory emits the canonical `ui-button` token. A factory existing is NOT proof of full migration: every owner/usage must be verified.
+Core exposes canonical factories for button, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. The button factory emits the canonical `ui-button` token. List items support explicit root actions/elements so clickable rows do not need copied markup. A factory existing is NOT proof of full migration: every owner/usage must be verified.
 
 ## Current architectural cleanup
 `normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
+
+## Recent migration
+Main/Clients, Settings/Tags and Settings/Wallets were migrated to canonical controls/list items/buttons. Wallet delete confirmation now uses the canonical modal shell. A wallet list-container syntax issue found immediately after migration was corrected before continuing.
 
 ## Audit infrastructure
 `tools/cobook-audit.js` checks the single CSS source, inline styles, local routers, direct render/overlay bypasses, canonical factories, central action registration, Calendar ownership, UI registry completeness and handoff continuity. The audit checkpoint parser was hardened after CI exposed an edge case.
@@ -47,7 +50,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `6b33c43b3173f05ac6e5bb9a753945ec9ab469f8`. Confirm CI for the repaired audit. Then inventory all module markup for direct/local shared-component implementations, especially buttons, list rows, cards, fields, overlays and selectors. Convert genuine shared components to canonical factories or explicit variants without changing module-specific data or behavior. Continue through Save/Create/Delete and full regression.
+Continue from `a07a5e950b9e0651eb985e07f6cf03c2eaf32233`. Confirm the CI runs for the latest migration. Then migrate remaining direct/local shared-component implementations, starting with Profile, Service and Work/Materials, followed by Documents and Loyalty. Preserve module-specific data and behavior. After migration, audit Save/Create/Delete and overlay flows, then full regression and deployment.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

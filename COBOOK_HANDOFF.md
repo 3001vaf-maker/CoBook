@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `8a8191f8753b5637a2e5141e13362f7ce7a023b0`
+- Actual code checkpoint before this documentation commit: `2f5347a4715afcc020b49d82ea855441e5b73ebe`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -25,16 +25,16 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
 
 ## Verified changes in latest code checkpoint
-- Tags refresh now uses the central Core render pipeline.
-- Wallets refresh now uses the central Core render pipeline.
-- Work refresh now uses the central Core render pipeline.
-- Work material overlay now uses `CoBook.ui.mountOverlay()`.
+- Tags refresh uses the central Core render pipeline.
+- Wallets refresh uses the central Core render pipeline.
+- Work refresh uses the central Core render pipeline.
+- Work material overlay uses `CoBook.ui.mountOverlay()`.
 - Service overlays use `CoBook.ui.mountOverlay()`.
 - Service price-variant DOM insertion uses a template instead of direct HTML insertion.
+- Loyalty internal navigation now uses `window.render()` and no longer calls its module render directly.
 
 ## Automated audit state
-The last captured audit run on the earlier code checkpoint reported these direct-render/overlay failures: Loyalty direct render, Service local overlay, Tags direct render, Wallets direct render, Work direct render, Work local overlay. The Service/Tags/Wallets/Work findings have since been addressed in code. Loyalty remains the known direct-render target and must be resolved at its primary source.
-
+The previous audit findings for Service/Tags/Wallets/Work direct-render or local-overlay paths have been addressed. Loyalty's internal render bypass has now also been addressed in the latest code checkpoint.
 The audit also reports Timetable-specific calendar token names for review against the canonical Calendar registry. These are semantic module data/state hooks, not automatically considered errors; they must be explicitly registered as variants where appropriate.
 
 ## Required component audit
@@ -53,14 +53,13 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Resolve the remaining Loyalty direct-render bypass at its primary source.
-2. Run the architecture audit and JavaScript checks on the new code checkpoint.
-3. Fix every remaining audit failure before moving on.
-4. Complete owner/variant audit for all required components.
-5. Complete Save/Create/Delete end-to-end verification.
-6. Verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown behavior and geometry.
-7. Finish desktop/mobile and cross-module regression.
-8. Only then declare 100% clean.
+1. Run architecture audit and JavaScript checks on code checkpoint `2f5347a4715afcc020b49d82ea855441e5b73ebe`.
+2. Fix every remaining audit failure before moving on.
+3. Complete owner/variant audit for all required components.
+4. Complete Save/Create/Delete end-to-end verification.
+5. Verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown behavior and geometry.
+6. Finish desktop/mobile and cross-module regression.
+7. Only then declare 100% clean.
 
 ## Final definition of done
 Only declare 100% when architecture, syntax, deployment, component ownership, action routing, UI consistency, Calendar/Time Picker/Modal/Bottom Sheet/Dropdown, Journal/Timetable independence, desktop/mobile geometry and cross-module regression all pass.

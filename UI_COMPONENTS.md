@@ -29,48 +29,49 @@ Implemented in `app/shared/core.js`:
 | Component | Factory | Purpose |
 |---|---|---|
 | BUTTON | `CoBook.ui.button()` | canonical button markup/variant entry point |
-| LIST_ITEM | `CoBook.ui.listItem()` | canonical entity/list item geometry |
+| FOLDER | `CoBook.ui.folder()` | canonical folder/navigation-card button structure |
+| LIST_ITEM | `CoBook.ui.listItem()` | canonical entity/list item geometry; supports explicit root action/tag |
 | FIELD | `CoBook.ui.field()` | canonical labelled input |
 | SELECT | `CoBook.ui.select()` | canonical labelled native select |
 | TEXTAREA | `CoBook.ui.textarea()` | canonical labelled textarea |
-| MODAL | `CoBook.ui.modal()` | canonical overlay/modal shell |
-| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | canonical bottom-sheet shell |
+| MODAL | `CoBook.ui.modal()` | canonical overlay/modal shell with explicit outer variant and metadata |
+| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | canonical bottom-sheet shell with explicit outer variant and metadata |
 | DROPDOWN | `CoBook.ui.dropdown()` | canonical dropdown shell |
 | DATE_PICKER | `CoBook.ui.datePicker()` | canonical date trigger |
 | TIME_PICKER | `CoBook.ui.timePicker()` | canonical time trigger |
 | CALENDAR | `CoBook.ui.calendarGrid()` | canonical calendar grid/formation |
 | OVERLAY MOUNT | `CoBook.ui.mountOverlay()` | canonical overlay insertion point |
 
-These factories are the architectural target. Existing module markup is migrated to them during the UI-architecture stage; existence of a factory alone does not mean every owner has already migrated.
+A factory existing is NOT proof of full migration. Every owner/usage must be verified.
 
 ## Required components
 
 | Component | Canonical source | Current state |
 |---|---|---|
-| BUTTON | Core factory + `styles.css` | IMPLEMENTED / MIGRATION AUDIT |
-| LIST | Core/list CSS contract | IMPLEMENTED / MIGRATION AUDIT |
-| LIST_ITEM | `CoBook.ui.listItem()` | IMPLEMENTED / MIGRATION AUDIT |
-| FOLDER | shared CSS contract | REGISTERED / MIGRATION AUDIT |
-| CARD | shared CSS contract | REGISTERED / MIGRATION AUDIT |
-| FIELD | `CoBook.ui.field()` | IMPLEMENTED / MIGRATION AUDIT |
-| SELECT | `CoBook.ui.select()` | IMPLEMENTED / MIGRATION AUDIT |
-| TEXTAREA | `CoBook.ui.textarea()` | IMPLEMENTED / MIGRATION AUDIT |
-| MODAL | `CoBook.ui.modal()` | IMPLEMENTED / MIGRATION AUDIT |
-| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | IMPLEMENTED / MIGRATION AUDIT |
-| DROPDOWN | `CoBook.ui.dropdown()` | IMPLEMENTED / MIGRATION AUDIT |
-| DATE_PICKER | `CoBook.ui.datePicker()` | IMPLEMENTED / MIGRATION AUDIT |
-| TIME_PICKER | `CoBook.ui.timePicker()` | IMPLEMENTED / MIGRATION AUDIT |
-| CALENDAR | `CoBook.ui.calendarGrid()` | IMPLEMENTED / OWNER AUDIT |
+| BUTTON | Core factory + `styles.css` | MIGRATION AUDIT |
+| LIST | Core/list CSS contract | MIGRATION AUDIT |
+| LIST_ITEM | `CoBook.ui.listItem()` | MIGRATION AUDIT |
+| FOLDER | `CoBook.ui.folder()` + registered visual variants | MIGRATION AUDIT |
+| CARD | shared CSS contract | MIGRATION AUDIT |
+| FIELD | `CoBook.ui.field()` | MIGRATION AUDIT |
+| SELECT | `CoBook.ui.select()` | MIGRATION AUDIT |
+| TEXTAREA | `CoBook.ui.textarea()` | MIGRATION AUDIT |
+| MODAL | `CoBook.ui.modal()` | MIGRATION AUDIT |
+| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | MIGRATION AUDIT |
+| DROPDOWN | `CoBook.ui.dropdown()` | MIGRATION AUDIT |
+| DATE_PICKER | `CoBook.ui.datePicker()` | MIGRATION AUDIT |
+| TIME_PICKER | `CoBook.ui.timePicker()` | OWNER AUDIT |
+| CALENDAR | `CoBook.ui.calendarGrid()` | OWNER AUDIT |
 | JOURNAL | Journal module | OWNER AUDIT |
 | TIMETABLE | Timetable module | OWNER AUDIT |
-| PROFILE | Settings/Profile | OWNER AUDIT |
-| SERVICE | Settings/Service | OWNER AUDIT |
+| PROFILE | Settings/Profile | MIGRATION AUDIT |
+| SERVICE | Settings/Service | MIGRATION AUDIT |
 | WORK_MATERIALS | Settings/Work | OWNER AUDIT |
 | DOCUMENTS | Settings/Documents | OWNER AUDIT |
 | LOYALTY | Settings/Loyalty | OWNER AUDIT |
-| TAGS | Settings/Tags | OWNER AUDIT |
-| WALLETS | Settings/Wallets | OWNER AUDIT |
-| CLIENTS | Main/Clients | OWNER AUDIT |
+| TAGS | Settings/Tags | MIGRATION AUDIT |
+| WALLETS | Settings/Wallets | MIGRATION AUDIT |
+| CLIENTS | Main/Clients | MIGRATION AUDIT |
 | NAVIGATION | Core bottom navigation | OWNER AUDIT |
 | MOBILE_GEOMETRY | Core + `styles.css` | REGISTERED / AUDIT |
 | TYPOGRAPHY | `styles.css` | REGISTERED / AUDIT |

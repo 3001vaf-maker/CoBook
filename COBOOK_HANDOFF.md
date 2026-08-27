@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `c5df05b2c301e405262d855f13db23e3478816a2`
+- Actual code checkpoint: `6b33c43b3173f05ac6e5bb9a753945ec9ab469f8`
 - This file is updated after every code checkpoint and records the latest code state.
 
 ## Mission
@@ -26,7 +26,7 @@ Core exposes canonical factories for button, listItem, field, select, textarea, 
 `normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
 
 ## Audit infrastructure
-`tools/cobook-audit.js` checks the single CSS source, inline styles, local routers, direct render/overlay bypasses, canonical factories, central action registration, Calendar ownership, UI registry completeness and handoff continuity. The audit regex syntax was repaired after CI exposed it.
+`tools/cobook-audit.js` checks the single CSS source, inline styles, local routers, direct render/overlay bypasses, canonical factories, central action registration, Calendar ownership, UI registry completeness and handoff continuity. The audit checkpoint parser was hardened after CI exposed an edge case.
 
 ## Required audit set
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, NAVIGATION, MOBILE_GEOMETRY, TYPOGRAPHY, plus EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR and interaction states.
@@ -47,7 +47,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `c5df05b2c301e405262d855f13db23e3478816a2`. First confirm CI for this audit fix. Then inventory all module markup for direct/local shared-component implementations, especially buttons, list rows, cards, fields, overlays and selectors. Convert genuine shared components to canonical factories or explicit variants without changing module-specific data or behavior. Continue through Save/Create/Delete and full regression.
+Continue from `6b33c43b3173f05ac6e5bb9a753945ec9ab469f8`. Confirm CI for the repaired audit. Then inventory all module markup for direct/local shared-component implementations, especially buttons, list rows, cards, fields, overlays and selectors. Convert genuine shared components to canonical factories or explicit variants without changing module-specific data or behavior. Continue through Save/Create/Delete and full regression.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

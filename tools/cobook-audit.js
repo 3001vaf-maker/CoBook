@@ -61,6 +61,8 @@ else {
   if (!/window\.dispatchAction\s*=/.test(t)) addFail('ACTION_CORE', core, 'dispatchAction is not exposed by Core');
   if (!/actionOwners/.test(t)) addFail('ACTION_OWNERS', core, 'actionOwners registry is missing');
   if (!/CoBook\.ui\.listItem/.test(t)) addFail('UI_COMPONENT', core, 'canonical listItem component is missing');
+  if (!/CoBook\.ui\.calendarGrid/.test(t)) addFail('UI_COMPONENT', core, 'canonical calendarGrid component is missing');
+  if (!/CoBook\.ui\.timePicker/.test(t)) addFail('UI_COMPONENT', core, 'canonical timePicker component is missing');
   const ownerBlock = t.match(/const actionOwners=new Map\(\[(.*?)\]\);/s)?.[1] || '';
   for (const m of ownerBlock.matchAll(/\[['"]([^'"]+)['"],['"]([^'"]+)['"]\]/g)) registeredActions.add(m[1]);
 }
@@ -82,6 +84,24 @@ if (fs.existsSync(styles)) {
   for (const token of required) if (!css.includes(`.${token}`)) addFail('UI_TOKEN', styles, `missing canonical token .${token}`);
 }
 
+const journal = sourceFiles.find(f => rel(f) === 'app/journal/journal.js');
+const timetable = sourceFiles.find(f => rel(f) === 'app/timetable/timetable.js');
+if (!journal) addFail('MODULE_MISSING', path.join(ROOT, 'app/journal/journal.js'), 'Journal module missing');
+else if (!/CoBook\.ui\.calendarGrid\s*\(/.test(read(journal))) addFail('CALENDAR_OWNER', journal, 'Journal must use canonical calendarGrid()');
+if (!timetable) addFail('MODULE_MISSING', path.join(ROOT, 'app/timetable/timetable.js'), 'Timetable module missing');
+else {
+  const t = read(timetable);
+  if (!/CoBook\.ui\.calendarGrid\s*\(/.test(t)) addFail('CALENDAR_OWNER', timetable, 'Timetable must use canonical calendarGrid()');
+  if (!/CoBook\.ui\.timePicker\s*\(/.test(t)) addFail('TIME_PICKER_OWNER', timetable, 'Timetable must use canonical timePicker() trigger');
+}
+
+const calendarBuilderPattern = /(?:function\s+(?:calendar|monthCalendar|buildCalendar)|(?:const|let)\s+(?:calendar|monthCalendar|buildCalendar)\s*=)/i;
+for (const file of actionFiles) {
+  const r = rel(file);
+  if (r === 'app/journal/journal.js' || r === 'app/timetable/timetable.js') continue;
+  if (calendarBuilderPattern.test(read(file))) addFail('LOCAL_CALENDAR_BUILDER', file, 'possible duplicate calendar builder; use CoBook.ui.calendarGrid()');
+}
+
 const moduleCssTokens = [];
 for (const file of actionFiles) {
   const text = read(file);
@@ -94,6 +114,8 @@ report.push(`Files scanned: ${sourceFiles.length}`);
 report.push(`CSS files: ${cssFiles.join(', ') || 'none'}`);
 report.push(`Registered actions: ${registeredActions.size}`);
 report.push(`Suspicious module UI tokens: ${moduleCssTokens.length}`);
+report.push(`Calendar owners verified: ${journal && timetable ? 'Journal + Timetable' : 'incomplete'}`);
+report.push(`Canonical Time Picker trigger verified: ${timetable && /CoBook\.ui\.timePicker\s*\(/.test(read(timetable)) ? 'Timetable' : 'incomplete'}`);
 
 console.log('CoBook UI / FUNCTIONAL ARCHITECTURE AUDIT');
 console.log('==========================================');

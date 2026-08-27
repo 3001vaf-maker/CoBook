@@ -3,95 +3,73 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Latest actual code checkpoint: `d5c7b2fcd5e59de747c7eb38e17a8b1f8553ea5b`
-- This file must always describe the actual current `main`.
+- Actual code checkpoint before this documentation commit: `3ffb8eae91e43d172e3d8ba68e4fff1b78adb42e`
+- This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
-Bring CoBook to 100% clean, stable architecture and smooth operation. Shared UI has one canonical implementation/source per component or an explicitly registered variant. Changing a shared component must predictably affect all owners and must not break unrelated functionality. Functional actions must remain independent from visual styling.
+Reach 100% clean CoBook: one predictable UI system, stable functionality, no cross-module regressions, and a workflow where future changes have known owners and impact.
 
 ## Sources of truth
 Read before changing code: `PROJECT_STATE.md`, `DESIGN_SYSTEM.md`, `UI_CONTEXT.md`, `UI_COMPONENTS.md`, `COBOOK_HANDOFF.md`.
+Never create a competing design system or duplicate CSS source.
 
-## Work protocol
-1. Inspect actual code before changing it.
-2. Fix the primary source; never add cosmetic overrides/callback patches.
-3. Identify all owners before changing a shared component.
-4. Preserve `UI → data-action → Core dispatcher → owner → handle → state/storage → render`.
-5. Run available audits/checks after structural changes.
-6. Never declare 100% from syntax/deployment alone.
-7. If chat ends, continue from this file and actual latest `main`; do not reconstruct history.
-8. Before every user-facing progress report, synchronize this file with the actual `main` HEAD.
+## Process rule
+Before every user-facing progress report, synchronize this file with the actual `main` state. If work remains, continue working rather than treating the report as completion.
+If chat ends, next chat reads this file and continues from the exact checkpoint; no history reconstruction or project restart.
 
-## Repository-state correction
-Earlier chat messages referenced checkpoint SHAs that are not the current `main` history. The actual `main` is authoritative. Never assume a change exists unless it is present in the current tree.
+## Architecture rules
+- One canonical implementation per shared UI component.
+- Legitimate differences are explicit variants or module-supplied data/state/actions.
+- Journal and Timetable share one calendar grid/formation component but keep independent data, day semantics and actions.
+- Functional routing should be `UI → data-action → Core → owner → handle → state/storage → render`.
+- Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
 
-## Verified current architecture baseline
-- One visual CSS source is intended: `styles.css`.
-- Core contains the central action dispatcher/ownership map.
-- Core contains canonical `listItem`, `calendarGrid`, and `timePicker` definitions.
-- Tags currently use `CoBook.ui.listItem()`.
-- Journal currently uses `CoBook.ui.calendarGrid()`.
-- The current static audit exists at `tools/cobook-audit.js` and is run by GitHub Actions.
-- The static audit now enforces that this handoff records the exact commit being tested, preventing continuity drift between chats.
+## Automated audit state
+On code checkpoint `3ffb...`, GitHub Actions reported:
+- deploy: SUCCESS
+- syntax: SUCCESS
+- audit: FAILED only on HANDOFF_SYNC because the handoff recorded `d5c7...` while actual HEAD was `3ffb...`.
+The audit log also reported one warning: unused legacy render helper in `app/settings/loyalty/loyalty.js`, and one review target in Timetable for `calendar-day`, `calendar-hours`, `calendar-panel`, `calendar-grid`.
 
-## Not yet proven 100%
-- Every component/variant has been mapped to all owners.
-- Every visual class is an authorized component/variant or intentional semantic screen class.
-- Wallets and all subject screens are visually canonical across every state.
-- Modal, Bottom Sheet, Dropdown and picker geometry is canonical everywhere.
-- Every Save/Create/Delete path is end-to-end verified.
-- Desktop/mobile geometry is verified.
-- Cross-module regression is verified.
-- Deployment is verified for the final clean state.
+The handoff synchronization failure is being corrected first. Do not call the code 100% clean until a new audit on the corrected state passes and the remaining warning/review target have been resolved or explicitly verified as intentional.
+
+## Completed stabilization
+- single `styles.css` remains the intended CSS source;
+- central Core action ownership/dispatch;
+- Tags and Wallets use canonical list-item pattern;
+- Profile/Work/Recipe save paths moved toward Core;
+- Loyalty local routing moved toward Core;
+- shared overlay mount;
+- Journal uses central render pipeline;
+- Journal and Timetable use shared calendar grid while retaining independent behavior;
+- architecture audit and continuity handoff exist.
 
 ## Required component audit
-BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, EMPTY_STATE, PAGE_HEADER, NAVIGATION, TYPOGRAPHY.
-Subject screens: JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, HOME.
-Also inspect spacing, radii, colors, icons and states.
+BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
+Also inspect headers, icons, empty states, spacing, radii, colors and interaction states.
 
 ## Functional audit
-Every important action must be traceable: `UI → data-action → dispatchAction → owner → handle → validation → state/storage → render`.
-Priority: Save, Create, Delete, navigation, calendar changes, time selection, modal actions, form submission, file-input events.
-
-## Calendar rule
-One canonical calendar GRID and FORMATION algorithm. Journal and Timetable intentionally may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies its own day-specific rendering/behavior.
-
-## Time Picker rule
-The trigger markup is canonical. The wheel modal is Timetable-owned until a second owner is proven. If another owner appears, extract the shared mechanism rather than copying it.
+Trace and verify every important Save/Create/Delete/navigation/calendar/time/modal/form path end-to-end. A green syntax check is insufficient.
 
 ## Stages
-1. factual audit
-2. unified UI architecture
-3. functional stabilization
+1. Factual audit
+2. Unified UI architecture
+3. Functional stabilization
 4. UI repair
-5. Journal + Timetable verification
-6. final cross-module regression
+5. Journal + Timetable full verification
+6. Final cross-module regression and clean launch
 
-## Final 100% gate
-- architecture audit PASS;
-- no unexpected warnings;
-- JS syntax PASS;
-- deployment PASS;
-- every required component has an owner/variant map;
-- no unauthorized local CSS/style blocks/inline styles;
-- every data-action has an owner;
-- every Save/Create/Delete path is verified;
-- Calendar/Time Picker/Modal/Bottom Sheet/Dropdown are verified;
-- Journal and Timetable are independently verified;
-- desktop/mobile geometry verified;
-- cross-module regression passes;
-- final clean commit recorded here.
+## Current next action
+1. Re-run the architecture audit against the corrected handoff state.
+2. Remove/resolve the confirmed unused Loyalty legacy render helper if it is still present.
+3. Review Timetable calendar-specific tokens against the canonical Calendar registry.
+4. Continue owner/variant and Save/Create/Delete audit.
+5. Continue Calendar/Time Picker/Modal/Bottom Sheet/Dropdown verification.
+6. Finish desktop/mobile and cross-module regression.
+7. Only then declare 100% clean.
 
-## Current work
-Stage 1/2 → Stage 3. The actual current `main` is the source of truth. Continue the component/variant audit and functional Save/Create/Delete verification. Do not report completion from static syntax alone.
-
-## Exact next action
-1. Wait for/inspect CI for `d5c7b2fcd5e59de747c7eb38e17a8b1f8553ea5b`.
-2. If audit fails, fix every failure at its primary source and rerun.
-3. If audit passes, continue the owner/variant map and end-to-end action audit.
-4. Then verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown and Journal/Timetable.
-5. Then perform desktop/mobile and cross-module regression.
-6. Only after every final gate passes may the project be declared 100% clean.
+## Final definition of done
+Only declare 100% when architecture, syntax, deployment, component ownership, action routing, UI consistency, Calendar/Time Picker/Modal/Bottom Sheet/Dropdown, Journal/Timetable independence, desktop/mobile geometry and cross-module regression all pass.
 
 ## Chat interruption protocol
-Before any forced stop, update this file to the exact latest `main` HEAD, record completed checks, remaining failures and the exact next action. The final assistant response must contain a copy-ready handoff matching this file. A progress response is never permission to abandon the remaining work.
+Before any forced stop, update this file to the exact latest main checkpoint, record completed checks, remaining failures and exact next action. The final assistant response must contain a copy-ready handoff matching this file. A progress response is never permission to abandon remaining work.

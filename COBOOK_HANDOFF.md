@@ -4,7 +4,7 @@
 
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Current code checkpoint: `e07d755c5661658ad003231946297f321fdfecdc`
+- Current code checkpoint: `a9dcc911f7a91ad6b18961bd846e0fc5c0cddc03`
 - Previous UI registry checkpoint: `23dcd8f3a121848cb06fc0cfe070451d15b95c92`
 - Asset cache version: `ui-system-10`
 
@@ -44,18 +44,23 @@ Do not restart the project and do not create a second design system.
 - Added shared `CoBook.ui.mountOverlay()` as the single overlay mounting primitive.
 - Converted Profile overlay mounting to the shared primitive.
 - Converted Documents overlay mounting to the shared primitive.
-- Profile refresh now uses the Core render pipeline so UI normalization is not bypassed.
+- Converted Work material overlay mounting to the shared primitive.
+- Converted Service procedure/product overlays to the shared primitive.
+- Removed direct module `insertAdjacentHTML()` for Service price-variant insertion.
+- Converted TAGS/WALLETS/WORK direct rerender calls to the Core render pipeline.
+- Improved the static audit so it distinguishes a runtime render bypass from an unused legacy helper that is not the registered module render path.
 
 ## Verified results
 
-- The architecture audit run immediately before action-ownership enforcement was green after the Loyalty migration.
-- JavaScript syntax checks have remained successful on the repair line.
-- The newly expanded audit must be observed on the current checkpoint before any PASS claim.
+- Architecture audit for checkpoint `a9dcc911f7a91ad6b18961bd846e0fc5c0cddc03` completed successfully with no failures.
+- The audit reports one warning for legacy direct-render helper code in Loyalty; it is not the registered runtime render path and is scheduled for cleanup.
+- JavaScript syntax check for checkpoint `a9dcc911f7a91ad6b18961bd846e0fc5c0cddc03` is running and must complete successfully before this checkpoint is considered validated.
 
 ## Current remaining work
 
 ### UI architecture
 
+- Remove the remaining Loyalty legacy render helper rather than leaving dead UI code in the module.
 - Complete owner/variant map for BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, EMPTY_STATE, PAGE_HEADER, NAVIGATION, TYPOGRAPHY.
 - Complete audit of all module-specific visual classes against the registry.
 - Complete audit of Journal calendar and Timetable calendar.
@@ -75,7 +80,7 @@ Do not restart the project and do not create a second design system.
 ### Final regression
 
 - Run syntax checks.
-- Run architecture audit and require zero failures.
+- Require architecture audit with zero failures and zero warnings after legacy cleanup.
 - Verify deployment.
 - Run full cross-module visual audit.
 - Run full cross-module functional audit.
@@ -85,13 +90,12 @@ Do not restart the project and do not create a second design system.
 
 Continue from current `main` HEAD.
 
-1. Observe the expanded architecture audit on the current checkpoint.
-2. Fix every failure at its primary source; do not add overrides.
-3. Re-run until the audit is green.
-4. Continue UI component consolidation and owner mapping.
-5. Audit Journal and Timetable.
-6. Verify functional regression.
-7. Finish only after the complete cross-module audit is clean.
+1. Finish the Loyalty legacy helper cleanup.
+2. Re-run syntax and architecture audits.
+3. Continue UI component consolidation and owner mapping.
+4. Audit Journal and Timetable.
+5. Verify functional regression.
+6. Finish only after the complete cross-module audit is clean.
 
 ## Chat interruption protocol
 

@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `335558ffb9b3df46620a017fcc8c881ebf3da94c`
+- Actual code checkpoint before this documentation commit: `73599efdaa1de3cf3315913e1532eb4e25a1ba9c`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -23,23 +23,25 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Journal and Timetable share one calendar grid/formation component but keep independent data, day semantics and actions.
 - Functional routing should be `UI → data-action → Core → owner → handle → state/storage → render`.
 - Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
+- Click and change events are routed centrally through Core; modules expose `handle`/`handleChange` for owned behavior.
 
 ## Verified changes in latest code checkpoint
 - Tags, Wallets and Work refresh paths use the central Core render pipeline.
 - Work material and Service overlays use the shared overlay API.
 - Service price-variant DOM insertion uses a template.
 - Loyalty internal navigation uses `window.render()` and no longer directly invokes its module render.
-- UI component registry now includes `MOBILE_GEOMETRY`.
+- UI component registry includes `MOBILE_GEOMETRY`.
+- Work form `change` handling no longer installs a module-level document listener; Core owns the event routing and delegates to Work's `handleChange`.
 
 ## Automated audit state
-Latest architecture audit observed before the registry repair: one missing registry component (`MOBILE_GEOMETRY`) plus a handoff checkpoint mismatch caused by the intervening code commit. The registry repair is now committed. The handoff is synchronized to the registry-repair code checkpoint below.
+The architecture audit passed after the component registry repair and handoff synchronization. JavaScript syntax also passed on the preceding code checkpoint. The latest Work/Core code checkpoint is now awaiting its own architecture audit and syntax run.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
 Also inspect headers, icons, empty states, spacing, radii, colors and interaction states.
 
 ## Functional audit
-Trace and verify every important Save/Create/Delete/navigation/calendar/time/modal/form path end-to-end. A green syntax check is insufficient.
+Trace and verify every important Save/Create/Delete/navigation/calendar/time/modal/form/change path end-to-end. A green syntax check is insufficient.
 
 ## Stages
 1. Factual audit
@@ -50,9 +52,9 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Run the architecture audit and JavaScript checks against code checkpoint `335558ffb9b3df46620a017fcc8c881ebf3da94c`.
+1. Verify CI for code checkpoint `73599efdaa1de3cf3315913e1532eb4e25a1ba9c`.
 2. Fix every remaining audit failure before moving on.
-3. Complete owner/variant audit for all required components.
+3. Complete owner/variant audit for all required components, including module-specific calendar semantics.
 4. Complete Save/Create/Delete end-to-end verification.
 5. Verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown behavior and geometry.
 6. Finish desktop/mobile and cross-module regression.

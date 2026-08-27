@@ -42,7 +42,7 @@
       <button class="action-button full" data-action="client-save" data-client-id="${esc(client.id)}" type="button">Сохранить</button><button class="back-button" data-action="client-back" type="button">Назад</button>`);
   }
 
-  function render(){
+  function renderView(){
     if(state.maineView==='clients')return clients();
     if(state.maineView==='client'){
       const client=getClient(state.activeClientId);
@@ -56,7 +56,7 @@
   function newClient(){
     const now=new Date().toISOString();
     const client={id:`client-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,code:nextCode(),name:'',surname:'',gender:'',birthDate:'',phone:'',telegram:'',email:'',programs:{bonus:'',referral:'',other:''},createdAt:now,status:'active',tags:[],notes:'',visits:[],visitCount:0,totalSpent:0};
-    state.clients.push(client); state.activeClientId=client.id; state.maineView='client'; saveClients(); render();
+    state.clients.push(client); state.activeClientId=client.id; state.maineView='client'; saveClients(); window.render();
   }
 
   function saveClient(id){
@@ -73,19 +73,19 @@
     client.status=value('client-status')||'active';
     client.tags=value('client-tags').split(',').map(tag=>tag.trim()).filter(Boolean);
     client.notes=value('client-notes').trim();
-    saveClients(); render();
+    saveClients(); window.render();
   }
 
   function handle(action,e){
     switch(action){
-      case 'clients-open': state.maineView='clients'; render(); break;
+      case 'clients-open': state.maineView='clients'; window.render(); break;
       case 'client-new': newClient(); break;
-      case 'client-open': state.activeClientId=String(e.dataset.clientId||''); state.maineView='client'; render(); break;
+      case 'client-open': state.activeClientId=String(e.dataset.clientId||''); state.maineView='client'; window.render(); break;
       case 'client-save': saveClient(e.dataset.clientId); break;
-      case 'client-back': state.maineView='clients'; render(); break;
-      case 'maine-back': state.maineView='main'; render(); break;
+      case 'client-back': state.maineView='clients'; window.render(); break;
+      case 'maine-back': state.maineView='main'; window.render(); break;
     }
   }
 
-  CoBook.modules.maine={render,handle};
+  CoBook.modules.maine={render:renderView,handle};
 })();

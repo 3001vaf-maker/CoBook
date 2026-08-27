@@ -10,7 +10,7 @@
  }
  function editor(){return shell(`<section class="page-head"><div class="eyebrow">НАСТРОЙКИ · ЯРЛЫК</div><h1>Новый ярлык</h1></section><section class="panel"><label class="service-field"><span>Название</span><input data-tag-name maxlength="40" placeholder="Например, VIP"></label><label class="service-field"><span>Цвет</span><input data-tag-color type="color" value="#8a7466"></label><button class="primary full" data-action="tag-save" type="button">Сохранить</button></section>${back()}`);}
  function render(){return state.tagsView==='editor'?editor():home()}
- function refresh(){app.innerHTML=render();}
+ function refresh(){window.render()}
  function handle(action,e){
    if(action==='tag-create'){state.tagsView='editor';return refresh()}
    if(action==='tag-save'){

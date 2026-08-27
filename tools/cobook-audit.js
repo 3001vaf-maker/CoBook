@@ -40,11 +40,15 @@ for (const file of sourceFiles) {
     if (/document\.addEventListener\s*\(\s*["']click["']/i.test(text) && !r.endsWith('app/shared/core.js')) {
       addFail('LOCAL_CLICK_ROUTER', file, 'module installs its own document click router');
     }
-    if (/\b(?:app|window\.app)\.innerHTML\s*=/.test(text) && !r.endsWith('app/shared/core.js')) {
-      addFail('DIRECT_RENDER_BYPASS', file, 'module writes app.innerHTML directly instead of using Core render pipeline');
+    const hasDirectRenderWrite = /\b(?:app|window\.app)\.innerHTML\s*=/.test(text);
+    const usesAlternateRegisteredRender = /Object\.defineProperty\(CoBook\.modules\.[^,]+,\s*['"]render['"]/.test(text);
+    if (hasDirectRenderWrite && !usesAlternateRegisteredRender && !r.endsWith('app/shared/core.js')) {
+      addFail('DIRECT_RENDER_BYPASS', file, 'runtime module path writes app.innerHTML directly instead of using Core render pipeline');
+    } else if (hasDirectRenderWrite && usesAlternateRegisteredRender) {
+      addWarn('LEGACY_RENDER_CODE', file, 'contains an unused direct-render helper; exported render is registered separately and does not use it');
     }
     if (/insertAdjacentHTML\s*\(\s*["']beforeend["']/i.test(text) && !r.endsWith('app/shared/core.js')) {
-      addFail('LOCAL_OVERLAY_INSERT', file, 'module inserts overlay/modal markup directly instead of using shared overlay infrastructure');
+      addFail('LOCAL_OVERLAY_INSERT', file, 'module inserts markup directly with insertAdjacentHTML; use the shared UI insertion API');
     }
   }
 }

@@ -15,7 +15,7 @@
     },0);
     return `C${String(max+1).padStart(4,'0')}`;
   };
-  const getClient=id=>state.clients.find(client=>client.id===id);
+  const getClient=id=>state.clients.find(client=>String(client.id)===String(id));
   const field=(label,id,value,type='text',extra='')=>`<label class="profile-field"><b>${esc(label)}</b><input id="${id}" type="${type}" value="${esc(value)}" ${extra}></label>`;
   const selectField=(label,id,value,options)=>`<label class="profile-field"><b>${esc(label)}</b><select id="${id}" class="client-select">${options.map(option=>`<option value="${esc(option.value)}"${option.value===value?' selected':''}>${esc(option.label)}</option>`).join('')}</select></label>`;
 
@@ -80,7 +80,7 @@
     switch(action){
       case 'clients-open': state.maineView='clients'; render(); break;
       case 'client-new': newClient(); break;
-      case 'client-open': state.activeClientId=e.dataset.clientId; state.maineView='client'; render(); break;
+      case 'client-open': state.activeClientId=String(e.dataset.clientId||''); state.maineView='client'; render(); break;
       case 'client-save': saveClient(e.dataset.clientId); break;
       case 'client-back': state.maineView='clients'; render(); break;
       case 'maine-back': state.maineView='main'; render(); break;

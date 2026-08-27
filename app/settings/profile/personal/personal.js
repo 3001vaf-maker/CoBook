@@ -10,18 +10,19 @@
       <label><span>Имя *</span><input name="name" required value="${esc(p.name)}" placeholder="Ваше имя"></label>
       <label><span>Телефон</span><input name="phone" type="tel" value="${esc(p.phone)}" placeholder="Номер телефона"></label>
       <label><span>О себе</span><textarea name="about" placeholder="Коротко о себе">${esc(p.about)}</textarea></label>
-      <div class="profile-clean-actions"><button class="primary" type="submit">Сохранить</button></div>
+      <div class="profile-clean-actions"><button class="primary" type="button" data-action="profile-personal-save">Сохранить</button></div>
     </form></div>`;
+  }
+  function handle(action,e){
+    if(action!=='profile-personal-save')return;
+    const form=e.closest('[data-personal-form]');
+    if(!form)return;
+    const data=Object.fromEntries(new FormData(form).entries());
+    if(!String(data.name||'').trim())return;
+    save(Object.assign({},read(),data));
+    if(typeof window.CoBook.modules?.profile?.refresh==='function')window.CoBook.modules.profile.refresh();
   }
   window.CoBook=window.CoBook||{};
   CoBook.profileSections=CoBook.profileSections||{};
-  CoBook.profileSections.personal={render,read,save};
-  document.addEventListener('submit',e=>{
-    const form=e.target.closest('[data-personal-form]');
-    if(!form)return;
-    e.preventDefault();
-    const p=Object.assign({},read(),Object.fromEntries(new FormData(form).entries()));
-    save(p);
-    if(typeof window.CoBook.modules?.profile?.refresh==='function')window.CoBook.modules.profile.refresh();
-  });
+  CoBook.profileSections.personal={render,read,save,handle};
 })();

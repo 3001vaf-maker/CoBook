@@ -14,6 +14,12 @@
  const actionOwners=new Map([
    ['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']
  ]);
+ const normalizeUI=()=>{
+   const listContainers=document.querySelectorAll('.service-list,.loyalty-list,.work-list,.wallet-list,.tags-list,.documents-list,.client-list');
+   listContainers.forEach(el=>el.classList.add('ui-list'));
+   const listItems=document.querySelectorAll('.service-row,.procedure-card,.product-card,.work-card,.wallet-row,.tags-row,.document-card,.client-row,.loyalty-card');
+   listItems.forEach(el=>el.classList.add('ui-list-item'));
+ };
  window.navigate=page=>{
    const nextPage=String(page||'maine');
    const previousPage=state.page;
@@ -26,7 +32,7 @@
    if(nextModule&&typeof nextModule.onEnter==='function')nextModule.onEnter(previousPage);
    render();
  };
- window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();};
+ window.render=()=>{const mod=moduleFor(state.page)||CoBook.modules.maine;app.innerHTML=mod.render();normalizeUI();};
  window.dispatchAction=(action,e)=>{
    if(action==='navigate')return navigate(e.dataset.page);
    if(action==='modal-close')return e.closest('[data-modal]')?.remove();
@@ -41,5 +47,5 @@
    dispatchAction(actionElement.dataset.action,actionElement);
  };
  document.addEventListener('click',handleClick,true);
- window.CoBook.core={moduleFor};
+ window.CoBook.core={moduleFor,normalizeUI};
 })();

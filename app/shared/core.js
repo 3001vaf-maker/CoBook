@@ -36,9 +36,11 @@
  };
  document.addEventListener('click',function(e){
    const target=e.target;
-   const actionElement=target?.closest?.('[data-action]')||target?.parentElement?.closest?.('[data-action]');
+   const actionElement=target&&typeof target.closest==='function'
+     ?target.closest('[data-action]')
+     :(target&&target.parentElement&&typeof target.parentElement.closest==='function'?target.parentElement.closest('[data-action]'):null);
    if(!actionElement)return;
    dispatchAction(actionElement.dataset.action,actionElement);
- },false);
+ },true);
  window.CoBook.core={moduleFor};
 })();

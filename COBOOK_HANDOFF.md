@@ -3,8 +3,8 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `fb00991f6c93169ccc0550f5461254888bf9413b`
-- Current main also contains subsequent documentation-only commits; do not rewind them.
+- Actual code checkpoint: `713d9a940cb0db60fb9a5a2226334c9c3fc86878`
+- This file is updated after each code/infrastructure checkpoint; documentation-only commits after that checkpoint must not be rewound.
 
 ## Mission
 Reach 100% clean CoBook: one predictable UI system, stable functionality, no cross-module regressions, and safe future changes with explicit component ownership.
@@ -30,14 +30,18 @@ Core exposes canonical factories for button, folder, listItem, field, select, te
 - Settings/Tags migrated to canonical controls/list rows/buttons.
 - Settings/Wallets migrated to canonical controls/list rows/buttons and canonical modal shell.
 - Profile personal form, Profile folders/forms/choice sheets migrated to canonical UI.
-- Service form fields and overlays migrated to canonical UI; service modal metadata was explicitly preserved after migration.
+- Service form fields and overlays migrated to canonical UI; service modal metadata preserved.
+- Work/Materials controls, list rows and material sheet migrated to canonical UI; specialized recipe-row controls remain explicit module content and require final owner audit.
+- Documents actions and overlays migrated to canonical UI.
 - Canonical Core factories were extended for folders, root-action list rows and explicit overlay metadata.
 - Architecture audit now requires the folder factory.
+- Browser smoke infrastructure was added to test real rendered user flows in Chromium.
 
 ## Verified CI history
-- JavaScript syntax check passed for the documentation checkpoint immediately preceding the latest audit changes.
-- Architecture audit on `a07a5e...` correctly failed because handoff was stale; this was a real continuity defect and was then synchronized.
-- Do not interpret a successful static audit as visual or behavioral 100% proof. Final regression must still cover actual component owners and behavior.
+- JavaScript syntax check passed on the handoff checkpoint before the latest documentation change.
+- Architecture audit passed for the handoff checkpoint `095ce9...` after the continuity fix.
+- Browser smoke workflow is now part of CI and must pass before 100%.
+- Static architecture PASS is not equivalent to visual/behavioral 100% proof; final browser regression is mandatory.
 
 ## Required audit set
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, NAVIGATION, MOBILE_GEOMETRY, TYPOGRAPHY, plus EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR and interaction states.
@@ -53,12 +57,12 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 5. Verify Calendar, Time Picker, Modal, Bottom Sheet and Dropdown.
 6. Verify Journal and Timetable independently with shared calendar grid.
 7. Verify desktop/mobile geometry and typography.
-8. Run cross-module regression.
+8. Run browser cross-module regression.
 9. Verify JavaScript, architecture audit and deployment.
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from code checkpoint `fb00991f6c93169ccc0550f5461254888bf9413b` and current main documentation state. First confirm the newest CI results. Then continue canonical migration with Work/Materials, Documents and Loyalty. Inspect Service child list/card renderers as part of that pass. Fix any migration defects immediately. Then audit every action path, especially Save/Create/Delete, and complete Calendar/Time Picker/Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography and full regression before any 100% declaration.
+Continue from `713d9a940cb0db60fb9a5a2226334c9c3fc86878`. Check the new Browser Smoke workflow result first. Then continue remaining canonical migration/owner audit, prioritizing specialized recipe/card markup and Loyalty. Fix every failure found. Expand browser smoke where a functional path is uncovered. Finish Save/Create/Delete, Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, full regression and deployment.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.
@@ -74,6 +78,7 @@ Never restart the project or reconstruct history. Before any future response/wor
 - Calendar/Time Picker/Modal/Bottom Sheet/Dropdown verified;
 - Journal/Timetable shared grid + independent semantics verified;
 - desktop/mobile geometry verified;
+- browser regression PASS;
 - architecture audit PASS;
 - JavaScript PASS;
 - deployment PASS;

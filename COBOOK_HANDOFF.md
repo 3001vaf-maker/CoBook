@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `2f5347a4715afcc020b49d82ea855441e5b73ebe`
+- Actual code checkpoint before this documentation commit: `335558ffb9b3df46620a017fcc8c881ebf3da94c`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -25,17 +25,14 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
 
 ## Verified changes in latest code checkpoint
-- Tags refresh uses the central Core render pipeline.
-- Wallets refresh uses the central Core render pipeline.
-- Work refresh uses the central Core render pipeline.
-- Work material overlay uses `CoBook.ui.mountOverlay()`.
-- Service overlays use `CoBook.ui.mountOverlay()`.
-- Service price-variant DOM insertion uses a template instead of direct HTML insertion.
-- Loyalty internal navigation now uses `window.render()` and no longer calls its module render directly.
+- Tags, Wallets and Work refresh paths use the central Core render pipeline.
+- Work material and Service overlays use the shared overlay API.
+- Service price-variant DOM insertion uses a template.
+- Loyalty internal navigation uses `window.render()` and no longer directly invokes its module render.
+- UI component registry now includes `MOBILE_GEOMETRY`.
 
 ## Automated audit state
-The previous audit findings for Service/Tags/Wallets/Work direct-render or local-overlay paths have been addressed. Loyalty's internal render bypass has now also been addressed in the latest code checkpoint.
-The audit also reports Timetable-specific calendar token names for review against the canonical Calendar registry. These are semantic module data/state hooks, not automatically considered errors; they must be explicitly registered as variants where appropriate.
+Latest architecture audit observed before the registry repair: one missing registry component (`MOBILE_GEOMETRY`) plus a handoff checkpoint mismatch caused by the intervening code commit. The registry repair is now committed. The handoff is synchronized to the registry-repair code checkpoint below.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
@@ -53,7 +50,7 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Run architecture audit and JavaScript checks on code checkpoint `2f5347a4715afcc020b49d82ea855441e5b73ebe`.
+1. Run the architecture audit and JavaScript checks against code checkpoint `335558ffb9b3df46620a017fcc8c881ebf3da94c`.
 2. Fix every remaining audit failure before moving on.
 3. Complete owner/variant audit for all required components.
 4. Complete Save/Create/Delete end-to-end verification.

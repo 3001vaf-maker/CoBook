@@ -3,9 +3,9 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `24e3e532fa41fe87fbf49a6361cc2cce2d82d48f`
-- Latest code changes: canonical folder factory supports explicit icon/chevron variants; Settings uses the canonical folder; Service tabs and price-mode controls use canonical buttons; Work/Materials tabs use canonical buttons.
-- This file is updated after each code/infrastructure checkpoint; documentation-only commits after that checkpoint must not be rewound.
+- Actual code checkpoint: `67b999981a8d64174be51e95b851f1f250737898`
+- Latest code changes: canonical folder factory supports explicit icon/chevron variants; Settings uses the canonical folder; Service tabs and price-mode controls use canonical buttons; Work/Materials tabs use canonical buttons; Loyalty cards/actions use canonical list/button components.
+- Known follow-up to verify in browser/static audit: Loyalty program-delete index markup after the migration; do not declare this area complete until the delete action is verified.
 
 ## Mission
 Reach 100% clean CoBook: one predictable UI system, stable functionality, no cross-module regressions, and safe future changes with explicit component ownership.
@@ -21,7 +21,7 @@ Reach 100% clean CoBook: one predictable UI system, stable functionality, no cro
 - Overlay insertion belongs to `CoBook.ui.mountOverlay()`.
 
 ## Canonical UI components
-Core exposes canonical factories for button, folder, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. Buttons emit the canonical `ui-button` token. List items support explicit root actions/elements. Folder supports explicit icon/chevron variants. Modal/sheet factories support explicit outer variants and metadata. A factory existing is NOT proof of full migration: every owner/usage must be verified.
+Core exposes canonical factories for button, folder, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. Buttons emit the canonical `ui-button` token. List items support explicit root actions/elements and explicit trailing content. Folder supports explicit icon/chevron variants. Modal/sheet factories support explicit outer variants and metadata. A factory existing is NOT proof of full migration: every owner/usage must be verified.
 
 ## Current architectural cleanup
 `normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
@@ -35,7 +35,8 @@ Core exposes canonical factories for button, folder, listItem, field, select, te
 - Service form fields and overlays migrated to canonical UI; service tabs and price-mode controls use canonical buttons; service modal metadata preserved.
 - Work/Materials controls, list rows and material sheet migrated to canonical UI; Work/Materials tabs now use canonical buttons; specialized recipe-row controls remain explicit module content and require final owner audit.
 - Documents actions and overlays migrated to canonical UI.
-- Canonical Core factories were extended for folders, root-action list rows and explicit overlay metadata.
+- Loyalty navigation folders, entity cards and primary/danger/secondary actions migrated to canonical UI. Loyalty functional delete action still requires browser/static verification after the migration.
+- Canonical Core factories were extended for folders, root-action list rows, explicit trailing content and overlay metadata.
 - Architecture audit requires the canonical folder factory.
 - Browser smoke infrastructure was added to test real rendered user flows in Chromium.
 
@@ -58,7 +59,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `24e3e532fa41fe87fbf49a6361cc2cce2d82d48f`. Audit remaining direct/local shared-component markup, prioritizing Loyalty and specialized Work/Materials recipe/card controls. Migrate each genuine shared component to a canonical factory or explicit registered variant without changing module data/behavior. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
+Continue from `67b999981a8d64174be51e95b851f1f250737898`. First verify the latest Loyalty migration, especially program deletion and all card navigation. Then audit remaining direct/local shared-component markup, prioritizing specialized Work/Materials recipe/card controls and any remaining direct buttons in Loyalty or other modules. Migrate each genuine shared component to a canonical factory or explicit registered variant without changing module data/behavior. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

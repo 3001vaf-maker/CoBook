@@ -3,8 +3,8 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `a7af6f266adcd2ec683e6104dce7868aab02c7fd`
-- Latest code change: Settings navigation folders now render through `CoBook.ui.folder()` instead of module-owned folder markup.
+- Actual code checkpoint: `57bc97be2809054d2bd9909572e7d2998f924d23`
+- Latest code changes: canonical folder factory now supports explicit icon/chevron variants; Settings uses that canonical folder component.
 - This file is updated after each code/infrastructure checkpoint; documentation-only commits after that checkpoint must not be rewound.
 
 ## Mission
@@ -21,14 +21,14 @@ Reach 100% clean CoBook: one predictable UI system, stable functionality, no cro
 - Overlay insertion belongs to `CoBook.ui.mountOverlay()`.
 
 ## Canonical UI components
-Core exposes canonical factories for button, folder, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. Buttons emit the canonical `ui-button` token. List items support explicit root actions/elements. Modal/sheet factories support explicit outer variants and metadata. A factory existing is NOT proof of full migration: every owner/usage must be verified.
+Core exposes canonical factories for button, folder, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. Buttons emit the canonical `ui-button` token. List items support explicit root actions/elements. Folder supports explicit icon/chevron variants. Modal/sheet factories support explicit outer variants and metadata. A factory existing is NOT proof of full migration: every owner/usage must be verified.
 
 ## Current architectural cleanup
 `normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
 
 ## Recent migration
 - Main/Clients migrated to canonical controls/list rows/buttons.
-- Settings navigation folders migrated to canonical `CoBook.ui.folder()`.
+- Settings navigation folders migrated to canonical `CoBook.ui.folder()` with explicit icon/chevron variant.
 - Settings/Tags migrated to canonical controls/list rows/buttons.
 - Settings/Wallets migrated to canonical controls/list rows/buttons and canonical modal shell.
 - Profile personal form, Profile folders/forms/choice sheets migrated to canonical UI.
@@ -58,7 +58,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `a7af6f266adcd2ec683e6104dce7868aab02c7fd`. Audit remaining direct/local shared-component markup, prioritizing specialized recipe/card markup and Loyalty. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
+Continue from `57bc97be2809054d2bd9909572e7d2998f924d23`. Audit remaining direct/local shared-component markup, prioritizing Loyalty and specialized Work/Materials recipe/card controls. Migrate each genuine shared component to a canonical factory or explicit registered variant without changing module data/behavior. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

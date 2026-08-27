@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `0fbd2cff53a7237faecf2952c98a5af05ab39e47`
+- Actual code checkpoint: `682df8ab8efdce09a550a91ee858be00bfff28d6`
 - Mission: reach a genuinely clean, fully working CoBook: one predictable UI system, stable functionality, no cross-module regressions, and safe future changes with explicit component ownership.
 
 ## Non-negotiable working rules
@@ -16,11 +16,11 @@
 - If a chat/work cycle ends before 100%, continue from the exact actual checkpoint below; do not restart or re-audit history unnecessarily.
 
 ## Current verified facts
+- The home `Клиенты` feature card markup has been restored to its pre-migration markup; no new feature-button wrapper is used for that card.
 - `app/maine/maine.js` contains the client Save path and persists `state.clients` to `localStorage`.
-- Client Save now explicitly returns to the client list after persistence so a successful save is immediately visible instead of requiring navigation away and back.
-- `index.html` cache version is `ui-system-12` so the updated client module is requested instead of a stale browser copy.
+- Service procedure/product actions were mapped to the actual `service` handler by registering `CoBook.modules.procedures` and `CoBook.modules.products` aliases. Previously the central action owner map pointed those actions at module names that did not exist, so those actions could silently do nothing.
 - Browser smoke workflow exists and covers client creation/save plus wallets, tags, service, work materials and profile flows.
-- Latest browser smoke run from the previous checkpoint was still in progress when inspected; it was not treated as PASS.
+- Latest checks for the current checkpoint are queued; they are not yet treated as PASS.
 
 ## Canonical UI surface
 Core is intended to own: button, featureButton, folder, listItem, field, select, textarea, fileField, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid, mountOverlay. Field/select/textarea have explicit `bare` variants where compact controls are required.
@@ -47,7 +47,7 @@ Full owner migration and functional verification are NOT complete. Continue from
 10. Declare 100% only when all final gates pass.
 
 ## Exact continuation point
-The last concrete change is the client Save behavior in `app/maine/maine.js`, followed by cache-busting in `index.html`. Next work must continue with verification and the next real defect; do not reopen already-closed planning/audit discussion unless the code itself requires it.
+The current concrete changes are: restored the `Клиенты` home card markup and corrected procedure/product action ownership so their open/edit/delete actions reach the existing `service` handler. Next work is verification of the real Save/Create/Delete paths; do not reopen planning/audit discussion unless the code itself requires it.
 
 ## Final acceptance
 The project is ready only when the same component decision is consistently applied throughout the application, exceptions are explicit, functional behavior is preserved, regression is clean, JavaScript/architecture checks pass, and the deployed application is usable. Until then, do not call it finished.

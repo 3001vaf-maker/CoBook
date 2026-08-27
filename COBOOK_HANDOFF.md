@@ -4,9 +4,10 @@
 
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Current commit: `1c31df6fe6b110384de075b6b932caa3a242c5a4`
+- Code checkpoint: `a79d8e104759372ba5100d18f8ca74c846de130c`
+- This handoff update is the next commit on `main`; always use current `main` HEAD as the working base.
 - Previous UI registry checkpoint: `23dcd8f3a121848cb06fc0cfe070451d15b95c92`
-- Asset cache version: `ui-system-9`
+- Asset cache version: `ui-system-10`
 
 ## Goal
 
@@ -31,11 +32,15 @@ Do not restart the project and do not create a second design system.
 - Added canonical `CoBook.ui.listItem()` in `app/shared/core.js`.
 - Converted TAGS list rows to the canonical entity-list component.
 - Converted WALLETS list rows to the canonical entity-list component.
-- Removed the TAGS inline `style="--tag-color:..."` implementation.
-- Removed the WALLETS custom row geometry from its rendered markup.
-- Added canonical `.ui-entity-row`, `.ui-entity-icon`, `.ui-entity-content`, `.ui-entity-title`, `.ui-entity-subtitle` styles to `styles.css`.
+- Removed the TAGS inline visual style implementation.
+- Removed the WALLETS custom row geometry from rendered markup.
+- Added canonical entity-list geometry to `styles.css`.
 - Preserved existing storage/default product data in `core.js` after repair.
-- Bumped UI asset cache from `ui-system-8` to `ui-system-9`.
+- Converted PROFILE personal/profession/workplace Save buttons from standalone submit listeners to central `data-action` routing.
+- Converted WORK material and recipe Save buttons from standalone submit listeners to central `data-action` routing.
+- Registered the corresponding action owners in `core.js`.
+- Bumped UI asset cache to `ui-system-10`.
+- Added this persistent handoff so a new chat can continue from repository state without user re-explaining the project.
 
 ## Known architectural work still required
 
@@ -51,7 +56,7 @@ Do not restart the project and do not create a second design system.
 
 - Audit every `data-action` and `dispatchAction` owner.
 - Audit every Save/Create/Delete path.
-- Migrate unjustified standalone `submit` handlers into the central action model.
+- Search for any remaining unjustified standalone `submit` handlers.
 - Verify Save → action → owner → handle → validation → storage/state → render.
 - Verify navigation and modal actions after UI refactors.
 
@@ -65,19 +70,18 @@ Do not restart the project and do not create a second design system.
 
 ## Important known exceptions from the audit
 
-- `app/settings/profile/profile.js` has standalone form-submit handling.
-- `app/settings/work/work.js` has standalone form-submit handling.
 - `app/settings/loyalty/loyalty.js` still requires full action/component audit.
 - `app/timetable/timetable.js` owns the current wheel-style TIME_PICKER; all future TIME_PICKER changes must be checked against all owners.
 - Journal and timetable calendars must be treated as separate functional contexts sharing a controlled visual base.
+- Other remaining standalone form/action listeners must be found by the audit rather than assumed absent.
 
 ## Required next action
 
-Continue from the current commit. Do not ask the user to re-explain the project.
+Continue from current `main` HEAD. Do not ask the user to re-explain the project.
 
 1. Read `PROJECT_STATE.md`, `DESIGN_SYSTEM.md`, `UI_CONTEXT.md`, `UI_COMPONENTS.md`, and this file.
-2. Finish the factual audit.
-3. Repair the component architecture at the primary source.
+2. Finish the factual audit of all modules/actions.
+3. Repair the remaining shared component architecture at the primary source.
 4. Audit all affected functional actions.
 5. Run the full cross-module audit before calling the result complete.
 
@@ -85,9 +89,9 @@ Continue from the current commit. Do not ask the user to re-explain the project.
 
 If the chat may end before the current stage is complete, update this file first with:
 
-- current commit;
+- current main HEAD;
 - exact completed checks;
 - exact remaining checks;
 - exact next action.
 
-The next chat must continue from this file and the repository, not from a reconstructed conversation history.
+The next chat must continue from this file and the repository, not from reconstructed conversation history.

@@ -3,8 +3,8 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `a07a5e950b9e0651eb985e07f6cf03c2eaf32233`
-- This file is updated after every code checkpoint and records the latest code state.
+- Actual code checkpoint: `fb00991f6c93169ccc0550f5461254888bf9413b`
+- Current main also contains subsequent documentation-only commits; do not rewind them.
 
 ## Mission
 Reach 100% clean CoBook: one predictable UI system, stable functionality, no cross-module regressions, and safe future changes with explicit component ownership.
@@ -20,16 +20,24 @@ Reach 100% clean CoBook: one predictable UI system, stable functionality, no cro
 - Overlay insertion belongs to `CoBook.ui.mountOverlay()`.
 
 ## Canonical UI components
-Core exposes canonical factories for button, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. The button factory emits the canonical `ui-button` token. List items support explicit root actions/elements so clickable rows do not need copied markup. A factory existing is NOT proof of full migration: every owner/usage must be verified.
+Core exposes canonical factories for button, folder, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay. Buttons emit the canonical `ui-button` token. List items support explicit root actions/elements. Modal/sheet factories support explicit outer variants and metadata. A factory existing is NOT proof of full migration: every owner/usage must be verified.
 
 ## Current architectural cleanup
 `normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
 
 ## Recent migration
-Main/Clients, Settings/Tags and Settings/Wallets were migrated to canonical controls/list items/buttons. Wallet delete confirmation now uses the canonical modal shell. A wallet list-container syntax issue found immediately after migration was corrected before continuing.
+- Main/Clients migrated to canonical controls/list rows/buttons.
+- Settings/Tags migrated to canonical controls/list rows/buttons.
+- Settings/Wallets migrated to canonical controls/list rows/buttons and canonical modal shell.
+- Profile personal form, Profile folders/forms/choice sheets migrated to canonical UI.
+- Service form fields and overlays migrated to canonical UI; service modal metadata was explicitly preserved after migration.
+- Canonical Core factories were extended for folders, root-action list rows and explicit overlay metadata.
+- Architecture audit now requires the folder factory.
 
-## Audit infrastructure
-`tools/cobook-audit.js` checks the single CSS source, inline styles, local routers, direct render/overlay bypasses, canonical factories, central action registration, Calendar ownership, UI registry completeness and handoff continuity. The audit checkpoint parser was hardened after CI exposed an edge case.
+## Verified CI history
+- JavaScript syntax check passed for the documentation checkpoint immediately preceding the latest audit changes.
+- Architecture audit on `a07a5e...` correctly failed because handoff was stale; this was a real continuity defect and was then synchronized.
+- Do not interpret a successful static audit as visual or behavioral 100% proof. Final regression must still cover actual component owners and behavior.
 
 ## Required audit set
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, NAVIGATION, MOBILE_GEOMETRY, TYPOGRAPHY, plus EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR and interaction states.
@@ -50,7 +58,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `a07a5e950b9e0651eb985e07f6cf03c2eaf32233`. Confirm the CI runs for the latest migration. Then migrate remaining direct/local shared-component implementations, starting with Profile, Service and Work/Materials, followed by Documents and Loyalty. Preserve module-specific data and behavior. After migration, audit Save/Create/Delete and overlay flows, then full regression and deployment.
+Continue from code checkpoint `fb00991f6c93169ccc0550f5461254888bf9413b` and current main documentation state. First confirm the newest CI results. Then continue canonical migration with Work/Materials, Documents and Loyalty. Inspect Service child list/card renderers as part of that pass. Fix any migration defects immediately. Then audit every action path, especially Save/Create/Delete, and complete Calendar/Time Picker/Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography and full regression before any 100% declaration.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

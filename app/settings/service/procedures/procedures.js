@@ -13,4 +13,5 @@
       return `<section class="service-list">${state.procedures.map((p,i)=>`<div class="service-row" data-action="edit-procedure" data-index="${i}" role="button" tabindex="0"><div><div class="service-name">${esc(p.name)}</div><div class="service-meta">${esc(p.duration||60)} мин</div></div><div class="service-price">${summary(p)}</div><button class="procedure-delete" data-action="delete-procedure" data-index="${i}" type="button" aria-label="Удалить процедуру">🗑</button></div>`).join('')}</section><button class="primary full service-add" data-action="open-procedure" type="button">Добавить процедуру</button>`;
     }
   };
+  CoBook.modules.procedures=CoBook.modules.service;
 })();

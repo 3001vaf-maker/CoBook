@@ -17,7 +17,7 @@
  const normalizeUI=()=>{
    document.querySelectorAll(listContainers.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list'));
    document.querySelectorAll(listItems.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list-item'));
-   document.querySelectorAll('button.primary,button.secondary,button.danger,button.action-button,button.section-back-button,button.back-button,button.service-back,button.document-back-button,button.loyalty-back').forEach(el=>el.classList.add('ui-button'));
+   document.querySelectorAll('button:not(.nav)').forEach(el=>el.classList.add('ui-button'));
    document.querySelectorAll('input:not([type="file"]),select,textarea').forEach(el=>el.classList.add('ui-control'));
  };
  window.navigate=page=>{

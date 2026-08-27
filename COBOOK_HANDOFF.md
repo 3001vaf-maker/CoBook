@@ -3,8 +3,8 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `57bc97be2809054d2bd9909572e7d2998f924d23`
-- Latest code changes: canonical folder factory now supports explicit icon/chevron variants; Settings uses that canonical folder component.
+- Actual code checkpoint: `001707e8a0077892b3b9fd24bfe7f140eb42d78c`
+- Latest code changes: canonical folder factory supports explicit icon/chevron variants; Settings uses the canonical folder; Service tabs and price-mode controls now use the canonical button factory.
 - This file is updated after each code/infrastructure checkpoint; documentation-only commits after that checkpoint must not be rewound.
 
 ## Mission
@@ -32,7 +32,7 @@ Core exposes canonical factories for button, folder, listItem, field, select, te
 - Settings/Tags migrated to canonical controls/list rows/buttons.
 - Settings/Wallets migrated to canonical controls/list rows/buttons and canonical modal shell.
 - Profile personal form, Profile folders/forms/choice sheets migrated to canonical UI.
-- Service form fields and overlays migrated to canonical UI; service modal metadata preserved.
+- Service form fields and overlays migrated to canonical UI; service tabs and price-mode controls now use canonical buttons; service modal metadata preserved.
 - Work/Materials controls, list rows and material sheet migrated to canonical UI; specialized recipe-row controls remain explicit module content and require final owner audit.
 - Documents actions and overlays migrated to canonical UI.
 - Canonical Core factories were extended for folders, root-action list rows and explicit overlay metadata.
@@ -58,7 +58,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `57bc97be2809054d2bd9909572e7d2998f924d23`. Audit remaining direct/local shared-component markup, prioritizing Loyalty and specialized Work/Materials recipe/card controls. Migrate each genuine shared component to a canonical factory or explicit registered variant without changing module data/behavior. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
+Continue from `001707e8a0077892b3b9fd24bfe7f140eb42d78c`. Audit remaining direct/local shared-component markup, prioritizing Loyalty and specialized Work/Materials recipe/card controls. Migrate each genuine shared component to a canonical factory or explicit registered variant without changing module data/behavior. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

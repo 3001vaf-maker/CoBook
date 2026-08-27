@@ -1,324 +1,138 @@
 # CoBook — UI COMPONENT REGISTRY
 
-## Назначение
+## Purpose
+Permanent map of canonical UI components, variants, owners and shared factories. This file is part of the project's continuity contract.
 
-Этот файл является постоянным реестром визуальных компонентов CoBook и картой их использования.
-Он не заменяет `DESIGN_SYSTEM.md` и `PROJECT_STATE.md`.
+## Sources of truth
+- `PROJECT_STATE.md` — architecture/protocol
+- `DESIGN_SYSTEM.md` — visual rules
+- `UI_CONTEXT.md` — screens/contexts
+- `UI_COMPONENTS.md` — component ownership/variants
+- `COBOOK_HANDOFF.md` — current continuation state
 
-`PROJECT_STATE.md` = архитектура и протокол работы.
-`DESIGN_SYSTEM.md` = правила визуального слоя.
-`UI_CONTEXT.md` = адресация экранов и контекстов.
-`UI_COMPONENTS.md` = какие компоненты существуют, какие у них варианты и где они используются.
-
-Следующий чат обязан продолжать работу с этого файла и не восстанавливать карту UI по памяти.
-
----
-
-## 1. ГЛАВНЫЙ ПРИНЦИП
-
+## Core rule
 ```text
 MODULE
   ↓
-данные + состояние + действие
+data + state + action
   ↓
-UI COMPONENT
+CANONICAL UI COMPONENT
   ↓
 styles.css
 ```
 
-MODULE не создаёт собственную визуальную систему.
+No module may create a competing visual system. A legitimate difference is an explicit variant or module-supplied data/state/action, not a duplicate component.
 
-Одинаковая функция/форма должна использовать один компонент или один зарегистрированный variant.
+## Canonical shared factories
+Implemented in `app/shared/core.js`:
 
-Новый визуальный компонент разрешён только после проверки, что существующий компонент не подходит.
-
----
-
-## 2. БАЗОВЫЕ КОМПОНЕНТЫ
-
-| Компонент | Варианты | Состояние реестра |
+| Component | Factory | Purpose |
 |---|---|---|
-| BUTTON | primary / secondary / danger / back / action / home-tile | IN AUDIT |
-| LIST | standard / button-list / card-list | IN AUDIT |
-| LIST_ITEM | standard / actionable / static | IN AUDIT |
-| FOLDER | management / profile / special | IN AUDIT |
-| CARD | standard / entity / summary | IN AUDIT |
-| FIELD | text / number / date / file | IN AUDIT |
-| SELECT | native / custom popup | IN AUDIT |
-| TEXTAREA | standard | IN AUDIT |
-| MODAL | centered / confirmation / editor | IN AUDIT |
-| BOTTOM_SHEET | standard | IN AUDIT |
-| DROPDOWN | standard | IN AUDIT |
-| DATE_PICKER | standard | IN AUDIT |
-| TIME_PICKER | standard | IN AUDIT |
-| CALENDAR | base / journal / timetable | IN AUDIT |
-| EMPTY_STATE | standard | IN AUDIT |
-| PAGE_HEADER | standard | IN AUDIT |
-| NAVIGATION | bottom | IN AUDIT |
-| MOBILE_GEOMETRY | responsive / compact / touch-targets | IN AUDIT |
-| TYPOGRAPHY | title / body / label / caption / value | IN AUDIT |
+| BUTTON | `CoBook.ui.button()` | canonical button markup/variant entry point |
+| LIST_ITEM | `CoBook.ui.listItem()` | canonical entity/list item geometry |
+| FIELD | `CoBook.ui.field()` | canonical labelled input |
+| SELECT | `CoBook.ui.select()` | canonical labelled native select |
+| TEXTAREA | `CoBook.ui.textarea()` | canonical labelled textarea |
+| MODAL | `CoBook.ui.modal()` | canonical overlay/modal shell |
+| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | canonical bottom-sheet shell |
+| DROPDOWN | `CoBook.ui.dropdown()` | canonical dropdown shell |
+| DATE_PICKER | `CoBook.ui.datePicker()` | canonical date trigger |
+| TIME_PICKER | `CoBook.ui.timePicker()` | canonical time trigger |
+| CALENDAR | `CoBook.ui.calendarGrid()` | canonical calendar grid/formation |
+| OVERLAY MOUNT | `CoBook.ui.mountOverlay()` | canonical overlay insertion point |
 
----
+These factories are the architectural target. Existing module markup is migrated to them during the UI-architecture stage; existence of a factory alone does not mean every owner has already migrated.
 
-## 3. ПРЕДМЕТНЫЕ КОМПОНЕНТЫ
+## Required components
 
-| Component | Owner / context | Status |
+| Component | Canonical source | Current state |
 |---|---|---|
-| JOURNAL | JOURNAL | IN AUDIT |
-| SCHEDULE | TIMETABLE | IN AUDIT |
-| PROFILE | SETTINGS → PROFILE | IN AUDIT |
-| SERVICE | SETTINGS → SERVICE | IN AUDIT |
-| WORK_MATERIALS | SETTINGS → WORK | IN AUDIT |
-| DOCUMENTS | SETTINGS → DOCUMENTS | IN AUDIT |
-| LOYALTY | SETTINGS → LOYALTY | IN AUDIT |
-| TAGS | SETTINGS → TAGS | IN AUDIT |
-| WALLETS | SETTINGS → WALLETS | IN AUDIT |
-| CLIENTS | MAINE → CLIENTS | IN AUDIT |
-| HOME | MAINE | SPECIAL SCREEN |
+| BUTTON | Core factory + `styles.css` | IMPLEMENTED / MIGRATION AUDIT |
+| LIST | Core/list CSS contract | IMPLEMENTED / MIGRATION AUDIT |
+| LIST_ITEM | `CoBook.ui.listItem()` | IMPLEMENTED / MIGRATION AUDIT |
+| FOLDER | shared CSS contract | REGISTERED / MIGRATION AUDIT |
+| CARD | shared CSS contract | REGISTERED / MIGRATION AUDIT |
+| FIELD | `CoBook.ui.field()` | IMPLEMENTED / MIGRATION AUDIT |
+| SELECT | `CoBook.ui.select()` | IMPLEMENTED / MIGRATION AUDIT |
+| TEXTAREA | `CoBook.ui.textarea()` | IMPLEMENTED / MIGRATION AUDIT |
+| MODAL | `CoBook.ui.modal()` | IMPLEMENTED / MIGRATION AUDIT |
+| BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | IMPLEMENTED / MIGRATION AUDIT |
+| DROPDOWN | `CoBook.ui.dropdown()` | IMPLEMENTED / MIGRATION AUDIT |
+| DATE_PICKER | `CoBook.ui.datePicker()` | IMPLEMENTED / MIGRATION AUDIT |
+| TIME_PICKER | `CoBook.ui.timePicker()` | IMPLEMENTED / MIGRATION AUDIT |
+| CALENDAR | `CoBook.ui.calendarGrid()` | IMPLEMENTED / OWNER AUDIT |
+| JOURNAL | Journal module | OWNER AUDIT |
+| TIMETABLE | Timetable module | OWNER AUDIT |
+| PROFILE | Settings/Profile | OWNER AUDIT |
+| SERVICE | Settings/Service | OWNER AUDIT |
+| WORK_MATERIALS | Settings/Work | OWNER AUDIT |
+| DOCUMENTS | Settings/Documents | OWNER AUDIT |
+| LOYALTY | Settings/Loyalty | OWNER AUDIT |
+| TAGS | Settings/Tags | OWNER AUDIT |
+| WALLETS | Settings/Wallets | OWNER AUDIT |
+| CLIENTS | Main/Clients | OWNER AUDIT |
+| NAVIGATION | Core bottom navigation | OWNER AUDIT |
+| MOBILE_GEOMETRY | Core + `styles.css` | REGISTERED / AUDIT |
+| TYPOGRAPHY | `styles.css` | REGISTERED / AUDIT |
 
-Предметный компонент не означает отдельную дизайн-систему. Его внутренние UI-элементы должны использовать базовые компоненты выше.
+Additional cross-cutting components: EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR, INTERACTION_STATE.
 
----
-
-## 4. КАЛЕНДАРИ
-
-Уже зафиксированы разные функциональные владельцы:
+## Calendar rule
+There is exactly one canonical calendar grid/formation algorithm:
 
 ```text
-SCHEDULE → CALENDAR
-JOURNAL  → MONTH_CALENDAR
-MODAL    → DATE_PICKER
+                 CALENDAR GRID
+                /             \
+           JOURNAL          TIMETABLE
+           own data         own data
+           own state        own state
+           own actions      own actions
 ```
 
-Это разные функциональные контексты, но общий визуальный каркас должен быть централизован.
+Journal and Timetable MUST NOT be merged functionally. They share only the calendar grid/formation layer. A module supplies its own day renderer/state/action semantics.
 
-Изменение общего календарного каркаса требует проверки всех владельцев.
+## Time Picker rule
+`CoBook.ui.timePicker()` is the canonical trigger. The current functional owner is Timetable. If another owner appears, it must use the canonical component or an explicitly registered variant; no copied picker implementation.
 
-Изменение поведения одного календаря не должно менять другой.
+## Overlay rule
+Modal and Bottom Sheet are separate registered variants. Their positioning and geometry belong to the shared UI layer. Modules provide content and behavior. Overlay insertion belongs to `CoBook.ui.mountOverlay()`.
 
-Источник адресации: `UI_CONTEXT.md`.
-
----
-
-## 5. TIME_PICKER
-
-Текущий фактический владелец: `app/timetable/timetable.js`.
-
-Текущая реализация использует wheel-style picker с часами и минутами.
-
-Это пока считается фактической реализацией, а не окончательным утверждённым дизайном.
-
-Если в будущем меняется механизм выбора времени, сначала определить всех владельцев TIME_PICKER по проекту, затем заменить общий компонент либо зарегистрировать отдельные variants.
-
-Нельзя копировать новый picker в каждый MODULE.
-
----
-
-## 6. ФАКТИЧЕСКИЕ РАСХОЖДЕНИЯ, НАЙДЕННЫЕ В НАЧАЛЬНОМ АУДИТЕ
-
-База аудита:
-`f55133513f1e514cc205f463312d7a8971998ea2`
-
-### TAGS
-
-`app/settings/tags/tags.js` самостоятельно формирует строку ярлыка:
+## Action rule
+All important actions follow:
 
 ```text
-service-row + tags-row
-```
-
-и содержит inline CSS-переменную:
-
-```text
-style="--tag-color:..."
-```
-
-Это нарушение принципа единого визуального источника и должно быть устранено архитектурно, а не дополнительным override.
-
-### WALLETS
-
-`app/settings/wallets/wallets.js` самостоятельно формирует `wallet-row` и собственную внутреннюю структуру:
-
-```text
-wallet-icon
-text block
-wallet-delete
-```
-
-Необходимо определить, является ли это зарегистрированным variant `LIST_ITEM` или должен быть приведён к существующему общему компоненту.
-
-### PROFILE
-
-`app/settings/profile/profile.js` содержит формы, сохранение которых обрабатывается отдельным `document.addEventListener('submit', ...)`, а не центральным `data-action → core.js → owner` маршрутом.
-
-Это функциональное архитектурное исключение и требует отдельной проверки.
-
-### WORK
-
-`app/settings/work/work.js` также использует отдельные `submit`-обработчики для material-form и recipe-form.
-
-Это требует проверки против правила центральной маршрутизации действий.
-
-### SERVICE
-
-`app/settings/service/service.js` использует `data-action="save-service"`, то есть уже соответствует центральной модели действий лучше, чем PROFILE/WORK.
-
----
-
-## 7. ПРАВИЛО ДЛЯ «СОХРАНИТЬ»
-
-Любая кнопка сохранения должна иметь проверяемую цепочку:
-
-```text
-Сохранить
-  ↓
-action
-  ↓
-core.js
-  ↓
-owner MODULE
-  ↓
-handle
-  ↓
+UI
+ ↓
+data-action
+ ↓
+Core dispatchAction
+ ↓
+registered owner
+ ↓
+handle / handleChange
+ ↓
 validation
-  ↓
-state / localStorage
-  ↓
-render
-  ↓
-результат
+ ↓
+state/storage
+ ↓
+window.render()
 ```
 
-`submit`-обработчик, существующий вне этой модели, считается архитектурным исключением и должен быть либо обоснован, либо переведён в центральную систему.
+No module-level document click/change/submit router. No direct application mount from a module.
 
----
+## Change-impact rule
+Before changing a shared component:
+1. identify canonical factory/source;
+2. identify variants;
+3. identify all owners/usages;
+4. identify action ownership;
+5. identify CSS source;
+6. change the primary source;
+7. run architecture/syntax checks;
+8. verify affected owners on desktop/mobile;
+9. verify affected functional actions.
 
-## 8. ПРАВИЛО ИЗМЕНЕНИЯ КОМПОНЕНТА
+The goal is that a future request such as “replace the time wheel everywhere” has a known component owner and impact list rather than requiring manual discovery screen by screen.
 
-Перед изменением:
-
-```text
-1. Найти компонент.
-2. Найти все его variants.
-3. Найти всех владельцев.
-4. Найти источник HTML/DOM.
-5. Найти источник действия.
-6. Найти источник CSS.
-7. Определить область влияния.
-8. Изменить первичный источник.
-9. Проверить всех владельцев.
-10. Проверить desktop + mobile.
-11. Проверить функциональность затронутых действий.
-```
-
----
-
-## 9. НОВЫЙ КОМПОНЕНТ
-
-Перед созданием нового UI:
-
-```text
-EXISTS?
-  ↓ yes → использовать
-  ↓ no
-VARIANT EXISTS?
-  ↓ yes → использовать variant
-  ↓ no
-действительно нужен новый компонент?
-  ↓ yes
-зарегистрировать здесь
-  ↓
-добавить визуальные правила в styles.css
-```
-
-Нельзя создавать новый компонент только для того, чтобы быстро исправить один экран.
-
----
-
-## 10. HANDOFF / ПЕРЕДАЧА МЕЖДУ ЧАТАМИ
-
-Текущая рабочая база:
-
-```text
-repository: 3001vaf-maker/CoBook
-base commit: f55133513f1e514cc205f463312d7a8971998ea2
-```
-
-Текущий этап:
-
-```text
-1 / 6 — ФАКТИЧЕСКИЙ АУДИТ
-```
-
-Уже проверено:
-
-```text
-✓ PROJECT_STATE.md
-✓ DESIGN_SYSTEM.md
-✓ UI_CONTEXT.md
-✓ дерево проекта
-✓ index.html
-✓ core.js
-✓ journal.js
-✓ timetable.js
-✓ settings.js
-✓ profile.js
-✓ service.js
-✓ work.js
-✓ documents.js
-✓ tags.js
-✓ wallets.js
-✓ maine.js (начальная проверка)
-✓ отсутствие отдельных CSS-файлов по дереву текущей базы
-```
-
-Уже подтверждено:
-
-```text
-✓ один styles.css подключён из index.html
-✓ core.js содержит единый render и центральный click/action dispatcher
-✓ существующая документация уже запрещает локальные CSS и обходы Core
-```
-
-Не завершено:
-
-```text
-□ полный аудит всех JS-модулей и всех действий
-□ полный реестр фактических CSS-компонентов
-□ все владельцы каждого общего компонента
-□ полный аудит Журнал / График
-□ проверка всех Save/Create/Delete
-□ проверка мобильных вариантов
-□ устранение найденных исключений
-□ финальный cross-module audit
-```
-
-### Следующий этап
-
-```text
-2 / 6 — ЕДИНАЯ UI-АРХИТЕКТУРА
-```
-
-Следующий чат НЕ должен начинать с объяснения проекта пользователю.
-Он должен:
-
-1. открыть `PROJECT_STATE.md`;
-2. открыть `DESIGN_SYSTEM.md`;
-3. открыть `UI_CONTEXT.md`;
-4. открыть `UI_COMPONENTS.md`;
-5. продолжить с текущего этапа;
-6. не считать этот документ доказательством завершённости — статус `IN AUDIT` означает незавершённую проверку.
-
-Если чат заканчивается до завершения этапа, следующий ответ должен содержать обновлённый блок HANDOFF с фактическим состоянием.
-
----
-
-## 11. ЗАПРЕТ НА ЛОКАЛЬНЫЕ ИСТИНЫ
-
-Нельзя создавать новую дизайн-систему внутри чата.
-
-Нельзя считать визуально похожими элементы без проверки их технического владельца.
-
-Нельзя считать наличие `ui-button`/`ui-list-item` доказательством архитектурного единства: эти классы могут быть добавлены Core поверх неоднородной разметки.
-
-Цель аудита — сделать архитектуру такой, чтобы единообразие следовало из структуры проекта, а не из автоматического добавления классов.
+## Migration status
+The registry is intentionally not marked 100% complete yet. A component is `IMPLEMENTED` when its canonical source exists; it becomes `VERIFIED` only after all relevant owners have been audited and migrated and its desktop/mobile behavior has passed regression checks.

@@ -11,6 +11,9 @@
  window.shell=(content,plain=false)=>`<div class="shell">${plain?'':`<header class="topbar"><div class="brand">CoBook</div><div class="subtitle">Кабинет мастера</div></header>`}<main class="content">${content}</main>${nav()}</div>`;
  const moduleFor=p=>CoBook.modules[p];
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty','tags','wallets']);
+ const actionOwners=new Map([
+   ['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']
+ ]);
  window.navigate=page=>{
    const nextPage=String(page||'maine');
    const previousPage=state.page;
@@ -27,12 +30,13 @@
  window.dispatchAction=(action,e)=>{
    if(action==='navigate')return navigate(e.dataset.page);
    if(action==='modal-close')return e.closest('[data-modal]')?.remove();
-   const mod=moduleFor(state.page);
+   const owner=actionOwners.get(action);
+   const mod=moduleFor(owner||state.page);
    if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
  };
  document.addEventListener('click',function(e){
-   const target=e.target instanceof Element?e.target:e.target?.parentElement;
-   const actionElement=target?.closest?.('[data-action]');
+   const target=e.target;
+   const actionElement=target?.closest?.('[data-action]')||target?.parentElement?.closest?.('[data-action]');
    if(!actionElement)return;
    dispatchAction(actionElement.dataset.action,actionElement);
  },false);

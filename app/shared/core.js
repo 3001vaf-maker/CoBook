@@ -34,13 +34,11 @@
    const mod=moduleFor(owner||state.page);
    if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
  };
- document.addEventListener('click',function(e){
-   const target=e.target;
-   const actionElement=target&&typeof target.closest==='function'
-     ?target.closest('[data-action]')
-     :(target&&target.parentElement&&typeof target.parentElement.closest==='function'?target.parentElement.closest('[data-action]'):null);
+ app.addEventListener('click',function(e){
+   const path=typeof e.composedPath==='function'?e.composedPath():[];
+   const actionElement=path.find(node=>node&&node.nodeType===1&&typeof node.matches==='function'&&node.matches('[data-action]'))||null;
    if(!actionElement)return;
    dispatchAction(actionElement.dataset.action,actionElement);
- },true);
+ });
  window.CoBook.core={moduleFor};
 })();

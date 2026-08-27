@@ -15,10 +15,8 @@
    ['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']
  ]);
  const normalizeUI=()=>{
-   const listContainers=document.querySelectorAll('.service-list,.loyalty-list,.work-list,.wallet-list,.tags-list,.documents-list,.client-list');
-   listContainers.forEach(el=>el.classList.add('ui-list'));
-   const listItems=document.querySelectorAll('.service-row,.procedure-card,.product-card,.work-card,.wallet-row,.tags-row,.document-card,.client-row,.loyalty-card');
-   listItems.forEach(el=>el.classList.add('ui-list-item'));
+   document.querySelectorAll('.service-list,.loyalty-list,.work-list,.wallet-list,.tags-list,.documents-list,.client-list').forEach(el=>el.classList.add('ui-list'));
+   document.querySelectorAll('.service-row,.procedure-card,.product-card,.work-card,.wallet-row,.tags-row,.document-card,.client-row,.loyalty-card').forEach(el=>{el.classList.add('ui-list-item','service-row')});
  };
  window.navigate=page=>{
    const nextPage=String(page||'maine');

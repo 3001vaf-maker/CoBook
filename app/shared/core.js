@@ -24,6 +24,7 @@
  const attrValue=v=>String(v??'').replace(/&/g,'&amp;').replace(/\"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
  window.CoBook.ui=window.CoBook.ui||{};
  CoBook.ui.listItem=({icon='',iconAttrs='',title='',subtitle='',action='',actionLabel='',actionClass='danger',actionAttrs='',contentClass='',itemClass=''})=>`<div class="ui-list-item ui-entity-row ${itemClass}">${icon?`<span class="ui-entity-icon" ${attrValue(iconAttrs)} aria-hidden="true">${icon}</span>`:''}<div class="ui-entity-content ${contentClass}"><div class="ui-entity-title">${escapeHtml(title)}</div>${subtitle?`<div class="ui-entity-subtitle">${escapeHtml(subtitle)}</div>`:''}</div>${action?`<button class="${attrValue(actionClass)}" data-action="${attrValue(action)}" ${attrValue(actionAttrs)} type="button">${escapeHtml(actionLabel)}</button>`:''}</div>`;
+ CoBook.ui.mountOverlay=markup=>{app.insertAdjacentHTML('beforeend',markup);return app.lastElementChild};
  window.navigate=page=>{
    const nextPage=String(page||'maine'),previousPage=state.page,previousModule=moduleFor(previousPage);
    if(previousModule&&typeof previousModule.onLeave==='function')previousModule.onLeave(nextPage);

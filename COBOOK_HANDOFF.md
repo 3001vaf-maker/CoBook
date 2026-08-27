@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Latest actual code checkpoint: `a9f0042dc149e81c54a46078a8edd0d62fae162c`
+- Latest actual code checkpoint: `d5c7b2fcd5e59de747c7eb38e17a8b1f8553ea5b`
 - This file must always describe the actual current `main`.
 
 ## Mission
@@ -22,28 +22,27 @@ Read before changing code: `PROJECT_STATE.md`, `DESIGN_SYSTEM.md`, `UI_CONTEXT.m
 7. If chat ends, continue from this file and actual latest `main`; do not reconstruct history.
 8. Before every user-facing progress report, synchronize this file with the actual `main` HEAD.
 
-## Important repository-state correction
-Previous chat messages referenced several later checkpoint SHAs, but the actual public `main` currently resolves to `a9f0042dc149e81c54a46078a8edd0d62fae162c`, whose parent is `5c832fa43d1a610ab80c9feca29e85ca3ab6cd76`. Do not assume changes mentioned in earlier chat messages exist on `main` unless they are present in the actual current tree. This correction is intentional and prevents false progress reporting.
+## Repository-state correction
+Earlier chat messages referenced checkpoint SHAs that are not the current `main` history. The actual `main` is authoritative. Never assume a change exists unless it is present in the current tree.
 
-## Verified at current checkpoint
-- `COBOOK_HANDOFF.md` is synchronized to actual `main`.
-- The latest functional change present in the current `main` history routes document-save refresh through `window.render()` rather than an ambiguous local `render()` call.
-- Core contains the central action dispatcher/ownership map, canonical list item, calendar grid and time picker definitions in the current code history.
+## Verified current architecture baseline
+- One visual CSS source is intended: `styles.css`.
+- Core contains the central action dispatcher/ownership map.
+- Core contains canonical `listItem`, `calendarGrid`, and `timePicker` definitions.
+- Tags currently use `CoBook.ui.listItem()`.
+- Journal currently uses `CoBook.ui.calendarGrid()`.
+- The current static audit exists at `tools/cobook-audit.js` and is run by GitHub Actions.
+- The static audit now enforces that this handoff records the exact commit being tested, preventing continuity drift between chats.
 
 ## Not yet proven 100%
-Do not treat the following as complete merely because they were described in prior messages. Verify them against the actual current tree before relying on them:
-- Tags/Wallets canonical implementation;
-- Profile/Work/Recipe/Loyalty action migration;
-- shared overlay mounting;
-- Journal central render behavior;
-- calendarGrid adoption by both Journal and Timetable;
-- Time Picker ownership;
-- automated architecture audit and its CI result;
-- complete component ownership map;
-- end-to-end Save/Create/Delete behavior;
-- visual consistency across every screen;
-- mobile geometry;
-- cross-module regression.
+- Every component/variant has been mapped to all owners.
+- Every visual class is an authorized component/variant or intentional semantic screen class.
+- Wallets and all subject screens are visually canonical across every state.
+- Modal, Bottom Sheet, Dropdown and picker geometry is canonical everywhere.
+- Every Save/Create/Delete path is end-to-end verified.
+- Desktop/mobile geometry is verified.
+- Cross-module regression is verified.
+- Deployment is verified for the final clean state.
 
 ## Required component audit
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, EMPTY_STATE, PAGE_HEADER, NAVIGATION, TYPOGRAPHY.
@@ -53,6 +52,12 @@ Also inspect spacing, radii, colors, icons and states.
 ## Functional audit
 Every important action must be traceable: `UI → data-action → dispatchAction → owner → handle → validation → state/storage → render`.
 Priority: Save, Create, Delete, navigation, calendar changes, time selection, modal actions, form submission, file-input events.
+
+## Calendar rule
+One canonical calendar GRID and FORMATION algorithm. Journal and Timetable intentionally may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies its own day-specific rendering/behavior.
+
+## Time Picker rule
+The trigger markup is canonical. The wheel modal is Timetable-owned until a second owner is proven. If another owner appears, extract the shared mechanism rather than copying it.
 
 ## Stages
 1. factual audit
@@ -78,10 +83,15 @@ Priority: Save, Create, Delete, navigation, calendar changes, time selection, mo
 - final clean commit recorded here.
 
 ## Current work
-Stage 1/2 must be continued from the actual `a9f0042...` tree. The first task is to verify the actual current tree against the claims above, establish the real audit baseline, then fix primary sources. Do not report a component as unified until the source and all owners are verified.
+Stage 1/2 → Stage 3. The actual current `main` is the source of truth. Continue the component/variant audit and functional Save/Create/Delete verification. Do not report completion from static syntax alone.
 
 ## Exact next action
-Run the repository's available static/CI audit against actual `main`, inspect every reported failure and warning, then build/verify the component-owner map and Save/Create/Delete map from actual code. Fix primary sources and rerun checks. Only after these are clean proceed to visual repair and final regression.
+1. Wait for/inspect CI for `d5c7b2fcd5e59de747c7eb38e17a8b1f8553ea5b`.
+2. If audit fails, fix every failure at its primary source and rerun.
+3. If audit passes, continue the owner/variant map and end-to-end action audit.
+4. Then verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown and Journal/Timetable.
+5. Then perform desktop/mobile and cross-module regression.
+6. Only after every final gate passes may the project be declared 100% clean.
 
 ## Chat interruption protocol
 Before any forced stop, update this file to the exact latest `main` HEAD, record completed checks, remaining failures and the exact next action. The final assistant response must contain a copy-ready handoff matching this file. A progress response is never permission to abandon the remaining work.

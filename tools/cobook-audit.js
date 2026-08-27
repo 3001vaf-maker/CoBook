@@ -40,6 +40,9 @@ for (const file of sourceFiles) {
     if (/document\.addEventListener\s*\(\s*["']click["']/i.test(text) && !r.endsWith('app/shared/core.js')) {
       addFail('LOCAL_CLICK_ROUTER', file, 'module installs its own document click router');
     }
+    if (/\b(?:app|window\.app)\.innerHTML\s*=/.test(text) && !r.endsWith('app/shared/core.js')) {
+      addFail('DIRECT_RENDER_BYPASS', file, 'module writes app.innerHTML directly instead of using Core render pipeline');
+    }
   }
 }
 

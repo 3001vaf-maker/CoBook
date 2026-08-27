@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Latest code checkpoint: `e002117bb59d9532e9761aed58398df8d7cc61f9`
+- Latest code checkpoint: `19e2dcc501c6400fff385996493836bb4514309c`
 - This file must always describe the actual current `main`.
 
 ## Mission
@@ -38,20 +38,19 @@ Do not create a competing design system or duplicate project rules.
 - Direct overlay insertion was removed from audited modules.
 - Journal date/month/mode changes use the central render pipeline.
 - Automated architecture audit exists in `tools/cobook-audit.js` and GitHub Actions.
-- Calendar grid rendering is now centralized as `CoBook.ui.calendarGrid()` and both Journal and Timetable use it.
+- Calendar grid rendering is centralized as `CoBook.ui.calendarGrid()` and both Journal and Timetable use it.
+- Time Picker trigger markup is centralized as `CoBook.ui.timePicker()` and Timetable uses it. The wheel modal itself remains Timetable-owned because its behavior/state is specific to schedule editing.
 
-## Verified checks
-- Previous architecture audit reached PASS at its completed checkpoint.
-- JavaScript syntax checks have passed at the previous verified checkpoint.
-- Current commit after calendar centralization still requires a fresh CI verification before being called validated.
+## Calendar architecture rule
+The calendar GRID and calendar FORMATION are shared. Journal and Timetable may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies only its day-specific rendering/behavior through `renderDay`. A legitimate visual variant must be explicit; do not fork the calendar algorithm.
+
+## Time Picker architecture rule
+The trigger/control is canonical. The schedule wheel modal remains owned by Timetable until all owners/usages are audited. If another screen needs the same wheel picker, extract the modal behavior into a canonical component rather than copying it.
 
 ## Current work
-Stage 1/2 — factual audit + unified UI architecture.
+Stage 2 — unified UI architecture, continuing into functional stabilization.
 
-### Current target
-Finish the component owner/variant audit and remove remaining duplicate/local implementations where a shared component is appropriate.
-
-Required components:
+## Required component audit
 1. BUTTON
 2. LIST
 3. LIST_ITEM
@@ -91,12 +90,6 @@ Priority:
 - form submission
 - file-input events
 
-## Calendar status
-A canonical `CoBook.ui.calendarGrid()` now owns the common calendar grid structure. Journal and Timetable supply only functional/semantic day rendering. Do not create another calendar grid implementation. Calendar variants may differ in behavior but must share the canonical visual geometry unless a documented variant is required.
-
-## Time Picker status
-Current owner remains `app/timetable/timetable.js`, using wheel-style hours/minutes. It is not yet a finalized reusable component. Before changing it, find all owners/usages and then centralize the component or register explicit variants.
-
 ## Stages
 ### 1 — factual audit
 Actual code, UI components, CSS, actions, events and functional paths.
@@ -131,4 +124,4 @@ Do not declare complete until all are true:
 If the chat is forced to stop, first update this file to the exact latest `main` HEAD and record completed checks, remaining failures and the exact next action. The final assistant message must contain a copy-ready handoff matching this file. The next chat must continue from that state without asking the user to reconstruct history.
 
 ## Exact next action
-Verify CI for `e002117bb59d9532e9761aed58398df8d7cc61f9`, then continue the component/variant audit and functional Save/Create/Delete audit. Fix every failure at its primary source, rerun checks, and proceed to the next stage only after the current one is actually clean.
+Run/verify CI for `19e2dcc501c6400fff385996493836bb4514309c`. Then continue the component/variant audit and Save/Create/Delete audit. Fix every failure at its primary source, rerun checks, and proceed only after the current target is clean.

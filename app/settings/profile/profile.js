@@ -20,11 +20,11 @@
     if(action==='profile-personal'){section='personal';return refresh()}
     if(action==='profile-profession'){section='profession';return refresh()}
     if(action==='profile-workplace'){section='profileWork';return refresh()}
-    if(action==='profile-profession-select')return document.body.insertAdjacentHTML('beforeend',modal('Профессия',professions,'profile-profession-choice'))
-    if(action==='profile-experience-select')return document.body.insertAdjacentHTML('beforeend',modal('Опыт работы',experience,'profile-experience-choice'))
+    if(action==='profile-profession-select')return CoBook.ui.mountOverlay(modal('Профессия',professions,'profile-profession-choice'))
+    if(action==='profile-experience-select')return CoBook.ui.mountOverlay(modal('Опыт работы',experience,'profile-experience-choice'))
     if(action==='profile-profession-choice'){const p=read();p.profession=e.dataset.value;save(p);e.closest('[data-modal]')?.remove();return refresh()}
     if(action==='profile-experience-choice'){const p=read();p.experience=e.dataset.value;save(p);e.closest('[data-modal]')?.remove();return refresh()}
-    if(action==='profile-workplace-currency-select')return document.body.insertAdjacentHTML('beforeend',modal('Валюта',currencies,'profile-workplace-currency-choice',e.dataset.index))
+    if(action==='profile-workplace-currency-select')return CoBook.ui.mountOverlay(modal('Валюта',currencies,'profile-workplace-currency-choice',e.dataset.index))
     if(action==='profile-workplace-currency-choice'){const p=read(),i=+e.dataset.index;p.workplaces=Array.isArray(p.workplaces)?p.workplaces:[];if(p.workplaces[i])p.workplaces[i].currency=e.dataset.value;save(p);e.closest('[data-modal]')?.remove();return refresh()}
     if(action==='profile-workplace-add'){const p=read();p.workplaces=Array.isArray(p.workplaces)?p.workplaces:[];p.workplaces.push({name:'',city:'',address:'',phone:'',currency:'',schedule:'',links:'',about:''});save(p);return refresh()}
     if(action==='profile-workplace-remove'){const p=read();p.workplaces=Array.isArray(p.workplaces)?p.workplaces:[];p.workplaces.splice(+e.dataset.index,1);save(p);return refresh()}

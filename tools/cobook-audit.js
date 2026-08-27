@@ -31,11 +31,12 @@ if (cssFiles.length !== 1 || cssFiles[0] !== 'styles.css') {
 for (const file of sourceFiles) {
   const text = read(file);
   const r = rel(file);
-  if (file.endsWith('.html') || file.endsWith('.js')) {
+  // The audit source itself contains the literal patterns it searches for; do not audit the scanner as application code.
+  if (r !== 'tools/cobook-audit.js' && (file.endsWith('.html') || file.endsWith('.js'))) {
     if (/\bstyle\s*=\s*["']/i.test(text)) addFail('INLINE_STYLE', file, 'inline style attribute found');
     if (/<style\b/i.test(text)) addFail('STYLE_BLOCK', file, '<style> block found');
   }
-  if (file.endsWith('.js')) {
+  if (file.endsWith('.js') && r !== 'tools/cobook-audit.js') {
     if (/addEventListener\s*\(\s*["']submit["']/i.test(text)) addFail('STANDALONE_SUBMIT', file, 'module owns a submit listener; migrate to central action routing unless explicitly exempted');
     if (/document\.addEventListener\s*\(\s*["']click["']/i.test(text) && !r.endsWith('app/shared/core.js')) {
       addFail('LOCAL_CLICK_ROUTER', file, 'module installs its own document click router');
@@ -59,9 +60,8 @@ if (fs.existsSync(styles)) {
   for (const token of required) if (!css.includes(`.${token}`)) addFail('UI_TOKEN', styles, `missing canonical token .${token}`);
 }
 
-// Collect local visual class definitions so the audit exposes module-specific styling.
 const moduleCssTokens = [];
-for (const file of sourceFiles.filter(f => f.endsWith('.js'))) {
+for (const file of sourceFiles.filter(f => f.endsWith('.js') && rel(f) !== 'tools/cobook-audit.js')) {
   const text = read(file);
   const classes = [...text.matchAll(/class=["']([^"']+)["']/g)].flatMap(m => m[1].split(/\s+/));
   const suspicious = classes.filter(c => /^(button|btn|row|card|list|field|modal|sheet|select|textarea|folder|calendar|picker|dropdown)/i.test(c));

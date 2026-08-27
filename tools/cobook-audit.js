@@ -19,7 +19,6 @@ const rel = f => path.relative(ROOT, f).replaceAll(path.sep, '/');
 const read = f => fs.readFileSync(f, 'utf8');
 const failures = [], warnings = [], report = [];
 const addFail = (rule, file, detail) => failures.push(`${rule} | ${rel(file)} | ${detail}`);
-const addWarn = (rule, file, detail) => warnings.push(`${rule} | ${rel(file)} | ${detail}`);
 
 const cssFiles = sourceFiles.filter(f => f.endsWith('.css')).map(rel);
 if (cssFiles.length !== 1 || cssFiles[0] !== 'styles.css') addFail('CSS_SOURCE', path.join(ROOT, cssFiles[0] || 'styles.css'), `expected exactly styles.css, found: ${cssFiles.join(', ') || 'none'}`);
@@ -92,9 +91,9 @@ else {
 const handoffPath = path.join(ROOT, 'COBOOK_HANDOFF.md');
 if (fs.existsSync(handoffPath)) {
   const handoff = read(handoffPath);
-  let actualSha = process.env.GITHUB_SHA || '';
+  let actualSha = process.env.COBOOK_AUDIT_EXPECTED_SHA || process.env.GITHUB_SHA || '';
   if (!actualSha) { try { actualSha = execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(); } catch (_) {} }
-  const recordedSha = handoff.match(/(?:Latest actual code checkpoint|Actual code checkpoint before this documentation commit):\s*`([0-9a-f]{40})`/i)?.[1] || '';
+  const recordedSha = handoff.match(/Actual code checkpoint(?: before this documentation commit)?:\s*`([0-9a-f]{40})`/i)?.[1] || '';
   if (actualSha && recordedSha && actualSha !== recordedSha) {
     let parentSha=''; try { parentSha=execFileSync('git',['rev-parse','HEAD^'],{encoding:'utf8'}).trim(); } catch (_) {}
     if (actualSha !== parentSha) addFail('HANDOFF_SYNC', handoffPath, `recorded ${recordedSha}, actual HEAD ${actualSha}`);

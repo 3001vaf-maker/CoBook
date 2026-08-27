@@ -3,7 +3,8 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `713d9a940cb0db60fb9a5a2226334c9c3fc86878`
+- Actual code checkpoint: `a7af6f266adcd2ec683e6104dce7868aab02c7fd`
+- Latest code change: Settings navigation folders now render through `CoBook.ui.folder()` instead of module-owned folder markup.
 - This file is updated after each code/infrastructure checkpoint; documentation-only commits after that checkpoint must not be rewound.
 
 ## Mission
@@ -27,6 +28,7 @@ Core exposes canonical factories for button, folder, listItem, field, select, te
 
 ## Recent migration
 - Main/Clients migrated to canonical controls/list rows/buttons.
+- Settings navigation folders migrated to canonical `CoBook.ui.folder()`.
 - Settings/Tags migrated to canonical controls/list rows/buttons.
 - Settings/Wallets migrated to canonical controls/list rows/buttons and canonical modal shell.
 - Profile personal form, Profile folders/forms/choice sheets migrated to canonical UI.
@@ -34,14 +36,8 @@ Core exposes canonical factories for button, folder, listItem, field, select, te
 - Work/Materials controls, list rows and material sheet migrated to canonical UI; specialized recipe-row controls remain explicit module content and require final owner audit.
 - Documents actions and overlays migrated to canonical UI.
 - Canonical Core factories were extended for folders, root-action list rows and explicit overlay metadata.
-- Architecture audit now requires the folder factory.
+- Architecture audit requires the canonical folder factory.
 - Browser smoke infrastructure was added to test real rendered user flows in Chromium.
-
-## Verified CI history
-- JavaScript syntax check passed on the handoff checkpoint before the latest documentation change.
-- Architecture audit passed for the handoff checkpoint `095ce9...` after the continuity fix.
-- Browser smoke workflow is now part of CI and must pass before 100%.
-- Static architecture PASS is not equivalent to visual/behavioral 100% proof; final browser regression is mandatory.
 
 ## Required audit set
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, NAVIGATION, MOBILE_GEOMETRY, TYPOGRAPHY, plus EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR and interaction states.
@@ -62,7 +58,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `713d9a940cb0db60fb9a5a2226334c9c3fc86878`. Check the new Browser Smoke workflow result first. Then continue remaining canonical migration/owner audit, prioritizing specialized recipe/card markup and Loyalty. Fix every failure found. Expand browser smoke where a functional path is uncovered. Finish Save/Create/Delete, Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, full regression and deployment.
+Continue from `a7af6f266adcd2ec683e6104dce7868aab02c7fd`. Audit remaining direct/local shared-component markup, prioritizing specialized recipe/card markup and Loyalty. Then complete action-owner/change-owner coverage and functional Save/Create/Delete paths. Continue through Calendar/Time Picker, Modal/Bottom Sheet/Dropdown, Journal/Timetable, mobile geometry, typography, browser regression, architecture audit, JavaScript and deployment. Fix every failure found; do not declare an intermediate result as 100%.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

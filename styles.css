@@ -15,3 +15,18 @@
 .service-list{border:0;background:transparent;overflow:visible}
 .service-row{box-sizing:border-box;border:1px solid var(--ui-list-border);border-radius:var(--ui-list-radius);background:var(--ui-list-bg);min-height:64px;margin-bottom:var(--ui-list-gap);padding:var(--ui-list-padding)}
 .service-row:last-child{border-bottom:1px solid var(--ui-list-border)}
+
+/* CoBook UI FOUNDATION — one visual language for repeated components. */
+.ui-list{display:flex!important;flex-direction:column!important;gap:0!important;border:0!important;border-radius:0!important;background:transparent!important;overflow:visible!important}
+.ui-list-item{width:100%!important;min-height:64px!important;margin:0 0 var(--ui-list-gap)!important;padding:var(--ui-list-padding)!important;border:1px solid var(--ui-list-border)!important;border-radius:var(--ui-list-radius)!important;background:var(--ui-list-bg)!important;box-shadow:var(--ui-list-shadow)!important;color:var(--mocha-dark)!important;text-align:left!important}
+.ui-list-item:last-child{margin-bottom:0!important}
+.ui-list-item:active{background:var(--cashmere)!important;box-shadow:none!important}
+.ui-list-item b{font-size:15px}
+.ui-list-item small{display:block;margin-top:4px;color:var(--mocha-medium);font-size:12px}
+.ui-list-item .service-price{font-size:14px;font-weight:700}
+.ui-list-item .procedure-card-main,.ui-list-item .product-card-main{padding:0!important;border:0!important;background:transparent!important}
+.ui-list-item .procedure-delete,.ui-list-item .product-delete,.ui-list-item .work-delete,.ui-list-item .wallet-delete,.ui-list-item .tags-delete{min-width:42px;min-height:42px}
+.ui-button{box-sizing:border-box!important;font:inherit!important;border-radius:var(--ui-radius)!important}
+.ui-control{box-sizing:border-box!important;font:inherit!important;border:1px solid var(--mocha-border)!important;border-radius:12px!important;background:var(--ui-bg)!important;color:var(--mocha-dark)!important;min-height:var(--ui-control-h)!important}
+textarea.ui-control{min-height:96px!important;padding:12px!important}
+select.ui-control,input.ui-control{padding:12px!important}

@@ -4,7 +4,7 @@
 
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Current main HEAD before this handoff commit: `3fe5a5da14701aec9e10ffc6b8d2f8b67aeb77b8`
+- Current code checkpoint: `5dbeffc98ae8edb6018292ee40ab78fbf0594d33`
 - Previous UI registry checkpoint: `23dcd8f3a121848cb06fc0cfe070451d15b95c92`
 - Asset cache version: `ui-system-10`
 
@@ -40,19 +40,20 @@ Do not restart the project and do not create a second design system.
 - Registered corresponding action owners in `core.js`.
 - Added permanent `tools/cobook-audit.js` static architecture audit.
 - Added `.github/workflows/cobook-architecture-audit.yml` so the audit runs on pushes and pull requests.
-- Audit explicitly checks for extra CSS files, inline styles, `<style>` blocks, standalone submit listeners, local document click routers, required Core UI/action infrastructure, and canonical UI tokens.
-- Updated this handoff so the next chat can continue from repository state without user re-explaining the project.
+- Fixed the audit so it does not falsely scan its own literal `<style>` pattern.
+- JavaScript syntax workflow remains green on the current repair line.
 
-## Current verified findings
+## Current verified audit result
 
-- Core action routing exists and is used by repaired Profile/Work Save paths.
-- TAGS/WALLETS have been moved onto the canonical entity-list structure.
-- LOYALTY remains a large independent action/UI implementation and requires migration/audit.
-- TIMETABLE owns the current wheel-style TIME_PICKER and requires owner mapping before any shared change.
-- Journal and timetable calendars remain separate functional contexts sharing a controlled visual base.
-- The static audit is now part of the repository, but it has not yet been proven green against the entire current tree; run it in GitHub Actions and repair every failure before claiming architectural completion.
+Architecture audit run against `5dbeffc98ae8edb6018292ee40ab78fbf0594d33` completed with exactly one failure:
 
-## Remaining work
+`LOCAL_CLICK_ROUTER | app/settings/loyalty/loyalty.js | module installs its own document click router`
+
+The previous false-positive `STYLE_BLOCK` for `tools/cobook-audit.js` is fixed.
+
+Therefore the audit is **NOT GREEN yet** and CoBook must not be declared architecturally clean.
+
+## Known remaining architectural work
 
 ### UI
 
@@ -64,31 +65,33 @@ Do not restart the project and do not create a second design system.
 
 ### Functional
 
+- Migrate `loyalty.js` from its local document click router to Core `data-action → dispatchAction → action owner → module.handle`.
+- Register Loyalty actions centrally in `core.js`.
+- Preserve all existing Loyalty behavior while migrating routing.
 - Audit every action in every module.
 - Audit every Save/Create/Delete path.
-- Migrate unjustified standalone event routing into the central action model.
 - Verify Save → action → owner → handle → validation → storage/state → render.
 - Verify navigation and modal actions after UI refactors.
 
 ### Regression control
 
-- Do not declare UI 100% unified because the page merely looks similar.
-- Do not declare a component shared because Core adds a common CSS class after rendering.
-- Do not add local CSS overrides to repair one screen.
-- Do not change functionality while repairing visual geometry unless the functional path is explicitly checked.
+- Do not add local CSS overrides.
+- Do not create another event-routing system.
+- Do not declare a component shared because Core only adds a CSS class after rendering.
 - Before changing a shared component, identify all owners and variants.
 - Every completed control point must update this file with current HEAD and exact remaining work.
 
 ## Required next action
 
-Continue from current `main` HEAD. Do not ask the user to re-explain the project.
+Continue from current `main` HEAD.
 
-1. Read `PROJECT_STATE.md`, `DESIGN_SYSTEM.md`, `UI_CONTEXT.md`, `UI_COMPONENTS.md`, and this file.
-2. Run/inspect the new architecture audit and fix its failures.
-3. Finish the factual owner/action audit.
-4. Repair remaining shared component architecture at the primary source.
-5. Audit all affected functional actions.
-6. Run the full cross-module audit before calling the result complete.
+1. Read the five source-of-truth documents and this handoff.
+2. Migrate Loyalty action routing at the primary source.
+3. Run the architecture audit again and require zero failures.
+4. Continue the owner/action audit across all remaining modules.
+5. Continue UI component consolidation.
+6. Audit Journal and Timetable.
+7. Finish with full cross-module functional + visual audit.
 
 ## Chat interruption protocol
 

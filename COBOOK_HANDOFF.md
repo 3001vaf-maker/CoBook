@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Latest code checkpoint: `19e2dcc501c6400fff385996493836bb4514309c`
+- Latest code checkpoint: `cd094c1196157b6dd789ff392df0cf7c1204c435`
 - This file must always describe the actual current `main`.
 
 ## Mission
@@ -39,7 +39,8 @@ Do not create a competing design system or duplicate project rules.
 - Journal date/month/mode changes use the central render pipeline.
 - Automated architecture audit exists in `tools/cobook-audit.js` and GitHub Actions.
 - Calendar grid rendering is centralized as `CoBook.ui.calendarGrid()` and both Journal and Timetable use it.
-- Time Picker trigger markup is centralized as `CoBook.ui.timePicker()` and Timetable uses it. The wheel modal itself remains Timetable-owned because its behavior/state is specific to schedule editing.
+- Time Picker trigger markup is centralized as `CoBook.ui.timePicker()` and Timetable uses it. The wheel modal remains Timetable-owned because its behavior/state is specific to schedule editing.
+- Audit now explicitly verifies Journal/Timetable ownership of calendarGrid and Timetable ownership of timePicker, and rejects duplicate calendar builders outside those modules.
 
 ## Calendar architecture rule
 The calendar GRID and calendar FORMATION are shared. Journal and Timetable may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies only its day-specific rendering/behavior through `renderDay`. A legitimate visual variant must be explicit; do not fork the calendar algorithm.
@@ -124,4 +125,4 @@ Do not declare complete until all are true:
 If the chat is forced to stop, first update this file to the exact latest `main` HEAD and record completed checks, remaining failures and the exact next action. The final assistant message must contain a copy-ready handoff matching this file. The next chat must continue from that state without asking the user to reconstruct history.
 
 ## Exact next action
-Run/verify CI for `19e2dcc501c6400fff385996493836bb4514309c`. Then continue the component/variant audit and Save/Create/Delete audit. Fix every failure at its primary source, rerun checks, and proceed only after the current target is clean.
+Continue the component/variant audit and functional Save/Create/Delete audit from the latest `main`. Use the strengthened automated audit as a gate. Fix every failure at its primary source, rerun checks, and proceed only after the current target is clean.

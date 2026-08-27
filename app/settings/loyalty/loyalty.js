@@ -50,7 +50,5 @@
    if(a==='deposit-instance')return go('deposit-instance',i);
    if(a==='deposit-spend'){const d=read(K.deposits,[]),item=d[i],amount=Number(val('[data-di-spend]')),today=new Date().toISOString().slice(0,10);if(!item||item.endDate<today)return alert('Срок депозита истёк.');if(amount<=0||amount>Number(item.balance))return alert('Недостаточный баланс депозита.');item.balance=Number(item.balance)-amount;item.transactions=arr(item.transactions);item.transactions.push({type:'spend',amount,date:new Date().toISOString()});write(K.deposits,d);return go('deposit-instance',i)}
  }
- function render(){const base=renderSection(section,index);app.innerHTML=shell(base)}
- CoBook.modules.loyalty={render:()=>home(),handle};
- Object.defineProperty(CoBook.modules.loyalty,'render',{value:()=>{const base=renderSection(section,index);return shell(base)},writable:true});
+ CoBook.modules.loyalty={render:()=>{const base=renderSection(section,index);return shell(base)},handle};
 })();

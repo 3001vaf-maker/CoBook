@@ -16,6 +16,7 @@
   function refresh(){window.app.innerHTML=render()}
   function reset(){section='home'}
   function handle(action,e){
+    if(action==='profile-personal-save')return CoBook.profileSections.personal.handle(action,e);
     if(action==='profile-personal'){section='personal';return refresh()}
     if(action==='profile-profession'){section='profession';return refresh()}
     if(action==='profile-workplace'){section='profileWork';return refresh()}

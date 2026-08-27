@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint: `d687bfe4d06d7240780708ea7a11e20a6e43390a`
+- Actual code checkpoint: `b6159fa09dbdb57e128c256f2e6f8c045fc236c0`
 - This file is updated after every code checkpoint and records the latest code state.
 
 ## Mission
@@ -21,10 +21,10 @@ Reach 100% clean CoBook: one predictable UI system, stable functionality, no cro
 
 ## Canonical UI components
 Core exposes canonical factories for button, listItem, field, select, textarea, modal, bottomSheet, dropdown, datePicker, timePicker, calendarGrid and mountOverlay.
-A factory existing is NOT proof of full migration. Every owner/usage must be verified.
+The button factory now emits the canonical `ui-button` token. A factory existing is NOT proof of full migration: every owner/usage must be verified.
 
 ## Current architectural cleanup
-`normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. This is intentional: shared components must be produced through canonical factories/registered variants rather than inferred after rendering.
+`normalizeUI()` post-render class injection was removed from Core. Core now renders module markup without a MutationObserver or post-render normalization pass. Shared components must be produced through canonical factories or explicit registered variants rather than inferred after rendering.
 
 ## Required audit set
 BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, NAVIGATION, MOBILE_GEOMETRY, TYPOGRAPHY, plus EMPTY_STATE, PAGE_HEADER, ICON, SPACING, RADIUS, COLOR and interaction states.
@@ -45,7 +45,7 @@ Save, Create, Delete, navigation, form changes, calendar changes, time selection
 10. Declare 100% only when every final gate passes.
 
 ## Current next action
-Continue from `d687bfe4d06d7240780708ea7a11e20a6e43390a`. Audit all modules for direct/local implementations that were previously relying on `normalizeUI()`. Convert each genuine shared component to its canonical factory/explicit variant. Then run the full functional and regression audit.
+Continue from `b6159fa09dbdb57e128c256f2e6f8c045fc236c0`. Audit all module markup for direct/local shared-component implementations, especially buttons, list rows, cards, fields, overlays and selectors. Convert genuine shared components to canonical factories or explicit variants without changing module-specific data or behavior. Then run the complete functional and regression audit.
 
 ## Continuation rule
 Never restart the project or reconstruct history. Before any future response/work interruption, inspect actual `main`, update this handoff to the exact latest code checkpoint, and leave the exact next action. Do not substitute a progress report for remaining work.

@@ -9,7 +9,7 @@
   ['₽','Кошельки','Способы оплаты и пользовательские кошельки','wallets']
  ];
  function render(){
-  const items=folders.map(([icon,title,subtitle,page])=>CoBook.ui.folder({title:`${icon}  ${title}`,subtitle,action:'navigate',attrs:`data-page="${page}"`,className:'management-folder'})).join('');
+  const items=folders.map(([icon,title,subtitle,page])=>CoBook.ui.folder({title,subtitle,action:'navigate',attrs:`data-page="${page}"`,className:'management-folder',icon,showChevron:true})).join('');
   return shell(`<section class="page-head"><div class="eyebrow">РАБОЧИЕ НАСТРОЙКИ</div><h1>Настройки</h1></section>${items}`);
  }
  CoBook.modules.settings={render,handle(){},handleModal(){},onEnter(){state.settingsView='home'},onLeave(){}};

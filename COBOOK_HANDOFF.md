@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `09eb8510748ec37934480be3e2b83196300bbbad`
+- Actual code checkpoint before this documentation commit: `8a8191f8753b5637a2e5141e13362f7ce7a023b0`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -24,24 +24,18 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Functional routing should be `UI → data-action → Core → owner → handle → state/storage → render`.
 - Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
 
-## Automated audit state
-- Architecture audit exists and checks CSS source, inline styles, style blocks, local routers, standalone submit, direct render bypass, local overlay insertion, action registration, canonical Calendar/Time Picker ownership and handoff continuity.
-- The audit now also verifies that every required component exists in `UI_COMPONENTS.md` and has a structured registry row for core components.
-- Do not treat static-audit PASS as proof of visual or functional 100%; those require owner/variant and end-to-end regression checks.
+## Verified changes in latest code checkpoint
+- Tags refresh now uses the central Core render pipeline.
+- Wallets refresh now uses the central Core render pipeline.
+- Work refresh now uses the central Core render pipeline.
+- Work material overlay now uses `CoBook.ui.mountOverlay()`.
+- Service overlays use `CoBook.ui.mountOverlay()`.
+- Service price-variant DOM insertion uses a template instead of direct HTML insertion.
 
-## Completed stabilization
-- single `styles.css` remains the intended CSS source;
-- central Core action ownership/dispatch;
-- Tags and Wallets use canonical list-item pattern;
-- Profile/Work/Recipe save paths moved toward Core;
-- Loyalty local routing moved toward Core;
-- Loyalty legacy render bypass removed;
-- shared overlay mount;
-- Journal uses central render pipeline;
-- Journal and Timetable use shared calendar grid while retaining independent behavior;
-- architecture audit and continuity handoff exist;
-- audit workflow handles handoff-only documentation commits without creating a false circular failure;
-- component registry completeness is now an enforced audit rule.
+## Automated audit state
+The last captured audit run on the earlier code checkpoint reported these direct-render/overlay failures: Loyalty direct render, Service local overlay, Tags direct render, Wallets direct render, Work direct render, Work local overlay. The Service/Tags/Wallets/Work findings have since been addressed in code. Loyalty remains the known direct-render target and must be resolved at its primary source.
+
+The audit also reports Timetable-specific calendar token names for review against the canonical Calendar registry. These are semantic module data/state hooks, not automatically considered errors; they must be explicitly registered as variants where appropriate.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
@@ -59,13 +53,14 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Verify CI for commit `09eb8510748ec37934480be3e2b83196300bbbad`.
-2. Review Timetable calendar-specific tokens against the canonical Calendar registry.
-3. Continue owner/variant audit for every required component.
-4. Continue end-to-end Save/Create/Delete verification.
-5. Verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown behavior and geometry.
-6. Finish desktop/mobile and cross-module regression.
-7. Only then declare 100% clean.
+1. Resolve the remaining Loyalty direct-render bypass at its primary source.
+2. Run the architecture audit and JavaScript checks on the new code checkpoint.
+3. Fix every remaining audit failure before moving on.
+4. Complete owner/variant audit for all required components.
+5. Complete Save/Create/Delete end-to-end verification.
+6. Verify Calendar/Time Picker/Modal/Bottom Sheet/Dropdown behavior and geometry.
+7. Finish desktop/mobile and cross-module regression.
+8. Only then declare 100% clean.
 
 ## Final definition of done
 Only declare 100% when architecture, syntax, deployment, component ownership, action routing, UI consistency, Calendar/Time Picker/Modal/Bottom Sheet/Dropdown, Journal/Timetable independence, desktop/mobile geometry and cross-module regression all pass.

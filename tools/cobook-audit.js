@@ -60,6 +60,7 @@ for (const file of actionFiles) {
   const text = read(file);
   for (const m of text.matchAll(/data-action=["']([^"']+)["']/g)) {
     const action = m[1];
+    if (action.includes('${')) continue;
     if (!registeredActions.has(action)) addFail('UNREGISTERED_ACTION', file, `data-action="${action}" has no central action owner`);
   }
 }

@@ -43,6 +43,9 @@ for (const file of sourceFiles) {
     if (/\b(?:app|window\.app)\.innerHTML\s*=/.test(text) && !r.endsWith('app/shared/core.js')) {
       addFail('DIRECT_RENDER_BYPASS', file, 'module writes app.innerHTML directly instead of using Core render pipeline');
     }
+    if (/insertAdjacentHTML\s*\(\s*["']beforeend["']/i.test(text) && !r.endsWith('app/shared/core.js')) {
+      addFail('LOCAL_OVERLAY_INSERT', file, 'module inserts overlay/modal markup directly instead of using shared overlay infrastructure');
+    }
   }
 }
 

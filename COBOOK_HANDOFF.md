@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `c1d04062362fe453f31f6d4a9a5919275f2a45dd`
+- Actual code checkpoint before this documentation commit: `09eb8510748ec37934480be3e2b83196300bbbad`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -25,12 +25,9 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Fix primary sources; no CSS overrides, duplicate components, local routers or workaround layers.
 
 ## Automated audit state
-The previous audit on `3ffb...` passed syntax/deploy but failed HANDOFF_SYNC because the handoff was stale. The audit workflow has now been corrected so a handoff-only commit validates its recorded code checkpoint against its parent code commit; a real code commit still must match the current code checkpoint.
-
-The previous audit also reported and the current code has now removed the unused Loyalty legacy render bypass. `app/settings/loyalty/loyalty.js` now exposes one canonical `render` implementation through the module registration instead of defining a direct `app.innerHTML` helper and replacing it with `Object.defineProperty`.
-
-Remaining review target from the previous audit:
-- `app/timetable/timetable.js`: `calendar-day`, `calendar-hours`, `calendar-panel`, `calendar-grid` must be compared against the canonical Calendar registry and either mapped as legitimate semantic variants or refactored.
+- Architecture audit exists and checks CSS source, inline styles, style blocks, local routers, standalone submit, direct render bypass, local overlay insertion, action registration, canonical Calendar/Time Picker ownership and handoff continuity.
+- The audit now also verifies that every required component exists in `UI_COMPONENTS.md` and has a structured registry row for core components.
+- Do not treat static-audit PASS as proof of visual or functional 100%; those require owner/variant and end-to-end regression checks.
 
 ## Completed stabilization
 - single `styles.css` remains the intended CSS source;
@@ -43,7 +40,8 @@ Remaining review target from the previous audit:
 - Journal uses central render pipeline;
 - Journal and Timetable use shared calendar grid while retaining independent behavior;
 - architecture audit and continuity handoff exist;
-- audit workflow now handles the handoff-only documentation commit without creating a false circular failure.
+- audit workflow handles handoff-only documentation commits without creating a false circular failure;
+- component registry completeness is now an enforced audit rule.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
@@ -61,7 +59,7 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Verify the new CI run for the handoff synchronization fix.
+1. Verify CI for commit `09eb8510748ec37934480be3e2b83196300bbbad`.
 2. Review Timetable calendar-specific tokens against the canonical Calendar registry.
 3. Continue owner/variant audit for every required component.
 4. Continue end-to-end Save/Create/Delete verification.

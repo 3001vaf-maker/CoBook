@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `73599efdaa1de3cf3315913e1532eb4e25a1ba9c`
+- Actual code checkpoint before this documentation commit: `45a819ec19c17d3dad6be41abc6059eeaec34293`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -31,17 +31,18 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Service price-variant DOM insertion uses a template.
 - Loyalty internal navigation uses `window.render()` and no longer directly invokes its module render.
 - UI component registry includes `MOBILE_GEOMETRY`.
-- Work form `change` handling no longer installs a module-level document listener; Core owns the event routing and delegates to Work's `handleChange`.
+- Work form `change` handling is routed through Core to Work's `handleChange`.
+- Service product image `change` handling is routed through Core to Service's `handleChange`; Service no longer installs its own document-level change listener.
 
 ## Automated audit state
-The architecture audit passed after the component registry repair and handoff synchronization. JavaScript syntax also passed on the preceding code checkpoint. The latest Work/Core code checkpoint is now awaiting its own architecture audit and syntax run.
+The previous architecture audit passed after the component registry repair and handoff synchronization. The latest Work/Core/Service code checkpoint has been created and must be verified by its architecture and syntax workflows before further structural changes are accepted.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
 Also inspect headers, icons, empty states, spacing, radii, colors and interaction states.
 
 ## Functional audit
-Trace and verify every important Save/Create/Delete/navigation/calendar/time/modal/form/change path end-to-end. A green syntax check is insufficient.
+Trace and verify every important Save/Create/Delete/navigation/calendar/time/modal/form/change/file path end-to-end. A green syntax check is insufficient.
 
 ## Stages
 1. Factual audit
@@ -52,7 +53,7 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Verify CI for code checkpoint `73599efdaa1de3cf3315913e1532eb4e25a1ba9c`.
+1. Verify architecture and JavaScript CI for code checkpoint `45a819ec19c17d3dad6be41abc6059eeaec34293`.
 2. Fix every remaining audit failure before moving on.
 3. Complete owner/variant audit for all required components, including module-specific calendar semantics.
 4. Complete Save/Create/Delete end-to-end verification.

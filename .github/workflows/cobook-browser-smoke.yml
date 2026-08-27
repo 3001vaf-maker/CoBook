@@ -1,0 +1,27 @@
+name: CoBook Browser Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install browser test runtime
+        run: npm install --no-save playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Serve CoBook
+        run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/cobook-http.log 2>&1 &
+      - name: Browser smoke
+        env:
+          COBOOK_BASE_URL: http://127.0.0.1:4173/
+        run: node tools/cobook-smoke.js

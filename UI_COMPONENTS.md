@@ -55,6 +55,7 @@ MODULE не создаёт собственную визуальную сист�
 | EMPTY_STATE | standard | IN AUDIT |
 | PAGE_HEADER | standard | IN AUDIT |
 | NAVIGATION | bottom | IN AUDIT |
+| MOBILE_GEOMETRY | responsive / compact / touch-targets | IN AUDIT |
 | TYPOGRAPHY | title / body / label / caption / value | IN AUDIT |
 
 ---

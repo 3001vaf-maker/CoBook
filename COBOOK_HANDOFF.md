@@ -4,7 +4,7 @@
 
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Current code checkpoint: `dee14564b94b7b124cf14688a94460bfa3db4301`
+- Current code checkpoint: `e07d755c5661658ad003231946297f321fdfecdc`
 - Previous UI registry checkpoint: `23dcd8f3a121848cb06fc0cfe070451d15b95c92`
 - Asset cache version: `ui-system-10`
 
@@ -34,64 +34,64 @@ Do not restart the project and do not create a second design system.
 - Removed the TAGS inline visual style implementation.
 - Removed the WALLETS custom row geometry from rendered markup.
 - Added canonical entity-list geometry to `styles.css`.
-- Preserved existing storage/default product data in `core.js` after repair.
-- Converted PROFILE personal/profession/workplace Save buttons from standalone submit listeners to central `data-action` routing.
-- Converted WORK material and recipe Save buttons to central `data-action` routing.
-- Added permanent `tools/cobook-audit.js` static architecture audit.
-- Added `.github/workflows/cobook-architecture-audit.yml` so the audit runs on pushes and pull requests.
-- Fixed the audit so it does not falsely scan its own literal `<style>` pattern.
-- Migrated LOYALTY from its local document click router to Core `data-action → dispatchAction → action owner → module.handle`.
-- Registered all current Loyalty actions centrally in `core.js`.
-- Preserved the existing Loyalty storage and action logic while changing only its event-routing boundary.
+- Converted PROFILE/WORK Save paths from standalone submit routing to central action routing.
+- Removed the LOYALTY local document click router and routed Loyalty through Core.
+- Registered the declared module action ownership map centrally in `core.js` for Journal, Documents, Profile, Service, Tags, Wallets, Work, Timetable, Loyalty and related service submodules.
+- Added permanent `tools/cobook-audit.js` architecture audit.
+- Added GitHub Actions workflow for the audit.
+- Expanded the audit to check declared `data-action` ownership and direct render bypasses.
+- Expanded the audit to detect module-owned overlay insertion.
+- Added shared `CoBook.ui.mountOverlay()` as the single overlay mounting primitive.
+- Converted Profile overlay mounting to the shared primitive.
+- Converted Documents overlay mounting to the shared primitive.
+- Profile refresh now uses the Core render pipeline so UI normalization is not bypassed.
 
-## Current verified audit result
+## Verified results
 
-The last completed architecture audit against the pre-Loyalty checkpoint found exactly one failure: the local Loyalty document click router.
+- The architecture audit run immediately before action-ownership enforcement was green after the Loyalty migration.
+- JavaScript syntax checks have remained successful on the repair line.
+- The newly expanded audit must be observed on the current checkpoint before any PASS claim.
 
-That router has now been removed and replaced with Core routing.
+## Current remaining work
 
-The new code checkpoint is:
-
-`dee14564b94b7b124cf14688a94460bfa3db4301`
-
-A fresh GitHub Actions audit for this checkpoint must be observed before claiming PASS. No architectural completion claim is allowed until the actual run is green.
-
-## Known remaining architectural work
-
-### UI
+### UI architecture
 
 - Complete owner/variant map for BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, EMPTY_STATE, PAGE_HEADER, NAVIGATION, TYPOGRAPHY.
-- Complete audit of JOURNAL and TIMETABLE calendars.
-- Complete audit of all modal/sheet/dropdown positioning.
+- Complete audit of all module-specific visual classes against the registry.
+- Complete audit of Journal calendar and Timetable calendar.
+- Determine whether Calendar has one shared visual component with functional variants or duplicated structures that must be consolidated.
+- Determine whether Time Picker is a shared component or a single Timetable owner; future changes must not require duplication.
 - Complete desktop/mobile geometry audit.
-- Remove remaining module-specific visual structures where an existing component is sufficient.
 
-### Functional
+### Functional architecture
 
-- Run architecture audit and require zero failures.
-- Audit every action in every module.
-- Audit every Save/Create/Delete path.
+- Audit every `data-action` owner/handler pair, not merely registration.
+- Audit every Save/Create/Delete path end-to-end.
 - Verify Save → action → owner → handle → validation → storage/state → render.
 - Verify navigation and modal actions after UI refactors.
+- Verify all direct event listeners that are not central action routing.
+- Verify file input change handling and other non-click events are intentional and do not duplicate action routing.
 
-### Regression control
+### Final regression
 
-- Do not add local CSS overrides.
-- Do not create another event-routing system.
-- Do not declare a component shared because Core only adds a CSS class after rendering.
-- Before changing a shared component, identify all owners and variants.
-- Every completed control point must update this file with current HEAD and exact remaining work.
+- Run syntax checks.
+- Run architecture audit and require zero failures.
+- Verify deployment.
+- Run full cross-module visual audit.
+- Run full cross-module functional audit.
+- Only then create the final clean control point.
 
 ## Required next action
 
 Continue from current `main` HEAD.
 
-1. Observe the fresh architecture audit for `dee14564...`.
-2. If it fails, fix every reported failure at the primary source and rerun.
-3. Once green, continue the owner/action audit across all remaining modules.
-4. Continue UI component consolidation.
+1. Observe the expanded architecture audit on the current checkpoint.
+2. Fix every failure at its primary source; do not add overrides.
+3. Re-run until the audit is green.
+4. Continue UI component consolidation and owner mapping.
 5. Audit Journal and Timetable.
-6. Finish with full cross-module functional + visual audit.
+6. Verify functional regression.
+7. Finish only after the complete cross-module audit is clean.
 
 ## Chat interruption protocol
 

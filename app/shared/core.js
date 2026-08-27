@@ -12,8 +12,8 @@
  const moduleFor=p=>CoBook.modules[p];
  const settingsChildPages=new Set(['profile','service','work','documents','loyalty','tags','wallets']);
  const actionOwners=new Map([['clients-open','maine'],['client-new','maine'],['client-open','maine'],['client-save','maine'],['client-back','maine'],['maine-back','maine']]);
- const listContainers=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list'];
- const listItems=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card'];
+ const listContainers=['service-list','loyalty-list','work-list','wallet-list','tags-list','documents-list','client-list','loyalty-menu'];
+ const listItems=['service-row','procedure-card','product-card','work-card','wallet-row','tags-row','document-card','client-row','loyalty-card','management-folder','profile-clean-folder'];
  const normalizeUI=()=>{
    document.querySelectorAll(listContainers.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list'));
    document.querySelectorAll(listItems.map(x=>'.'+x).join(',')).forEach(el=>el.classList.add('ui-list-item'));

@@ -31,7 +31,6 @@ if (cssFiles.length !== 1 || cssFiles[0] !== 'styles.css') {
 for (const file of sourceFiles) {
   const text = read(file);
   const r = rel(file);
-  // The audit source itself contains the literal patterns it searches for; do not audit the scanner as application code.
   if (r !== 'tools/cobook-audit.js' && (file.endsWith('.html') || file.endsWith('.js'))) {
     if (/\bstyle\s*=\s*["']/i.test(text)) addFail('INLINE_STYLE', file, 'inline style attribute found');
     if (/<style\b/i.test(text)) addFail('STYLE_BLOCK', file, '<style> block found');
@@ -45,12 +44,24 @@ for (const file of sourceFiles) {
 }
 
 const core = sourceFiles.find(f => rel(f) === 'app/shared/core.js');
+let registeredActions = new Set(['navigate', 'modal-close']);
 if (!core) addFail('CORE_MISSING', path.join(ROOT, 'app/shared/core.js'), 'central core.js not found');
 else {
   const t = read(core);
   if (!/window\.dispatchAction\s*=/.test(t)) addFail('ACTION_CORE', core, 'dispatchAction is not exposed by Core');
   if (!/actionOwners/.test(t)) addFail('ACTION_OWNERS', core, 'actionOwners registry is missing');
   if (!/CoBook\.ui\.listItem/.test(t)) addFail('UI_COMPONENT', core, 'canonical listItem component is missing');
+  const ownerBlock = t.match(/const actionOwners=new Map\(\[(.*?)\]\);/s)?.[1] || '';
+  for (const m of ownerBlock.matchAll(/\[['"]([^'"]+)['"],['"]([^'"]+)['"]\]/g)) registeredActions.add(m[1]);
+}
+
+const actionFiles = sourceFiles.filter(f => f.endsWith('.js') && rel(f) !== 'app/shared/core.js' && rel(f) !== 'tools/cobook-audit.js');
+for (const file of actionFiles) {
+  const text = read(file);
+  for (const m of text.matchAll(/data-action=["']([^"']+)["']/g)) {
+    const action = m[1];
+    if (!registeredActions.has(action)) addFail('UNREGISTERED_ACTION', file, `data-action="${action}" has no central action owner`);
+  }
 }
 
 const styles = path.join(ROOT, 'styles.css');
@@ -61,7 +72,7 @@ if (fs.existsSync(styles)) {
 }
 
 const moduleCssTokens = [];
-for (const file of sourceFiles.filter(f => f.endsWith('.js') && rel(f) !== 'tools/cobook-audit.js')) {
+for (const file of actionFiles) {
   const text = read(file);
   const classes = [...text.matchAll(/class=["']([^"']+)["']/g)].flatMap(m => m[1].split(/\s+/));
   const suspicious = classes.filter(c => /^(button|btn|row|card|list|field|modal|sheet|select|textarea|folder|calendar|picker|dropdown)/i.test(c));
@@ -70,6 +81,7 @@ for (const file of sourceFiles.filter(f => f.endsWith('.js') && rel(f) !== 'tool
 
 report.push(`Files scanned: ${sourceFiles.length}`);
 report.push(`CSS files: ${cssFiles.join(', ') || 'none'}`);
+report.push(`Registered actions: ${registeredActions.size}`);
 report.push(`Suspicious module UI tokens: ${moduleCssTokens.length}`);
 
 console.log('CoBook UI / FUNCTIONAL ARCHITECTURE AUDIT');

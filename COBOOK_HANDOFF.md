@@ -3,21 +3,14 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Latest code checkpoint: `cd094c1196157b6dd789ff392df0cf7c1204c435`
+- Latest code checkpoint: `5c832fa43d1a610ab80c9feca29e85ca3ab6cd76`
 - This file must always describe the actual current `main`.
 
 ## Mission
 Bring CoBook to 100% clean, stable architecture and smooth operation. Shared UI has one canonical implementation/source per component or an explicitly registered variant. Changing a shared component must predictably affect its owners and must not break unrelated functionality. Functional actions must remain independent from visual styling.
 
 ## Sources of truth
-Read before changing code:
-- `PROJECT_STATE.md`
-- `DESIGN_SYSTEM.md`
-- `UI_CONTEXT.md`
-- `UI_COMPONENTS.md`
-- `COBOOK_HANDOFF.md`
-
-Do not create a competing design system or duplicate project rules.
+Read before changing code: `PROJECT_STATE.md`, `DESIGN_SYSTEM.md`, `UI_CONTEXT.md`, `UI_COMPONENTS.md`, `COBOOK_HANDOFF.md`.
 
 ## Work protocol
 1. Inspect actual code before changing it.
@@ -28,7 +21,7 @@ Do not create a competing design system or duplicate project rules.
 6. Never declare 100% from syntax/deployment alone.
 7. If chat ends, continue from this file and actual latest `main`; do not reconstruct history.
 
-## Completed stabilization work
+## Completed stabilization
 - Single canonical `styles.css` remains the visual CSS source.
 - Core central action dispatcher and ownership map are active.
 - Tags and Wallets use canonical entity/list geometry.
@@ -39,90 +32,50 @@ Do not create a competing design system or duplicate project rules.
 - Journal date/month/mode changes use the central render pipeline.
 - Automated architecture audit exists in `tools/cobook-audit.js` and GitHub Actions.
 - Calendar grid rendering is centralized as `CoBook.ui.calendarGrid()` and both Journal and Timetable use it.
-- Time Picker trigger markup is centralized as `CoBook.ui.timePicker()` and Timetable uses it. The wheel modal remains Timetable-owned because its behavior/state is specific to schedule editing.
-- Audit now explicitly verifies Journal/Timetable ownership of calendarGrid and Timetable ownership of timePicker, and rejects duplicate calendar builders outside those modules.
+- Time Picker trigger markup is centralized as `CoBook.ui.timePicker()` and Timetable uses it; wheel modal remains Timetable-owned until another owner requires extraction.
+- Audit explicitly verifies calendarGrid/timePicker ownership and rejects duplicate calendar builders.
+- Document save refresh now uses `window.render()` rather than an ambiguous module-level `render()` call.
 
-## Calendar architecture rule
-The calendar GRID and calendar FORMATION are shared. Journal and Timetable may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies only its day-specific rendering/behavior through `renderDay`. A legitimate visual variant must be explicit; do not fork the calendar algorithm.
-
-## Time Picker architecture rule
-The trigger/control is canonical. The schedule wheel modal remains owned by Timetable until all owners/usages are audited. If another screen needs the same wheel picker, extract the modal behavior into a canonical component rather than copying it.
-
-## Current work
-Stage 2 — unified UI architecture, continuing into functional stabilization.
+## Calendar rule
+The calendar GRID and calendar FORMATION are shared. Journal and Timetable may have different data, day semantics, selected states and actions. They must not duplicate the grid-building algorithm. Each module supplies its own day-specific rendering/behavior through `renderDay`.
 
 ## Required component audit
-1. BUTTON
-2. LIST
-3. LIST_ITEM
-4. FOLDER
-5. CARD
-6. FIELD
-7. SELECT
-8. TEXTAREA
-9. MODAL
-10. BOTTOM_SHEET
-11. DROPDOWN
-12. DATE_PICKER
-13. TIME_PICKER
-14. CALENDAR
-15. EMPTY_STATE
-16. PAGE_HEADER
-17. NAVIGATION
-18. TYPOGRAPHY
-
-Subject screens:
-JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, HOME.
-
+BUTTON, LIST, LIST_ITEM, FOLDER, CARD, FIELD, SELECT, TEXTAREA, MODAL, BOTTOM_SHEET, DROPDOWN, DATE_PICKER, TIME_PICKER, CALENDAR, EMPTY_STATE, PAGE_HEADER, NAVIGATION, TYPOGRAPHY.
+Subject screens: JOURNAL, TIMETABLE, PROFILE, SERVICE, WORK_MATERIALS, DOCUMENTS, LOYALTY, TAGS, WALLETS, CLIENTS, HOME.
 Also inspect mobile geometry, spacing, radii, colors, icons and states.
 
 ## Functional audit
-Every important action must be traceable:
-`UI → data-action → dispatchAction → owner → handle → validation → state/storage → render`.
-
-Priority:
-- Save
-- Create
-- Delete
-- navigation
-- calendar changes
-- time selection
-- modal actions
-- form submission
-- file-input events
+Every important action must be traceable: `UI → data-action → dispatchAction → owner → handle → validation → state/storage → render`.
+Priority: Save, Create, Delete, navigation, calendar changes, time selection, modal actions, form submission, file-input events.
 
 ## Stages
-### 1 — factual audit
-Actual code, UI components, CSS, actions, events and functional paths.
-### 2 — unified UI architecture
-Canonical components, variants and owners; remove duplicate/local implementations.
-### 3 — functional stabilization
-Complete action routing and end-to-end Save/Create/Delete.
-### 4 — UI repair
-Bring all owners to canonical UI without changing behavior.
-### 5 — Journal + Timetable
-Full calendar/time picker/modal/function verification.
-### 6 — final regression
-Architecture + UI + functionality + desktop/mobile + cross-module regression.
+1. factual audit
+2. unified UI architecture
+3. functional stabilization
+4. UI repair
+5. Journal + Timetable verification
+6. final cross-module regression
 
 ## Final 100% gate
-Do not declare complete until all are true:
-- architecture audit: PASS;
+- architecture audit PASS;
 - no unexpected warnings;
-- JS syntax: PASS;
-- deployment: PASS;
+- JS syntax PASS;
+- deployment PASS;
 - every required component has an owner/variant map;
 - no unauthorized local CSS/style blocks/inline styles;
 - every data-action has an owner;
 - every Save/Create/Delete path is verified;
 - Calendar/Time Picker/Modal/Bottom Sheet/Dropdown are verified;
-- Journal and Timetable are verified independently;
-- desktop and mobile geometry are verified;
+- Journal and Timetable are independently verified;
+- desktop/mobile geometry verified;
 - cross-module regression passes;
 - final clean commit recorded here.
 
-## Chat interruption protocol
-If the chat is forced to stop, first update this file to the exact latest `main` HEAD and record completed checks, remaining failures and the exact next action. The final assistant message must contain a copy-ready handoff matching this file. The next chat must continue from that state without asking the user to reconstruct history.
+## Current work
+Continue Stage 2 → Stage 3. The current static audit has no reported local click routers/submit listeners/inline styles in its scanned source set, but component ownership and end-to-end behavior are not yet proven 100%.
 
 ## Exact next action
-Continue the component/variant audit and functional Save/Create/Delete audit from the latest `main`. Use the strengthened automated audit as a gate. Fix every failure at its primary source, rerun checks, and proceed only after the current target is clean.
+Run/verify CI for `5c832fa43d1a610ab80c9feca29e85ca3ab6cd76`. Then continue the component/variant audit and complete Save/Create/Delete verification. Fix primary sources, rerun checks, and proceed to Journal/Timetable and final regression only after the current target is clean.
+
+## Chat interruption protocol
+Before any forced stop, update this file to the exact latest `main` HEAD, record completed checks, remaining failures and the exact next action. The final assistant response must contain a copy-ready handoff matching this file.

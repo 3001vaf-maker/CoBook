@@ -35,11 +35,11 @@
    if(mod&&typeof mod.handle==='function')return mod.handle(action,e,e.closest('[data-modal]')||null);
  };
  const handleClick=e=>{
-   const path=typeof e.composedPath==='function'?e.composedPath():[];
-   const actionElement=path.find(node=>node&&node.nodeType===1&&typeof node.matches==='function'&&node.matches('[data-action]'))||null;
+   const target=e.target&&e.target.nodeType===1?e.target:e.target?.parentElement;
+   const actionElement=target?.closest?.('[data-action]');
    if(!actionElement)return;
    dispatchAction(actionElement.dataset.action,actionElement);
  };
- app.addEventListener('click',handleClick,true);
+ document.addEventListener('click',handleClick,true);
  window.CoBook.core={moduleFor};
 })();

@@ -29,11 +29,13 @@ Implemented in `app/shared/core.js`:
 | Component | Factory | Purpose |
 |---|---|---|
 | BUTTON | `CoBook.ui.button()` | canonical button markup/variant entry point |
+| FEATURE_BUTTON | `CoBook.ui.featureButton()` | explicit large/feature button variant for dashboard entities such as Clients |
 | FOLDER | `CoBook.ui.folder()` | canonical folder/navigation-card button structure |
 | LIST_ITEM | `CoBook.ui.listItem()` | canonical entity/list item geometry; supports explicit root action/tag |
-| FIELD | `CoBook.ui.field()` | canonical labelled input |
-| SELECT | `CoBook.ui.select()` | canonical labelled native select |
-| TEXTAREA | `CoBook.ui.textarea()` | canonical labelled textarea |
+| FIELD | `CoBook.ui.field()` | canonical labelled or explicit bare input |
+| SELECT | `CoBook.ui.select()` | canonical labelled or explicit bare native select |
+| TEXTAREA | `CoBook.ui.textarea()` | canonical labelled or explicit bare textarea |
+| FILE_FIELD | `CoBook.ui.fileField()` | canonical file input wrapper with explicit content variant |
 | MODAL | `CoBook.ui.modal()` | canonical overlay/modal shell with explicit outer variant and metadata |
 | BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | canonical bottom-sheet shell with explicit outer variant and metadata |
 | DROPDOWN | `CoBook.ui.dropdown()` | canonical dropdown shell |
@@ -49,6 +51,7 @@ A factory existing is NOT proof of full migration. Every owner/usage must be ver
 | Component | Canonical source | Current state |
 |---|---|---|
 | BUTTON | Core factory + `styles.css` | MIGRATION AUDIT |
+| FEATURE_BUTTON | Core feature factory + `styles.css` | MIGRATION AUDIT |
 | LIST | Core/list CSS contract | MIGRATION AUDIT |
 | LIST_ITEM | `CoBook.ui.listItem()` | MIGRATION AUDIT |
 | FOLDER | `CoBook.ui.folder()` + registered visual variants | MIGRATION AUDIT |
@@ -56,6 +59,7 @@ A factory existing is NOT proof of full migration. Every owner/usage must be ver
 | FIELD | `CoBook.ui.field()` | MIGRATION AUDIT |
 | SELECT | `CoBook.ui.select()` | MIGRATION AUDIT |
 | TEXTAREA | `CoBook.ui.textarea()` | MIGRATION AUDIT |
+| FILE_FIELD | `CoBook.ui.fileField()` | MIGRATION AUDIT |
 | MODAL | `CoBook.ui.modal()` | MIGRATION AUDIT |
 | BOTTOM_SHEET | `CoBook.ui.bottomSheet()` | MIGRATION AUDIT |
 | DROPDOWN | `CoBook.ui.dropdown()` | MIGRATION AUDIT |

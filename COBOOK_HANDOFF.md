@@ -3,7 +3,7 @@
 ## Current control point
 - Repository: `3001vaf-maker/CoBook`
 - Branch: `main`
-- Actual code checkpoint before this documentation commit: `45a819ec19c17d3dad6be41abc6059eeaec34293`
+- Actual code checkpoint before this documentation commit: `03d9698913bcaeb3ca6841e90f8e14fc694c1fdd`
 - This file is part of the controlled state and must always describe the actual code checkpoint immediately before the handoff documentation commit.
 
 ## Mission
@@ -32,10 +32,11 @@ If chat ends, next chat reads this file and continues from the exact checkpoint;
 - Loyalty internal navigation uses `window.render()` and no longer directly invokes its module render.
 - UI component registry includes `MOBILE_GEOMETRY`.
 - Work form `change` handling is routed through Core to Work's `handleChange`.
-- Service product image `change` handling is routed through Core to Service's `handleChange`; Service no longer installs its own document-level change listener.
+- Service product image `change` handling is routed through Core to Service's `handleChange`.
+- Document file `change` handling is routed through Core to Documents' `handleChange`.
 
 ## Automated audit state
-The previous architecture audit passed after the component registry repair and handoff synchronization. The latest Work/Core/Service code checkpoint has been created and must be verified by its architecture and syntax workflows before further structural changes are accepted.
+The latest completed architecture audit passed on the previous synchronized checkpoint. The latest code checkpoint adds only centralized change-event routing for Documents after the same pattern was applied to Work and Service; it must be verified by the next architecture and syntax runs.
 
 ## Required component audit
 BUTTONS; LISTS; FOLDERS; CARDS; FIELDS; SELECT; TEXTAREA; MODALS; BOTTOM SHEETS; DROPDOWNS; DATE PICKER; TIME PICKER; CALENDAR; JOURNAL; TIMETABLE; PROFILE; SERVICE; WORK MATERIALS; DOCUMENTS; LOYALTY; TAGS; WALLETS; CLIENTS; NAVIGATION; MOBILE GEOMETRY; TYPOGRAPHY.
@@ -53,7 +54,7 @@ Trace and verify every important Save/Create/Delete/navigation/calendar/time/mod
 6. Final cross-module regression and clean launch
 
 ## Current next action
-1. Verify architecture and JavaScript CI for code checkpoint `45a819ec19c17d3dad6be41abc6059eeaec34293`.
+1. Verify architecture and JavaScript CI for code checkpoint `03d9698913bcaeb3ca6841e90f8e14fc694c1fdd`.
 2. Fix every remaining audit failure before moving on.
 3. Complete owner/variant audit for all required components, including module-specific calendar semantics.
 4. Complete Save/Create/Delete end-to-end verification.

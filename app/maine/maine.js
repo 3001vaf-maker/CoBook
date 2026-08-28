@@ -1,6 +1,6 @@
 (function(){
   function main(){
-    const content = `
+    return `
       <section class="hero">
         <div class="eyebrow">ГЛАВНОЕ</div>
         <h1>Главная</h1>
@@ -17,7 +17,6 @@
           <span class="management-chevron">›</span>
         </button>
       </section>`;
-    return window.shell(content);
   }
 
   CoBook.modules.maine = {

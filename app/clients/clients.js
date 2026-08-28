@@ -10,8 +10,7 @@
   const button=(label,action,variant='primary',attrs='')=>CoBook.ui.button({label,action,variant,attrs,className:variant==='primary'?'full':''});
 
   function clients(){
-    const list=state.clients.length?`<div class="ui-list client-list">${state.clients.map(client=>CoBook.ui.listItem({icon:'●',title:client.name||'Без имени',subtitle:`${client.code} · ${client.phone||'Телефон не указан'}`,rootTag:'button',rootAction:'client-open',rootAttrs:`data-client-id="${esc(client.id)}"`,itemClass:'client-row'})).join('')}</div>`:`<section class="panel client-empty"><div class="panel-title">Клиентов пока нет</div><p>Создайте первую карточку клиента.</p></section>`;
-    return shell(`<section class="page-head"><div class="eyebrow">ГЛАВНАЯ</div><h1>Клиенты</h1><p>${state.clients.length} ${state.clients.length===1?'клиент':'клиентов'}</p></section>${list}${button('Добавить клиента','client-new')}${CoBook.ui.button({label:'Назад',action:'client-back',variant:'secondary',className:'back-button'})}`);
+    return shell(`<section class="page-head"><div class="eyebrow">ГЛАВНАЯ</div><h1>Клиенты</h1></section>${button('Добавить клиента','client-new')}${CoBook.ui.button({label:'Назад',action:'client-back',variant:'secondary',className:'back-button'})}`);
   }
 
   function clientCard(client){

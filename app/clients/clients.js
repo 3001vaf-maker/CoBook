@@ -69,7 +69,7 @@
       case'client-new':newClient();break;
       case'client-open':state.activeClientId=String(e.dataset.clientId||'');state.clientsView='client';window.render();break;
       case'client-save':saveClient(e.dataset.clientId);break;
-      case'client-back':state.clientsView='list';window.render();break;
+      case'client-back':state.clientsView='list';navigate('maine');break;
     }
   }
 

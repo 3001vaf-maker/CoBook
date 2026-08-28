@@ -11,7 +11,7 @@
 
   function clients(){
     const list=state.clients.length?`<div class="ui-list client-list">${state.clients.map(client=>CoBook.ui.listItem({icon:'●',title:client.name||'Без имени',subtitle:`${client.code} · ${client.phone||'Телефон не указан'}`,rootTag:'button',rootAction:'client-open',rootAttrs:`data-client-id="${esc(client.id)}"`,itemClass:'client-row'})).join('')}</div>`:`<section class="panel client-empty"><div class="panel-title">Клиентов пока нет</div><p>Создайте первую карточку клиента.</p></section>`;
-    return shell(`<section class="page-head"><div class="eyebrow">ГЛАВНАЯ</div><h1>Клиенты</h1><p>${state.clients.length} ${state.clients.length===1?'клиент':'клиентов'}</p></section>${list}${button('Добавить клиента','client-new')}${CoBook.ui.button({label:'Назад',action:'maine-back',variant:'secondary',className:'back-button'})}`);
+    return shell(`<section class="page-head"><div class="eyebrow">ГЛАВНАЯ</div><h1>Клиенты</h1><p>${state.clients.length} ${state.clients.length===1?'клиент':'клиентов'}</p></section>${list}${button('Добавить клиента','client-new')}${CoBook.ui.button({label:'Назад',action:'client-back',variant:'secondary',className:'back-button'})}`);
   }
 
   function clientCard(client){
@@ -27,12 +27,10 @@
   }
 
   function render(){
-    if(state.maineView==='clients')return clients();
-    if(state.maineView==='client'){
+    if(state.clientsView==='client'){
       const client=getClient(state.activeClientId);
       if(client)return clientCard(client);
-      state.maineView='clients';
-      return clients();
+      state.clientsView='list';
     }
     return clients();
   }
@@ -42,7 +40,7 @@
     const client={id:`client-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,code:nextCode(),name:'',surname:'',gender:'',birthDate:'',phone:'',telegram:'',email:'',programs:{bonus:'',referral:'',other:''},createdAt:now,status:'active',tags:[],notes:'',visits:[],visitCount:0,totalSpent:0};
     state.clients.push(client);
     state.activeClientId=client.id;
-    state.maineView='client';
+    state.clientsView='client';
     saveClients();
     window.render();
   }
@@ -69,9 +67,9 @@
   function handle(action,e){
     switch(action){
       case'client-new':newClient();break;
-      case'client-open':state.activeClientId=String(e.dataset.clientId||'');state.maineView='client';window.render();break;
+      case'client-open':state.activeClientId=String(e.dataset.clientId||'');state.clientsView='client';window.render();break;
       case'client-save':saveClient(e.dataset.clientId);break;
-      case'client-back':state.maineView='clients';window.render();break;
+      case'client-back':state.clientsView='list';window.render();break;
     }
   }
 

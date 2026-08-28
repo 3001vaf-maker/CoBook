@@ -1,0 +1,1 @@
+CoBook Pages deployment workflow installed. Main branch renders Accounts and Home.
